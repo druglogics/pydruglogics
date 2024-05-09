@@ -1,6 +1,8 @@
+from typing import List
+
 from gitsbe.model.SingleInteraction import SingleInteraction
 from gitsbe.model.MultipleInteraction import MultipleInteraction
-from gitsbe.utils.util import Util
+from gitsbe.utils.Util import Util
 
 
 class GeneralModel:
@@ -11,20 +13,20 @@ class GeneralModel:
         self.multiple_interactions = []
         self.model_name = None
 
-    def load_interactions_file(self, interactions_file):
+    def load_interactions_file(self, interactions_file: str) -> None:
         """
         check if interactions .sif file exists and call the load_sif_file method
         :param interactions_file:
         :return None:
         """
         file_extension = Util.get_file_extension(interactions_file)
-        if file_extension == ".sif":
+        if file_extension == '.sif':
             self.load_sif_file(interactions_file)
         else:
             print('New file extension used to load general model, currently not supported')
             raise IOError('ERROR: The extension needs to be .sif (other formats not yet supported)')
 
-    def load_sif_file(self, file_name):
+    def load_sif_file(self, file_name: str) -> None:
         """
         loads all the lines of the .sif file and initialize the single_interactions
         :param file_name:
@@ -64,7 +66,7 @@ class GeneralModel:
                     single_interaction = SingleInteraction(interaction)
                     self.single_interactions.append(single_interaction)
 
-    def build_multiple_interactions(self):
+    def build_multiple_interactions(self) -> None:
         """
         convert list of single interactions into interactions with multiple
         regulators for every single target
@@ -82,7 +84,7 @@ class GeneralModel:
                             case -1:
                                 multiple_interaction.add_inhibitory_regulator(single_inter.get_source())
                             case _:
-                                print("ERROR: Interaction effect malformed")
+                                raise RuntimeError('ERROR: Interaction effect malformed')
                 self.multiple_interactions.append(multiple_interaction)
 
         for single_interact in self.single_interactions:
@@ -93,7 +95,7 @@ class GeneralModel:
                 multiple_interact.add_activating_regulator(probable_source_node)
                 self.multiple_interactions.append(multiple_interact)
 
-    def remove_interactions(self, is_input=False, is_output=False):
+    def remove_interactions(self, is_input: bool = False, is_output: bool = False) -> None:
         """
         removes interactions from single interactions, output nodes if it has no
         outgoing edges, input nodes if it has no incoming edges or both input and output
@@ -130,7 +132,7 @@ class GeneralModel:
                 break
         print(f"Interactions after trim ({iteration_trim} iterations): {len(self.single_interactions)}\n")
 
-    def remove_self_regulated_interactions(self):
+    def remove_self_regulated_interactions(self) -> None:
         """
         removes interactions from single interactions that are self regulated
         :return None
@@ -142,42 +144,42 @@ class GeneralModel:
                 print(f"Removing self regulation:  {self.single_interactions[i].get_interaction()}")
                 self.single_interactions.pop(i)
 
-    def size(self):
+    def size(self) -> int:
         return len(self.multiple_interactions)
 
-    def is_not_a_source(self, node_name):
+    def is_not_a_source(self, node_name: str) -> bool:
         result = True
         for single_interaction in self.single_interactions:
             if node_name == single_interaction.get_source():
                 result = False
         return result
 
-    def is_not_a_target(self, node_name):
+    def is_not_a_target(self, node_name: str) -> bool:
         result = True
         for single_interaction in self.single_interactions:
             if node_name == single_interaction.get_target():
                 result = False
         return result
 
-    def get_model_name(self):
+    def get_model_name(self) -> str:
         return self.model_name
 
-    def get_single_interactions(self):
+    def get_single_interactions(self) -> List[SingleInteraction]:
         return self.single_interactions
 
-    def get_multiple_interactions(self):
+    def get_multiple_interactions(self) -> List[MultipleInteraction]:
         return self.multiple_interactions
 
-    def get_multiple_interaction(self, index):
+    def get_multiple_interaction(self, index: int) -> MultipleInteraction:
         return self.multiple_interactions[index]
 
-    def get_index_of_target_in_multiple_interactions(self, target):
+    def get_index_of_target_in_multiple_interactions(self, target: str) -> int:
         for index in range(len(self.multiple_interactions)):
             if target == self.multiple_interactions[index].get_target():
                 return index
         return -1
 
-    def set_model_name(self, model_name):
+    def set_model_name(self, model_name: str) -> None:
         self.model_name = model_name
 
     def __str__(self):

@@ -2,19 +2,19 @@ class SingleInteraction:
     def __init__(self, interaction, first_node=None, second_node=None):
         self.set_interaction(first_node, interaction, second_node)
 
-    def get_interaction(self):
+    def get_interaction(self) -> str:
         return f"{self.source} {'->' if self.arc == 1 else '-|'} {self.target}"
 
-    def get_source(self):
+    def get_source(self) -> str:
         return self.source
 
-    def get_target(self):
+    def get_target(self) -> str:
         return self.target
 
-    def get_arc(self):
+    def get_arc(self) -> int:
         return self.arc
 
-    def set_interaction(self, first_node, interaction, second_node):
+    def set_interaction(self, first_node, interaction, second_node) -> None:
         if first_node is None and second_node is None:
             tmp = interaction.split('\t')
             if len(tmp) != 3:
