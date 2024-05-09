@@ -1,7 +1,10 @@
 import os
+from typing import List
+
+
 class Util:
     @staticmethod
-    def get_file_extension(file_name):
+    def get_file_extension(file_name: str) -> str:
         """
 
         :param file_name:
@@ -17,7 +20,7 @@ class Util:
         return extension
 
     @staticmethod
-    def remove_extension(file_ext):
+    def remove_extension(file_ext: str) -> str:
         """
 
         :param file_ext:
@@ -27,11 +30,10 @@ class Util:
         name_without_extension = file_name.rsplit('.', 1)[0]
         if name_without_extension:
             return name_without_extension
-        else:
-            return file_name
+        return file_name
 
     @staticmethod
-    def read_lines_from_file(file_name, skip_empty_lines_and_comments=True):
+    def read_lines_from_file(file_name: str, skip_empty_lines_and_comments: bool = True) -> List[str]:
         """
 
         :param file_name:
@@ -48,3 +50,7 @@ class Util:
                 else:
                     lines.append(line)
         return lines
+
+    @staticmethod
+    def get_repeated_string(string: str, repeats: int) -> str:
+        return string * repeats
