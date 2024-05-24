@@ -1,9 +1,8 @@
 import random
 from typing import List
 
+from gitsbe.model.Interaction import Interaction
 from gitsbe.utils.Util import Util
-from gitsbe.model.MultipleInteraction import MultipleInteraction
-from gitsbe.model.SingleInteraction import SingleInteraction
 
 
 class BooleanEquation:
@@ -37,7 +36,7 @@ class BooleanEquation:
                 self.inhibitory_regulators.append(arg.inhibitory_regulators[index])
                 self.whitelist_inhibitory_regulators.append(arg.whitelist_inhibitory_regulators[index])
 
-        elif isinstance(arg, MultipleInteraction):
+        elif isinstance(arg, Interaction):
             self.activating_regulators = []
             self.inhibitory_regulators = []
             self.operators_activating_regulators = []
@@ -210,13 +209,13 @@ class BooleanEquation:
 
         return f" {equation.strip()} "
 
-    def get_single_interactions(self) -> List[SingleInteraction]:
-        single_interactions = []
+    def get_interactions(self) -> List[Interaction]:
+        interactions = []
         for activating_regulator in self.activating_regulators:
-            single_interactions.append(SingleInteraction('->', activating_regulator, self.target))
+            interactions.append(Interaction('->', activating_regulator, self.target))
         for inhibitory_regulator in self.inhibitory_regulators:
-            single_interactions.append(SingleInteraction('-|', inhibitory_regulator, self.target))
-        return single_interactions
+            interactions.append(Interaction('-|', inhibitory_regulator, self.target))
+        return interactions
 
     def get_target(self) -> str:
         return self.target
