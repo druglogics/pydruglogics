@@ -54,3 +54,43 @@ class Util:
     @staticmethod
     def get_repeated_string(string: str, repeats: int) -> str:
         return string * repeats
+
+    @staticmethod
+    def parse_interaction(interaction: str) -> dict:
+        tmp = interaction.split()
+        if len(tmp) != 3:
+            raise ValueError(f"ERROR: Wrongly formatted interaction: {interaction}")
+        source = tmp[0]
+        interaction_type = tmp[1]
+        target = tmp[2]
+
+        if interaction_type in ['activate', 'activates', '->']:
+            arc = 1
+        elif interaction_type in ['inhibit', 'inhibits', '-|']:
+            arc = -1
+        elif interaction_type in ['<-', '|-']:
+            arc = 1 if interaction_type == '<-' else -1
+        else:
+            print('ERROR: Wrongly formatted interaction type:')
+            print(f"Source: {source} Interaction type: {interaction_type} Target: {target}")
+            raise SystemExit(1)
+
+        return {
+            'source': source,
+            'target': target,
+            'arc': arc,
+            'activating_regulators': [],
+            'inhibitory_regulators': [],
+            'activating_regulator_complexes': [],
+            'inhibitory_regulator_complexes': []
+        }
+
+    @staticmethod
+    def create_interaction(target: str) -> dict:
+        return {
+            'target': target,
+            'activating_regulators': [],
+            'inhibitory_regulators': [],
+            'activating_regulator_complexes': [],
+            'inhibitory_regulator_complexes': []
+        }
