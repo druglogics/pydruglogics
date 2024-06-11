@@ -1,9 +1,10 @@
 from gitsbe.model.BooleanEquation import BooleanEquation
-from gitsbe.model.Interaction import Interaction
+from gitsbe.model.BooleanModel import BooleanModel
+from gitsbe.model.InteractionModel import InteractionModel
 
 if __name__ == '__main__':
     # Interaction
-    interaction = Interaction()
+    interaction = InteractionModel()
     interaction.load_sif_file('../example_model_args/toy_ags_network.sif')
     interaction.remove_interactions(True, True)
     interaction.remove_self_regulated_interactions()
@@ -15,9 +16,9 @@ if __name__ == '__main__':
         # BooleanEquation
         boolean_equation = BooleanEquation(interaction, i)
         print('Activating regulators')
-        print(boolean_equation.get_activating_regulators())
+        print(boolean_equation.activating_regulators)
         print('\nInhibitory regulators: ')
-        print(boolean_equation.get_inhibitory_regulators())
+        print(boolean_equation.inhibitory_regulators)
 
         print('\nBefore mutate regulator: ')
         print(boolean_equation.get_boolean_equation())
@@ -35,12 +36,6 @@ if __name__ == '__main__':
         print(boolean_equation.get_boolean_equation())
         boolean_equation.mutate_link_operator()
         print('After mutate link operator: ')
-        print(boolean_equation.get_boolean_equation())
-
-        print('\nBefore shuffle regulatory priority: ')
-        print(boolean_equation.get_boolean_equation())
-        boolean_equation.shuffle_random_regulatory_priority()
-        print('After shuffle regulatory priority: ')
         print(boolean_equation.get_boolean_equation())
 
         print('Covert to sif lines: ')

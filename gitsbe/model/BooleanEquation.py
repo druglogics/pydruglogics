@@ -1,48 +1,48 @@
 import random
-from typing import List
-from gitsbe.model.Interaction import Interaction
+from typing import List, Dict, Union
+from gitsbe.model.InteractionModel import InteractionModel
 from gitsbe.utils.Util import Util
 
 
 class BooleanEquation:
-    def __init__(self, arg=None, index=None):
+    def __init__(self, arg=None, interaction_index=None):
         if arg is None:
-            self.target = ''
-            self.activating_regulators = {}
-            self.inhibitory_regulators = {}
-            self.operators_activating_regulators = []
-            self.operators_inhibitory_regulators = []
-            self.link = ''
+            self._target = ''
+            self._activating_regulators: Dict[str, int] = {}
+            self._inhibitory_regulators: Dict[str, int] = {}
+            self._operators_activating_regulators: List[str] = []
+            self._operators_inhibitory_regulators: List[str] = []
+            self._link = ''
 
         elif isinstance(arg, BooleanEquation):
-            self.activating_regulators = dict(arg.activating_regulators)
-            self.inhibitory_regulators = dict(arg.inhibitory_regulators)
-            self.operators_activating_regulators = list(arg.operators_activating_regulators)
-            self.operators_inhibitory_regulators = list(arg.operators_inhibitory_regulators)
-            self.target = arg.get_target()
-            self.link = arg.get_link()
+            self._activating_regulators = arg.activating_regulators.copy()
+            self._inhibitory_regulators = arg.inhibitory_regulators.copy()
+            self._operators_activating_regulators = arg.operators_activating_regulators.copy()
+            self._operators_inhibitory_regulators = arg.operators_inhibitory_regulators.copy()
+            self._target = arg.target
+            self._link = arg.link
 
-        elif isinstance(arg, Interaction) and iter is not None:
-            self.activating_regulators = {}
-            self.inhibitory_regulators = {}
-            self.operators_activating_regulators = []
-            self.operators_inhibitory_regulators = []
+        elif isinstance(arg, InteractionModel) and interaction_index is not None:
+            self._activating_regulators = {}
+            self._inhibitory_regulators = {}
+            self._operators_activating_regulators = []
+            self._operators_inhibitory_regulators = []
 
-            self.target = arg.get_target(index)
-            tmp_activating_regulators = arg.get_activating_regulators(index)
-            tmp_inhibitory_regulators = arg.get_inhibitory_regulators(index)
+            self._target = arg.get_target(interaction_index)
+            tmp_activating_regulators = arg.get_activating_regulators(interaction_index)
+            tmp_inhibitory_regulators = arg.get_inhibitory_regulators(interaction_index)
 
-            self.link = '' if len(tmp_activating_regulators) == 0 or len(tmp_inhibitory_regulators) == 0 else 'and'
+            self._link = '' if not tmp_activating_regulators or not tmp_inhibitory_regulators else 'and'
 
             for i, regulator in enumerate(tmp_activating_regulators):
-                self.activating_regulators[regulator] = 1
+                self._activating_regulators[regulator] = 1
                 if i < (len(tmp_activating_regulators) - 1):
-                    self.operators_activating_regulators.append('or')
+                    self._operators_activating_regulators.append('or')
 
             for i, regulator in enumerate(tmp_inhibitory_regulators):
-                self.inhibitory_regulators[regulator] = 1
+                self._inhibitory_regulators[regulator] = 1
                 if i < (len(tmp_inhibitory_regulators) - 1):
-                    self.operators_inhibitory_regulators.append('or')
+                    self._operators_inhibitory_regulators.append('or')
 
         elif isinstance(arg, str):
             """
@@ -52,51 +52,37 @@ class BooleanEquation:
             <br>
             Spaces between parentheses and node names are essential (the parentheses themselves not so much)
             """
-            self.activating_regulators = {}
-            self.inhibitory_regulators = {}
-            self.operators_activating_regulators = []
-            self.operators_inhibitory_regulators = []
-            self.link = ''
+            self._activating_regulators = {}
+            self._inhibitory_regulators = {}
+            self._operators_activating_regulators = []
+            self._operators_inhibitory_regulators = []
+            self._link = ''
 
-            arg = arg.strip()
-            length = len(arg)
+            arg = (arg.strip().replace('!', ' not ').replace('&', ' and ')
+                   .replace('|', ' or '))
+            split_arg = arg.split()
+            self._target = split_arg.pop(0)
+            if split_arg.pop(0) != '*=':
+                raise ValueError("Equation must start with '*='")
 
-            while True:
-                arg = arg.replace('  ', ' ')
-                if len(arg) == length:
-                    break
-
-            arg = arg.replace('and not', 'andnot').replace('or not', 'ornot')
-            split_arg = arg.split(' ')
-            self.target = split_arg[0]
-            split_arg.pop(0)
             before_not = True
 
-            while split_arg:
-                element = split_arg[0].strip()
-                split_arg.pop(0)
-
-                match element:
-                    case '*=' | '(' | ')':
-                        pass
-                    case 'andnot':
-                        before_not = False
-                        self.link = 'and'
-                    case 'ornot':
-                        before_not = False
-                        self.link = 'or'
-                    case 'not':
-                        before_not = False
-                    case 'or' | 'and':
-                        if before_not:
-                            self.operators_activating_regulators.append(element)
-                        else:
-                            self.operators_inhibitory_regulators.append(element)
-                    case _:
-                        if before_not:
-                            self.activating_regulators[element] = 1
-                        else:
-                            self.inhibitory_regulators[element] = 1
+            for regulator in split_arg:
+                if regulator == 'not':
+                    before_not = not before_not
+                elif regulator in ('and', 'or'):
+                    if before_not:
+                        self._operators_activating_regulators.append(regulator)
+                    else:
+                        self._operators_inhibitory_regulators.append(regulator)
+                elif regulator in ('(', ')'):
+                    continue
+                else:
+                    if before_not:
+                        self._activating_regulators[regulator] = 1
+                    else:
+                        self._inhibitory_regulators[regulator] = 1
+                        before_not = True
 
     def mutate_random_operator(self) -> None:
         """
@@ -104,7 +90,7 @@ class BooleanEquation:
         :return: None
         """
         is_activating = bool(random.randint(0, 1) > 0.5)
-        operators = self.operators_activating_regulators if is_activating else self.operators_inhibitory_regulators
+        operators = self._operators_activating_regulators if is_activating else self._operators_inhibitory_regulators
         if operators:
             random_index = random.randint(0, len(operators) - 1)
             if operators[random_index].strip() == 'or':
@@ -117,42 +103,19 @@ class BooleanEquation:
         Randomly select an activating or inhibiting regulator and mutate it.
         :return: None
         """
-        if len(self.activating_regulators) + len(self.inhibitory_regulators) > 1:
+        if len(self._activating_regulators) + len(self._inhibitory_regulators) > 1:
             is_activating = bool(random.randint(0, 1) > 0.5)
-            regulators = self.activating_regulators if is_activating else self.inhibitory_regulators
+            regulators = self._activating_regulators if is_activating else self._inhibitory_regulators
             if regulators:
-                random_index = random.choice(list(regulators.keys()))
-                regulators[random_index] = 0 if regulators[random_index] == 1 else 1
+                random_key = random.choice(list(regulators.keys()))
+                regulators[random_key] = 0 if regulators[random_key] == 1 else 1
 
     def mutate_link_operator(self) -> None:
-        self.link = 'or' if self.link.strip() == 'and' else 'and'
-
-    def shuffle_random_regulatory_priority(self) -> None:
-        """
-        Randomly shuffle the priorities of the regulators.
-        e.g.
-        (  (  A )  or B ) or not  (  (  ( A )  or B )  or C )
-        (  (  B )  or A ) or not  (  (  ( B )  or A )  or C )
-        :return: None
-        """
-        is_activating = bool(random.randint(0, 1) == 1)
-        regulators = self.activating_regulators if is_activating else self.inhibitory_regulators
-        if regulators:
-            regulator_keys = list(regulators.keys())
-            random.shuffle(regulator_keys)
-            shuffled_regulators = {key: regulators[key] for key in regulator_keys}
-
-            if is_activating:
-                self.activating_regulators = shuffled_regulators
-            else:
-                self.inhibitory_regulators = shuffled_regulators
+        self._link = 'or' if self._link.strip() == 'and' else 'and'
 
     def convert_to_sif_lines(self, delimiter: str) -> List[str]:
-        lines = []
-        for activating_regulator in self.activating_regulators:
-            lines.append(f"{activating_regulator}{delimiter}->{delimiter}{self.target}")
-        for inhibitory_regulator in self.inhibitory_regulators:
-            lines.append(f"{inhibitory_regulator}{delimiter}-|{delimiter}{self.target}")
+        lines = [f"{regulator}{delimiter}->{delimiter}{self._target}" for regulator in self._activating_regulators]
+        lines += [f"{regulator}{delimiter}-|{delimiter}{self._target}" for regulator in self._inhibitory_regulators]
         return lines
 
     def get_boolean_equation(self) -> str:
@@ -161,41 +124,84 @@ class BooleanEquation:
         <i>A *=  (  (  B )  or C or ...) and not  (  ( E )  or F or ...)</i>
         :return: str
         """
-        equation = f"{self.target} *= "
-        activating_regulator_values = sum(self.activating_regulators.values())
-        inhibitory_regulator_values = sum(self.inhibitory_regulators.values())
+        equation = f"{self._target} *= "
+        activating_regulator_values = sum(self._activating_regulators.values())
+        inhibitory_regulator_values = sum(self._inhibitory_regulators.values())
 
         if activating_regulator_values > 0:
             equation += Util.get_repeated_string(' ( ', activating_regulator_values)
             equation += ' '
-            for index, (regulator, value) in enumerate(self.activating_regulators.items()):
+            for index, (regulator, value) in enumerate(self._activating_regulators.items()):
                 if value == 1:
-                    if index > 0 and sum(list(self.activating_regulators.values())[:index]) > 0:
-                        equation += f" {self.operators_activating_regulators[index - 1]} "
+                    if index > 0 and sum(list(self._activating_regulators.values())[:index]) > 0:
+                        equation += f" {self._operators_activating_regulators[index - 1]} "
                     equation += f"{regulator} ) "
 
         if activating_regulator_values > 0 and inhibitory_regulator_values > 0:
-            equation += self.link
+            equation += self._link
 
         if inhibitory_regulator_values > 0:
             equation += ' not '
             equation += Util.get_repeated_string(' ( ', inhibitory_regulator_values)
-            for index, (regulator, value) in enumerate(self.inhibitory_regulators.items()):
+            for index, (regulator, value) in enumerate(self._inhibitory_regulators.items()):
                 if value == 1:
-                    if index > 0 and sum(list(self.inhibitory_regulators.values())[:index]) > 0:
-                        equation += f" {self.operators_inhibitory_regulators[index - 1]} "
+                    if index > 0 and sum(list(self._inhibitory_regulators.values())[:index]) > 0:
+                        equation += f" {self._operators_inhibitory_regulators[index - 1]} "
                     equation += f"{regulator} ) "
 
         return f" {equation.strip()} "
 
-    def get_target(self) -> str:
-        return self.target
+    @property
+    def target(self) -> str:
+        return self._target
 
-    def get_activating_regulators(self) -> List[str]:
-        return list(self.activating_regulators.keys())
+    @target.setter
+    def target(self, target: str) -> None:
+        self._target = target
 
-    def get_inhibitory_regulators(self) -> List[str]:
-        return list(self.inhibitory_regulators.keys())
+    @property
+    def activating_regulators(self) -> Dict[str, int]:
+        return self._activating_regulators
 
-    def get_link(self) -> str:
-        return self.link
+    @activating_regulators.setter
+    def activating_regulators(self, activating_regulators: Dict[str, int]) -> None:
+        self._activating_regulators = activating_regulators
+
+    @property
+    def inhibitory_regulators(self) -> Dict[str, int]:
+        return self._inhibitory_regulators
+
+    @inhibitory_regulators.setter
+    def inhibitory_regulators(self, inhibitory_regulators: Dict[str, int]) -> None:
+        self._inhibitory_regulators = inhibitory_regulators
+
+    @property
+    def operators_activating_regulators(self) -> List[str]:
+        return self._operators_activating_regulators
+
+    @operators_activating_regulators.setter
+    def operators_activating_regulators(self, operators_activating_regulators: List[str]) -> None:
+        self._operators_activating_regulators = operators_activating_regulators
+
+    @property
+    def operators_inhibitory_regulators(self) -> List[str]:
+        return self._operators_inhibitory_regulators
+
+    @operators_inhibitory_regulators.setter
+    def operators_inhibitory_regulators(self, operators_inhibitory_regulators: List[str]) -> None:
+        self._operators_inhibitory_regulators = operators_inhibitory_regulators
+
+    @property
+    def link(self) -> str:
+        return self._link
+
+    @link.setter
+    def link(self, link: str) -> None:
+        self._link = link
+
+    def __str__(self):
+        return (f"BooleanEquation: target = {self.target}, "
+                f"activating_regulators = {self.activating_regulators}, "
+                f"inhibitory_regulators = {self.inhibitory_regulators}, "
+                f"operators_activating = {self.operators_activating_regulators}, "
+                f"operators_inhibitory = {self.operators_inhibitory_regulators}")
