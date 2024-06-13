@@ -1,6 +1,7 @@
 from gitsbe.model.BooleanEquation import BooleanEquation
 from gitsbe.model.BooleanModel import BooleanModel
 from gitsbe.model.InteractionModel import InteractionModel
+from gitsbe.model.ModelOutputs import ModelOutputs
 
 if __name__ == '__main__':
     # Interaction
@@ -40,3 +41,13 @@ if __name__ == '__main__':
 
         print('Covert to sif lines: ')
         print(boolean_equation.convert_to_sif_lines('\t'))
+
+    # ModelOutputs
+    modeloutputs = ModelOutputs('../example_model_args/toy_ags_modeloutputs.tab')
+    ModelOutputs.initialize('../example_model_args/toy_ags_modeloutputs.tab')
+
+    # Attractor calculation
+    boolean_model_bnet = BooleanModel(file='../example_model_args/ap-1_else-0_wt.bnet')
+    print("Attractors")
+    print(boolean_model_bnet.attractors)
+    print(boolean_model_bnet.calculate_global_output())
