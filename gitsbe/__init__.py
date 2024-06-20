@@ -1,7 +1,8 @@
+from gitsbe.input.TrainingData import TrainingData
 from gitsbe.model.BooleanEquation import BooleanEquation
 from gitsbe.model.BooleanModel import BooleanModel
 from gitsbe.model.InteractionModel import InteractionModel
-from gitsbe.model.ModelOutputs import ModelOutputs
+from gitsbe.input.ModelOutputs import ModelOutputs
 
 if __name__ == '__main__':
     # Interaction
@@ -47,7 +48,16 @@ if __name__ == '__main__':
     ModelOutputs.initialize('../example_model_args/toy_ags_modeloutputs.tab')
 
     # Attractor calculation
-    boolean_model_bnet = BooleanModel(file='../example_model_args/ap-1_else-0_wt.bnet')
-    print("Attractors")
+    boolean_model_bnet = BooleanModel(file='../example_model_args/ap-1_else-0_wt.bnet', model_name='test')
+    print('\nAttractors')
     print(boolean_model_bnet.attractors)
+    print('\nGlobal output')
     print(boolean_model_bnet.calculate_global_output())
+
+    print('\n Training data')
+    training_data = TrainingData('../example_model_args/toy_ags_training_data.tab')
+    TrainingData.initialize('../example_model_args/toy_ags_training_data.tab')
+    print(training_data)
+
+    boolean_model_bnet.calculate_fitness('biolqm')
+    print(boolean_model_bnet.topology_mutations(2))
