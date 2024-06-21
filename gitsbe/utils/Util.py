@@ -56,6 +56,14 @@ class Util:
         return string * repeats
 
     @staticmethod
+    def is_numeric_string(value):
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
     def parse_interaction(interaction: str) -> dict:
         tmp = interaction.split()
         if len(tmp) != 3:
