@@ -1,22 +1,22 @@
-from typing import List
-
+import random
 import biolqm
 import mpbn
 import pyboolnet
-from pyboolnet.trap_spaces import compute_trap_spaces, compute_steady_states
+from pyboolnet.trap_spaces import compute_trap_spaces
 from pyboolnet import file_exchange
-
-from gitsbe.model.ModelOutputs import ModelOutputs
+from gitsbe.input.TrainingData import TrainingData
+from gitsbe.input.ModelOutputs import ModelOutputs
 from gitsbe.model.BooleanEquation import BooleanEquation
 from gitsbe.utils.Util import Util
 
 
 class BooleanModel:
-    def __init__(self, model=None, file='', attractor_tool=''):
-        self._model_name = None
+    def __init__(self, model=None, file='', attractor_tool='', model_name=''):
+        self._model_name = model_name
         self._boolean_equations = []
         self._attractors = []
         self._attractor_tool = attractor_tool
+        self._fitness = 0
         self._file = file
 
         if model is not None:
@@ -146,6 +146,88 @@ class BooleanModel:
         global_output /= len(self._attractors)
         return (global_output - outputs.min_output) / (outputs.max_output - outputs.min_output)
 
+    def calculate_fitness(self, attractor_tool: str) -> None:
+        """
+        Calculate fitness of model by going through all the observations defined in the
+        training data and computing individual fitness values for each one of them.
+        :param attractor_tool:
+        """
+        data = TrainingData.get_instance()
+        self._fitness = 0
+
+        for condition_number, observation in enumerate(data.observations):
+            condition_fitness = 0
+            response = observation['response']
+            weight = observation['weight']
+            mutated_boolean_model = BooleanModel(file=self._file)
+            mutated_boolean_model.model_name = f"{self._model_name}_condition_{condition_number}"
+            mutated_boolean_model.calculate_attractors(attractor_tool)
+            attractors_with_nodes = mutated_boolean_model.attractors[0]
+
+            if mutated_boolean_model.has_attractors():
+                if response[0].split(":")[0] == "globaloutput":
+                    observed_global_output = float(response[0].split(":")[1])
+                    predicted_global_output = mutated_boolean_model.calculate_global_output()
+                    condition_fitness = 1 - abs(predicted_global_output - observed_global_output)
+                else:
+                    if mutated_boolean_model.has_stable_states():
+                        condition_fitness += 1
+
+                    average_match = 0
+                    found_observations = 0
+                    matches = []
+
+                    for index_state in range(1, attractors_with_nodes.__sizeof__()):
+                        match_sum = 0
+                        found_observations = 0
+
+                        for response_str in response:
+                            node, observation = response_str.split(":")
+                            index_node = self.get_index_of_equation(node)
+
+                            if index_node >= 0:
+                                found_observations += 1
+                                node_state = observation
+                                state_value = 0.5 if node_state == "-" else float(node_state)
+                                match = 1 - abs(state_value - float(observation))
+                                match_sum += match
+
+                        matches.append(match_sum)
+
+                    for match in matches:
+                        average_match += match
+                    average_match /= len(matches)
+                    condition_fitness += average_match
+
+                    if found_observations > 0:
+                        if mutated_boolean_model.has_stable_states():
+                            condition_fitness /= (found_observations + 1)
+                        else:
+                            condition_fitness /= found_observations
+
+            self._fitness += condition_fitness * weight / data.get_weight_sum()
+        print(f"\nCalculating fitness..")
+        print(f"Scaled fitness [0..1] for model [{self.model_name}]:  {self._fitness}")
+
+    def get_index_of_equation(self, node_name: str) -> int:
+        for index, equation in enumerate(self._boolean_equations):
+            if equation.target == node_name:
+                return index
+        return -1
+
+    def topology_mutations(self, number_of_mutations: int) -> None:
+        """
+        Introduce mutations to topology, removing regulators of nodes (not all regulators for any node)
+        :param number_of_mutations:
+        """
+        for _ in range(number_of_mutations):
+            random_equation_index = random.randint(0, len(self._boolean_equations) - 1)
+            orig = self._boolean_equations[random_equation_index].get_boolean_equation()
+            self._boolean_equations[random_equation_index].mutate_regulator()
+            if self._boolean_equations[random_equation_index].get_boolean_equation() != orig:
+                print(f"Exchanging equation {random_equation_index}\n\t{orig}\n\t"
+                      f"{self._boolean_equations[random_equation_index].get_boolean_equation()}\n")
+
     def reset_attractors(self) -> None:
         self._attractors = []
 
@@ -163,12 +245,20 @@ class BooleanModel:
         return self._boolean_equations
 
     @property
+    def model_name(self) -> str:
+        return self._model_name
+
+    @property
     def attractors(self) -> object:
         return self._attractors
 
     @property
     def attractor_tool(self) -> str:
         return self._attractor_tool
+
+    @model_name.setter
+    def model_name(self, model_name: str) -> None:
+        self._model_name = model_name
 
     def __str__(self):
         return f"Attractors: {self.attractors}, BE: {self.boolean_equations}"
