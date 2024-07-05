@@ -1,8 +1,12 @@
 from gitsbe.input.TrainingData import TrainingData
 from gitsbe.model.BooleanEquation import BooleanEquation
 from gitsbe.model.BooleanModel import BooleanModel
+from gitsbe.model.Evolution import Evolution
 from gitsbe.model.InteractionModel import InteractionModel
 from gitsbe.input.ModelOutputs import ModelOutputs
+
+import pygad
+import numpy as np
 
 if __name__ == '__main__':
     # Interaction
@@ -28,12 +32,6 @@ if __name__ == '__main__':
         print('After mutate regulator: ')
         print(boolean_equation.get_boolean_equation())
 
-        print('\nBefore mutate random operator: ')
-        print(boolean_equation.get_boolean_equation())
-        boolean_equation.mutate_random_operator()
-        print('After random operator: ')
-        print(boolean_equation.get_boolean_equation())
-
         print('\nBefore mutate link operator: ')
         print(boolean_equation.get_boolean_equation())
         boolean_equation.mutate_link_operator()
@@ -47,17 +45,25 @@ if __name__ == '__main__':
     modeloutputs = ModelOutputs('../example_model_args/toy_ags_modeloutputs.tab')
     ModelOutputs.initialize('../example_model_args/toy_ags_modeloutputs.tab')
 
-    # Attractor calculation
-    boolean_model_bnet = BooleanModel(file='../example_model_args/ap-1_else-0_wt.bnet', model_name='test')
-    print('\nAttractors')
-    print(boolean_model_bnet.attractors)
-    print('\nGlobal output')
-    print(boolean_model_bnet.calculate_global_output())
-
-    print('\n Training data')
     training_data = TrainingData('../example_model_args/toy_ags_training_data.tab')
     TrainingData.initialize('../example_model_args/toy_ags_training_data.tab')
-    print(training_data)
 
-    boolean_model_bnet.calculate_fitness('biolqm')
-    print(boolean_model_bnet.topology_mutations(2))
+    # Boolean Model init, PyGAD run
+    boolean_model_bnet = BooleanModel(file='../example_model_args/ap-1_else-0_wt.bnet', model_name='test')
+
+    ga_args = {
+        'num_generations': 50,
+        'num_parents_mating': 2,
+        'fitness_batch_size': 10,
+        'sol_per_pop': 100,
+        'num_genes': 10,
+        'parent_selection_type': "sss",
+        'crossover_type': "single_point",
+        'mutation_percent_genes': 20,
+        'mutation_type': 'mixed',  # can be 'balanced', 'topology' or 'mixed'
+        'population_size': 20,
+        'number_of_mutations': 2
+    }
+
+    evolution = Evolution(boolean_model_bnet, ga_args)
+    evolution.run_pygad()

@@ -102,3 +102,15 @@ class Util:
             'activating_regulator_complexes': [],
             'inhibitory_regulator_complexes': []
         }
+
+    @staticmethod
+    def bnet_string_to_dict(bnet_string: str):
+        lines = [line.strip() for line in bnet_string.split('\n') if line.strip()]
+        result = {}
+        for line in lines:
+            node, definition = line.split(',', 1)
+            node = node.strip()
+            definition = definition.strip()
+            result[node] = definition
+
+        return result

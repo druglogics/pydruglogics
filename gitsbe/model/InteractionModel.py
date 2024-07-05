@@ -174,8 +174,10 @@ class InteractionModel:
     def __str__(self):
         multiple_interaction = ''
         for interation in self._interactions:
-            multiple_interaction += (f"{interation['target']} <- {interation['activating_regulators']} "
-                                     f"{interation['activating_regulator_complexes']} ! "
-                                     f"{interation['inhibitory_regulators']} "
+            multiple_interaction += (f"Target: {interation['target']} <- "
+                                     f"activating regulators: {interation['activating_regulators']}  "
+                                     f"activating regulator complexes: {interation['activating_regulator_complexes']}  "
+                                     f"inhibitory regulators: {interation['inhibitory_regulators']}  "
+                                     f"inhibitory regulators complexes: "
                                      f"{interation['inhibitory_regulator_complexes']}\n")
         return multiple_interaction

@@ -1,7 +1,6 @@
 import random
-from typing import List, Dict, Union
+from typing import List, Dict
 from gitsbe.model.InteractionModel import InteractionModel
-from gitsbe.utils.Util import Util
 
 
 class BooleanEquation:
@@ -73,8 +72,10 @@ class BooleanEquation:
                 elif regulator in ('and', 'or'):
                     if before_not:
                         self._operators_activating_regulators.append(regulator)
+                        self._link = 'and'
                     else:
                         self._operators_inhibitory_regulators.append(regulator)
+                        self._link = 'or'
                 elif regulator in ('(', ')'):
                     continue
                 else:
@@ -83,6 +84,8 @@ class BooleanEquation:
                     else:
                         self._inhibitory_regulators[regulator] = 1
                         before_not = True
+
+            self._link = '' if not self._activating_regulators or not self._inhibitory_regulators else 'and'
 
     def mutate_random_operator(self) -> None:
         """
@@ -109,9 +112,13 @@ class BooleanEquation:
             if regulators:
                 random_key = random.choice(list(regulators.keys()))
                 regulators[random_key] = 0 if regulators[random_key] == 1 else 1
+                # print('test')
 
     def mutate_link_operator(self) -> None:
-        self._link = 'or' if self._link.strip() == 'and' else 'and'
+        if self._link == '':
+            pass
+        else:
+            self._link = 'or' if self._link.strip() == 'and' else 'and'
 
     def convert_to_sif_lines(self, delimiter: str) -> List[str]:
         lines = [f"{regulator}{delimiter}->{delimiter}{self._target}" for regulator in self._activating_regulators]
@@ -121,7 +128,7 @@ class BooleanEquation:
     def get_boolean_equation(self) -> str:
         """
         Returns the string of the equation represented in the Booleannet format: <br>
-        <i>A *=  (  (  B )  or C or ...) and not  (  ( E )  or F or ...)</i>
+        <i>A *=  B or C or ... and not E or F or ...</i>
         :return: str
         """
         equation = f"{self._target} *= "
@@ -129,27 +136,110 @@ class BooleanEquation:
         inhibitory_regulator_values = sum(self._inhibitory_regulators.values())
 
         if activating_regulator_values > 0:
-            equation += Util.get_repeated_string(' ( ', activating_regulator_values)
-            equation += ' '
             for index, (regulator, value) in enumerate(self._activating_regulators.items()):
                 if value == 1:
                     if index > 0 and sum(list(self._activating_regulators.values())[:index]) > 0:
                         equation += f" {self._operators_activating_regulators[index - 1]} "
-                    equation += f"{regulator} ) "
+                    equation += f"{regulator} "
 
         if activating_regulator_values > 0 and inhibitory_regulator_values > 0:
             equation += self._link
 
         if inhibitory_regulator_values > 0:
             equation += ' not '
-            equation += Util.get_repeated_string(' ( ', inhibitory_regulator_values)
             for index, (regulator, value) in enumerate(self._inhibitory_regulators.items()):
                 if value == 1:
                     if index > 0 and sum(list(self._inhibitory_regulators.values())[:index]) > 0:
                         equation += f" {self._operators_inhibitory_regulators[index - 1]} "
-                    equation += f"{regulator} ) "
+                    equation += f"{regulator} "
 
-        return f" {equation.strip()} "
+        final_value = equation.strip()
+        return final_value
+
+    def to_bnet_format(self):
+        equation = f"{self._target}, "
+        activating_regulator_values = sum(self._activating_regulators.values())
+        inhibitory_regulator_values = sum(self._inhibitory_regulators.values())
+
+        activation_terms = []
+        inhibition_terms = []
+
+        if activating_regulator_values > 0:
+            for index, (regulator, value) in enumerate(self._activating_regulators.items()):
+                if value == 1:
+                    activation_terms.append(regulator)
+
+        if inhibitory_regulator_values > 0:
+            for index, (regulator, value) in enumerate(self._inhibitory_regulators.items()):
+                if value == 1:
+                    inhibition_terms.append(f"!{regulator}")
+
+        activation_expression = " & ".join(activation_terms)
+        inhibition_expression = " & ".join(inhibition_terms)
+
+        if activation_expression and inhibition_expression:
+            combined_expression = f"{activation_expression} & ({inhibition_expression})"
+        elif activation_expression:
+            combined_expression = activation_expression
+        elif inhibition_expression:
+            combined_expression = inhibition_expression
+        else:
+            combined_expression = "false"
+
+        final_value = f"{equation.strip()} {combined_expression.strip()}\n"
+
+        modified_string = final_value.replace('(', '').replace(')', '')
+
+        return modified_string
+
+    def modify_activating_values_from_list(self, new_values):
+        new_values = [int(value) for value in new_values]
+        keys_act = list(self._activating_regulators.keys())
+        if len(new_values) > len(keys_act):
+            new_values = new_values[:len(keys_act)]
+        elif len(new_values) < len(keys_act):
+            extra_keys_needed = len(keys_act) - len(new_values)
+            new_values.extend([0] * extra_keys_needed)
+
+        for i, key in enumerate(keys_act):
+            self._activating_regulators[key] = new_values[i]
+
+        if len(new_values) > len(keys_act):
+            for value in new_values[len(keys_act):]:
+                self._activating_regulators[''] = value
+
+    def modify_inhibitory_values_from_list(self, new_values: List[int]):
+        new_values = [int(value) for value in new_values]
+        keys = list(self._inhibitory_regulators.keys())
+        if len(new_values) > len(keys):
+            new_values = new_values[:len(keys)]
+        elif len(new_values) < len(keys):
+            extra_keys_needed = len(keys) - len(new_values)
+            new_values.extend([0] * extra_keys_needed)
+
+        for i, key in enumerate(keys):
+            self._inhibitory_regulators[key] = new_values[i]
+
+        if len(new_values) > len(keys):
+            for value in new_values[len(keys):]:
+                self._inhibitory_regulators[''] = value
+
+    def modify_link_from_list(self, new_values: List[int]):
+        new_values = [int(value) for value in new_values]
+        last_value = new_values[-1]
+        if last_value == -1:
+            pass
+        if last_value == 0:
+            self._link = 'or'
+        if last_value == 1:
+            self._link = 'and'
+
+    def initialize_inhibitory_regulators(self, new_values: List[float]):
+        int_values = [int(value) for value in new_values[:3]]
+        int_values += [0] * (3 - len(int_values))
+
+        keys = ['key1', 'key2', 'key3']
+        self._inhibitory_regulators = {keys[i]: int_values[i] for i in range(3)}
 
     @property
     def target(self) -> str:
@@ -162,6 +252,12 @@ class BooleanEquation:
     @property
     def activating_regulators(self) -> Dict[str, int]:
         return self._activating_regulators
+
+    def get_values_activating_regulators(self):
+        return list(self._activating_regulators.values())
+
+    def get_values_inhibitory_regulators(self):
+        return list(self._inhibitory_regulators.values())
 
     @activating_regulators.setter
     def activating_regulators(self, activating_regulators: Dict[str, int]) -> None:
@@ -201,6 +297,7 @@ class BooleanEquation:
 
     def __str__(self):
         return (f"BooleanEquation: target = {self.target}, "
+                f"link_operator = {self.link}, "
                 f"activating_regulators = {self.activating_regulators}, "
                 f"inhibitory_regulators = {self.inhibitory_regulators}, "
                 f"operators_activating = {self.operators_activating_regulators}, "

@@ -55,7 +55,7 @@ class TrainingData:
                     'weight': weight
                 })
             line_index += 1
-
+    @property
     def get_weight_sum(self):
         return sum(observation['weight'] for observation in self._observations)
 
