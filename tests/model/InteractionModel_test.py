@@ -1,5 +1,4 @@
 import pytest
-
 from gitsbe import InteractionModel
 from gitsbe.utils.Util import Util
 
@@ -26,8 +25,7 @@ def test_initialization_with_valid_list():
     ]
     valid_model = InteractionModel(interactions)
     assert valid_model.size() == 2, 'The model should be initialized with the provided test interactions'
-    assert valid_model.get_interactions() == interactions, ('The model interactions should match the provided '
-                                                            'test interactions')
+    assert valid_model.interactions == interactions, 'The model interactions should match the provided test interactions'
 
 
 def test_load_non_sif_file(mocker):
