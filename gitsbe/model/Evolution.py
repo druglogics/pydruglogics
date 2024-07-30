@@ -1,9 +1,10 @@
+import numpy as np
 import pygad
-from gitsbe import BooleanModel, TrainingData
+from gitsbe.model.BooleanModelOptimizer import BooleanModelOptimizer
 
 
-class Evolution:
-    def __init__(self, boolean_model=None, ga_args=None):
+class Evolution(BooleanModelOptimizer):
+    def __init__(self, boolean_model=None, training_data=None, model_outputs=None, ga_args=None):
         """
         Initializes the Evolution class with a BooleanModel and genetic algorithm parameters.
         :param boolean_model: The boolean model to be evolved.
@@ -12,115 +13,118 @@ class Evolution:
         self._boolean_model = boolean_model
         self._ga_args = ga_args or {}
         self._best_models = []
-        self._mutation_number = self._ga_args.get('number_of_mutations')
-        self._initial_population = self.create_initial_population(mutation_type=self._ga_args.get('mutation_type'),
-                                                                  population_size=self._ga_args.get('population_size'))
-        self._mutation_type = self.select_mutation(self._ga_args.get('mutation_type'))
+        self.mutation_number = self._ga_args.get('number_of_mutations')
+        self._initial_population = boolean_model.generate_mutated_lists(10, 3)
+        self._mutation_type = 'topology'
+        self._training_data = training_data
+        self._model_outputs = model_outputs
 
-    def select_mutation(self, mutation_type):
-        if mutation_type == 'balanced':
-            return self.balanced_mutation
-        elif mutation_type == 'topology':
-            return self.topology_mutation
-        elif mutation_type == 'mixed':
-            return self.mixed_mutation
-        else:
-            raise ValueError(f"Unknown mutation type: {mutation_type}. Possible values are 'balanced', 'topology', "
-                             f"and 'mixed'")
+        if self._training_data is None or self._model_outputs is None:
+            raise ValueError('Please provide training data and model outputs.')
 
-    def create_initial_population(self, mutation_type, population_size):
-        initial_population = []
-        mut_number = self._mutation_number
-
-        for _ in range(population_size):
-            if mutation_type == 'balanced':
-                self._boolean_model.balance_mutation(mut_number)
-                initial_population.append(self._boolean_model.to_binary('balanced'))
-            elif mutation_type == 'topology':
-                self._boolean_model.topology_mutations(mut_number)
-                initial_population.append(self._boolean_model.to_binary('topology'))
-            elif mutation_type == 'mixed':
-                self._boolean_model.balance_mutation(mut_number)
-                self._boolean_model.topology_mutations(mut_number)
-                initial_population.append(self._boolean_model.to_binary('mixed'))
-
-        return initial_population
+    # def select_mutation(self, mutation_type):
+    #     if mutation_type == 'balanced':
+    #         return self.balanced_mutation
+    #     elif mutation_type == 'topology':
+    #         return self.topology_mutation
+    #     elif mutation_type == 'mixed':
+    #         return self.mixed_mutation
+    #     else:
+    #         raise ValueError(f"Unknown mutation type: {mutation_type}. Possible values are 'balanced', 'topology', "
+    #                          f"and 'mixed'")
+    #
 
     def calculate_fitness(self, ga_instance, solutions, solutions_idx):
         """
         Calculate fitness of models by going through all the observations defined in the
         training data and computing individual fitness values for each one of them.
         """
-        attractor_tool = self._boolean_model.attractor_tool
-        training_data = TrainingData.get_instance()
         fitness_values = []
 
-        for solution, solution_idx in zip(solutions, solutions_idx):
-            fitness = 0
-            if self._ga_args.get('mutation_type') == 'mixed':
-                self._boolean_model.update_boolean_model_both(solution)
-            elif self._ga_args.get('mutation_type') == 'topology':
-                self._boolean_model.update_boolean_model_topology(solution)
-            elif self._ga_args.get('mutation_type') == 'balanced':
-                self._boolean_model.update_boolean_model_balance(solution)
+        for solution in solutions:
+            self._boolean_model.from_binary(solution, self._mutation_type)
+            self._boolean_model.calculate_attractors(self._boolean_model.attractor_tool)
+            responses = self._training_data.responses
 
-            self._boolean_model.calculate_attractors(attractor_tool)
+            if "globaloutput" in responses[0]:
+                observed_global_output = float(responses[0].split(":")[1])
+                predicted_global_output = self.calculate_global_output()
+                condition_fitness = 1 - abs(predicted_global_output - observed_global_output)
+                fitness_values.append(condition_fitness)
 
-            for condition_number, observation in enumerate(training_data.observations):
-                condition_fitness = 0
-                response = observation['response']
-                weight = observation['weight']
-                condition = observation['condition']
+                print('\nCalculating fitness..')
+                print(f"Scaled fitness [0..1] for solution {solutions_idx}:  {condition_fitness}")
 
-                mutated_boolean_model = self._boolean_model
-                mutated_boolean_model.model_name = f"{self._boolean_model.model_name}_condition_{condition_number}"
-                mutated_boolean_model.update_boolean_model_both(solution)
-                mutated_boolean_model.calculate_attractors(attractor_tool)
+            else:
+                attractors = self._boolean_model.attractors
+                if not attractors:
+                    fitness_values.append(0)
+                    continue
 
-                if response[0].split(":")[0] == "globaloutput":
-                    observed_global_output = float(response[0].split(":")[1])
-                    predicted_global_output = mutated_boolean_model.calculate_global_output()
-                    condition_fitness = 1 - abs(predicted_global_output - observed_global_output)
+                total_matches = []
+
+                for attractor in attractors:
+                    matches = self._calculate_matches(attractor)
+                    total_matches.append(matches)
+
+                if len(total_matches) > 1:
+                    average_matches = np.mean(total_matches)
+                    fitness = average_matches / len(self._training_data.responses)
                 else:
-                    if mutated_boolean_model.has_stable_states():
-                        condition_fitness += 1
+                    fitness = total_matches[0] / len(self._training_data.responses)
+                fitness_values.append(fitness)
 
-                    average_match = 0
-                    found_observations = 0
-                    matches = []
-
-                    for attractor in mutated_boolean_model.attractors:
-                        match_sum = 0
-                        for response_str in response:
-                            node, observation = response_str.split(":")
-                            index_of_node = mutated_boolean_model.get_index_of_equation(node)
-                            if index_of_node >= 0:
-                                found_observations += 1
-                                node_state = attractor.get(node)
-                                state_value = 0.5 if node_state == "-" else float(node_state)
-                                match = 1 - abs(state_value - float(observation))
-                                match_sum += match
-
-                        matches.append(match_sum)
-
-                    if matches:
-                        average_match = sum(matches) / len(matches)
-                    condition_fitness += average_match
-
-                    if found_observations > 0:
-                        if mutated_boolean_model.has_stable_states():
-                            condition_fitness /= (found_observations + 1)
-                        else:
-                            condition_fitness /= found_observations
-
-                fitness += condition_fitness * weight / training_data.get_weight_sum
-
-            print('\nCalculating fitness..')
-            print(f"Scaled fitness [0..1] for solution {solution_idx}:  {fitness}")
-
-            fitness_values.append(fitness)
+                print('\nCalculating fitness..')
+                print(f"Scaled fitness [0..1] for solution {solutions_idx}:  {fitness}")
 
         return fitness_values
+
+    def _calculate_matches(self, attractor):
+        total_matches = 0
+        responses = self._training_data.responses
+        weights = self._training_data.weights
+
+        match_score = 0
+        for node_response in responses:
+            node, expected_value = node_response.split(":")
+            expected_value = float(expected_value)
+            if node not in attractor:
+                continue
+
+            actual_value = attractor[node]
+            if actual_value in [0, 1]:
+                match_score += 1 - abs(expected_value - actual_value)
+            else:
+                match_score += 1 - abs(expected_value - 0.5)
+
+        weighted_match_score = match_score * weights[0]
+        total_matches += weighted_match_score
+
+        return total_matches
+
+    def calculate_global_output(self) -> float:
+        """
+        Use this function after you have calculated attractors with the calculate_attractors function
+        in order to find the normalized globaloutput of the model, based on the weights of the nodes
+        defined in the ModelOutputs class.
+        :return: float
+        """
+        if not self._boolean_model.attractors:
+            raise ValueError("No attractors found. Ensure calculate_attractors() has been called.")
+
+        pred_global_output = 0.0
+
+        for attractor in self._boolean_model.attractors:
+            for node_name, node_weight in self._model_outputs.model_outputs.items():
+                if node_name not in attractor:
+                    continue
+                node_state = attractor[node_name]
+                state_value = int(node_state) if node_state in [0, 1] else 0.5
+                pred_global_output += state_value * node_weight
+
+        pred_global_output /= len(self._boolean_model.attractors)
+        return (pred_global_output - self._model_outputs.min_output) / (
+                    self._model_outputs.max_output - self._model_outputs.min_output)
 
     def balanced_mutation(self, offspring, ga_instance):
         for individual in offspring:
@@ -144,27 +148,25 @@ class Evolution:
             individual[:] = self._boolean_model.to_binary('mixed')
         return offspring
 
-    def run_pygad(self):
+    def run(self):
         initial_mutated_population = self._initial_population
         ga_instance = pygad.GA(
-            num_generations=self._ga_args.get('num_generations', 50),
-            num_parents_mating=self._ga_args.get('num_parents_mating', 2),
+            num_generations=self._ga_args.get('num_generations'),
+            num_parents_mating=self._ga_args.get('num_parents_mating'),
             fitness_func=self.calculate_fitness,
             fitness_batch_size=self._ga_args.get('fitness_batch_size', len(initial_mutated_population)),
-            sol_per_pop=self._ga_args.get('sol_per_pop', 100),
+            sol_per_pop=self._ga_args.get('sol_per_pop'),
+            gene_space=[0, 1],
             num_genes=len(initial_mutated_population),
             initial_population=initial_mutated_population,
             parent_selection_type=self._ga_args.get('parent_selection_type', "sss"),
             crossover_type=self._ga_args.get('crossover_type', "single_point"),
-            mutation_type=self._mutation_type,
-            mutation_percent_genes=self._ga_args.get('mutation_percent_genes', 10)
+            mutation_type='random',
+            mutation_percent_genes=self._ga_args.get('mutation_percent_genes'),
+            parallel_processing=self._ga_args.get('parallel_processing')
         )
 
         ga_instance.run()
         solution, solution_fitness, solution_idx = ga_instance.best_solution()
         print(f"Best solution: {solution}")
         print(f"Best solution fitness: {solution_fitness}")
-
-    @property
-    def boolean_model(self):
-        return self._boolean_model

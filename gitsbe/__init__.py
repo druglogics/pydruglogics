@@ -4,66 +4,50 @@ from gitsbe.model.BooleanModel import BooleanModel
 from gitsbe.model.Evolution import Evolution
 from gitsbe.model.InteractionModel import InteractionModel
 from gitsbe.input.ModelOutputs import ModelOutputs
-
-import pygad
-import numpy as np
+import time
 
 if __name__ == '__main__':
     # Interaction
     interaction = InteractionModel()
-    interaction.load_sif_file('../example_model_args/toy_ags_network.sif')
-    interaction.remove_interactions(True, True)
-    interaction.remove_self_regulated_interactions()
+    interaction.load_sif_file('../example_model_args/toy_ags2_network.sif')
     interaction.build_multiple_interactions()
     print('Interactions')
     print(interaction)
 
-    for i in range(interaction.size()):
-        # BooleanEquation
-        boolean_equation = BooleanEquation(interaction, i)
-        print('Activating regulators')
-        print(boolean_equation.activating_regulators)
-        print('\nInhibitory regulators: ')
-        print(boolean_equation.inhibitory_regulators)
-
-        print('\nBefore mutate regulator: ')
-        print(boolean_equation.get_boolean_equation())
-        boolean_equation.mutate_regulator()
-        print('After mutate regulator: ')
-        print(boolean_equation.get_boolean_equation())
-
-        print('\nBefore mutate link operator: ')
-        print(boolean_equation.get_boolean_equation())
-        boolean_equation.mutate_link_operator()
-        print('After mutate link operator: ')
-        print(boolean_equation.get_boolean_equation())
-
-        print('Covert to sif lines: ')
-        print(boolean_equation.convert_to_sif_lines('\t'))
-
     # ModelOutputs
-    modeloutputs = ModelOutputs('../example_model_args/toy_ags_modeloutputs.tab')
-    ModelOutputs.initialize('../example_model_args/toy_ags_modeloutputs.tab')
+    model_outputs = ModelOutputs('../example_model_args/toy_ags2_modeloutputs.tab')
 
-    training_data = TrainingData('../example_model_args/toy_ags_training_data.tab')
-    TrainingData.initialize('../example_model_args/toy_ags_training_data.tab')
+    # TrainingData
+    training_data = TrainingData('../example_model_args/toy_ags2_training_data.tab')
 
-    # Boolean Model init, PyGAD run
-    boolean_model_bnet = BooleanModel(file='../example_model_args/ap-1_else-0_wt.bnet', model_name='test')
+    # BooleanModel init from .bnet file
+    boolean_model_bnet = BooleanModel(file='../example_model_args/toy_ags2_equations.bnet', model_name='test')
+    boolean_model_bnet.to_binary('topology')
+    boolean_model_bnet.generate_mutated_lists(5, 1)
 
+    # BooleanModel init from .sif file
+    boolean_model_sif = BooleanModel(model=interaction, model_name='test2')
+    boolean_model_sif.to_binary('topology')
+    boolean_model_sif.generate_mutated_lists(5, 1)
+
+    # init pygad.GA
     ga_args = {
-        'num_generations': 50,
+        'num_generations': 30,
         'num_parents_mating': 2,
         'fitness_batch_size': 10,
         'sol_per_pop': 100,
         'num_genes': 10,
         'parent_selection_type': "sss",
         'crossover_type': "single_point",
-        'mutation_percent_genes': 20,
-        'mutation_type': 'mixed',  # can be 'balanced', 'topology' or 'mixed'
+        'mutation_percent_genes': 40,
         'population_size': 20,
-        'number_of_mutations': 2
+        'number_of_mutations': 5,
+        'parallel_processing': 12
     }
-
-    evolution = Evolution(boolean_model_bnet, ga_args)
-    evolution.run_pygad()
+    start_time = time.time()
+    evolution = Evolution(boolean_model=boolean_model_bnet, training_data=training_data,
+                          model_outputs=model_outputs, ga_args=ga_args)
+    evolution.run()
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"Total runtime: {elapsed_time} seconds")

@@ -1,78 +1,78 @@
+from typing import List, Dict, Union
 from gitsbe.utils.Util import Util
 
-
 class TrainingData:
-    training_data = None
-
-    def __init__(self, filename):
+    def __init__(self, file=None, data_dict=None):
         self._observations = []
-        self.load_from_file(filename)
+        if data_dict is None and file is not None:
+            self._load_from_file(file)
+        elif data_dict is not None and file is None:
+            self._load_from_dictionary(data_dict)
+        elif data_dict is not None and file is not None:
+            raise ValueError('Provide only a dictionary or a file, not both.')
 
-    @classmethod
-    def initialize(cls, filename):
-        if cls.training_data is not None:
-            raise AssertionError('The TrainingData class has already been initialized')
-        cls.training_data = TrainingData(filename)
-
-    @classmethod
-    def get_instance(cls):
-        if cls.training_data is None:
-            raise AssertionError('You have to call init first to initialize the TrainingData class')
-        return cls.training_data
-
-    def load_from_file(self, file):
+    def _load_from_file(self, file: str) -> None:
         print(f"Reading training data observations file: {file}")
         lines = Util.read_lines_from_file(file)
-
-        condition = []
-        response = []
-
         line_index = 0
         while line_index < len(lines):
-            line = lines[line_index].lower()
+            line = lines[line_index].strip().lower()
             if line == 'condition':
                 condition = lines[line_index + 1].split("\t")
                 line_index += 1
-
-            if line == 'response':
+            elif line == 'response':
                 response = lines[line_index + 1].split("\t")
-                if 'globaloutput' in response[0]:
-                    value = response[0].split(":")[1]
+                if 'globaloutput' in response:
+                    value = response.split(":")[1]
                     if not Util.is_numeric_string(value):
-                        raise ValueError(f"Response: {response[0]} has a non-numeric value: {value}")
-
+                        raise ValueError(f"Response: {response} has a non-numeric value: {value}")
                     if not (-1.0 <= float(value) <= 1.0):
-                        raise ValueError(f"Response has globaloutput outside "
-                                         f"the [-1,1] range: {str(value)}")
-
+                        raise ValueError(f"Response has globaloutput outside the [-1,1] range: {value}")
                 line_index += 1
-
-            if line.startswith('weight'):
-                weight = float(lines[line_index].split(':')[1])
+            elif line.startswith('weight'):
+                weight = float(line.split(':')[1])
                 self._observations.append({
                     'condition': condition,
                     'response': response,
                     'weight': weight
                 })
             line_index += 1
+
+    def _load_from_dictionary(self, data_dict: Dict) -> None:
+        self._observations = data_dict.get('observations', [])
+        print(self._observations)
+
     @property
-    def get_weight_sum(self):
+    def weight_sum(self) -> float:
         return sum(observation['weight'] for observation in self._observations)
 
-    def size(self):
+    def size(self) -> int:
         return len(self._observations)
 
     @property
-    def observations(self):
+    def observations(self) -> List[Dict[str, Union[str, float]]]:
         return self._observations
 
-    def __str__(self):
-        result = []
-        for i, observation in enumerate(self._observations, 1):
-            result.extend([
-                f"Observation {i}:",
-                "Condition: " + ", ".join(observation['condition']),
-                "Response: " + ", ".join(observation['response']),
-                "Weight: " + str(observation['weight']),
-                ""])
-        return str(result)
+    @property
+    def responses(self) -> List[str]:
+        return [item for sublist in (obs['response'] for obs in self._observations) for item in sublist]
+
+    @property
+    def response(self) -> List[str]:
+        return self._observations[0]['response'] if self._observations else []
+
+    @property
+    def weights(self) -> List[float]:
+        return [obs['weight'] for obs in self._observations]
+
+    def __str__(self) -> str:
+        if not self._observations:
+            return "No observations available."
+        observations_str = []
+        for observation in self._observations:
+            observations_str.append(
+                f"Observation:\nCondition: {', '.join(observation['condition'])}\n"
+                f"Response: {', '.join(observation['response'])}\n"
+                f"Weight: {observation['weight']}\n"
+            )
+        return "\n".join(observations_str)
