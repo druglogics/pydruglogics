@@ -9,7 +9,7 @@ from gitsbe.utils.Util import Util
 
 
 class BooleanModel:
-    def __init__(self, model=None, file='', attractor_tool='',  model_name=''):
+    def __init__(self, model=None, file='', attractor_tool='', mutation_type='mixed', model_name='',):
         """
         Initializes the BooleanModel instance.
         :param model: An InteractionModel instance.
@@ -28,6 +28,7 @@ class BooleanModel:
         self._binary_boolean_equations = []
         self._is_bnet_file = False
         self._bnet_equations = ''
+        self._mutation_type = mutation_type
 
         if model is not None:
             self.init_from_model(model)
@@ -35,6 +36,8 @@ class BooleanModel:
             self.init_from_bnet_file(file)
         else:
             raise ValueError('Please provide a model or a file for the initialization')
+
+        self.to_binary(self._mutation_type)
 
     def init_from_model(self, model) -> None:
         """
@@ -159,9 +162,11 @@ class BooleanModel:
         """
         index = 0
         updated_equations = []
+        new_link = ''
 
         for equation in self._updated_boolean_equations:
             target, activating, inhibitory, act_operators, inhib_operators, link = equation
+            print(f"target {target}, link {link}")
 
             if mutation_type == 'topology':
                 num_activating = len(activating)
@@ -178,11 +183,14 @@ class BooleanModel:
                 updated_equations.append((target, new_activating, new_inhibitory, act_operators, inhib_operators, link))
 
             elif mutation_type == 'balanced':
-                link_value = binary_representation[index]
-                index += 1
+                if link != '':
+                    link_value = binary_representation[index]
+                    index += 1
 
-                new_link = 'and' if link_value == 1 else 'or'
-                updated_equations.append((target, activating, inhibitory, act_operators, inhib_operators, new_link))
+                    new_link = 'and' if link_value == 1 else 'or'
+                    updated_equations.append((target, activating, inhibitory, act_operators, inhib_operators, new_link))
+                else:
+                    updated_equations.append((target, activating, inhibitory, act_operators, inhib_operators, link))
 
             elif mutation_type == 'mixed':
                 num_activating = len(activating)
@@ -192,15 +200,20 @@ class BooleanModel:
                 index += num_activating
                 new_inhibitory_values = binary_representation[index:index + num_inhibitory]
                 index += num_inhibitory
-                link_value = binary_representation[index]
-                index += 1
+                if link != '':
+                    link_value = binary_representation[index]
+                    index += 1
+                    new_link = 'and' if link_value == 1 else 'or'
+                    new_activating = {key: val for key, val in zip(activating.keys(), new_activating_values)}
+                    new_inhibitory = {key: val for key, val in zip(inhibitory.keys(), new_inhibitory_values)}
+                    updated_equations.append((target, new_activating, new_inhibitory,
+                                              act_operators, inhib_operators, new_link))
+                else:
+                    new_activating = {key: val for key, val in zip(activating.keys(), new_activating_values)}
+                    new_inhibitory = {key: val for key, val in zip(inhibitory.keys(), new_inhibitory_values)}
 
-                new_activating = {key: val for key, val in zip(activating.keys(), new_activating_values)}
-                new_inhibitory = {key: val for key, val in zip(inhibitory.keys(), new_inhibitory_values)}
-                new_link = 'and' if link_value == 1 else 'or'
-
-                updated_equations.append((target, new_activating, new_inhibitory,
-                                          act_operators, inhib_operators, new_link))
+                    updated_equations.append((target, new_activating, new_inhibitory,
+                                              act_operators, inhib_operators, link))
 
         self._updated_boolean_equations = updated_equations
         return self._updated_boolean_equations
@@ -225,21 +238,28 @@ class BooleanModel:
                 binary_representation.extend(inhibitory_values)
 
             elif mutation_type == 'balanced':
-                binary_representation.append(1 if link == 'and' else 0)
+                if link != '':
+                    binary_representation.append(1 if link == 'and' else 0)
+                else:
+                    pass
 
             elif mutation_type == 'mixed':
                 activating_values = [int(value) for value in activating.values()]
                 inhibitory_values = [int(value) for value in inhibitory.values()]
                 binary_representation.extend(activating_values)
                 binary_representation.extend(inhibitory_values)
-                binary_representation.append(1 if link == 'and' else 0)
+                if link == 'and':
+                    binary_representation.append(1)
+                elif link == 'or':
+                    binary_representation.append(0)
+                else:
+                    pass
 
             binary_lists.append(binary_representation)
 
         equation_lists = [item for sublist in binary_lists for item in sublist]
         self._binary_boolean_equations = equation_lists
         return equation_lists
-
 
     def generate_mutated_lists(self, num_mutations, num_mutations_per_list):
         list_length = len(self._binary_boolean_equations)
@@ -447,6 +467,10 @@ class BooleanModel:
 
     def get_stable_states(self) -> object:
         return [state for state in self._attractors if '-' not in state]
+
+    @property
+    def mutation_type(self) -> str:
+        return self._mutation_type
 
     @property
     def boolean_equations(self) -> object:

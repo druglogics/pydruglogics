@@ -15,33 +15,21 @@ class Evolution(BooleanModelOptimizer):
         self._best_models = []
         self.mutation_number = self._ga_args.get('number_of_mutations')
         self._initial_population = boolean_model.generate_mutated_lists(10, 3)
-        self._mutation_type = 'topology'
+        self._mutation_type = boolean_model.mutation_type
         self._training_data = training_data
         self._model_outputs = model_outputs
 
         if self._training_data is None or self._model_outputs is None:
             raise ValueError('Please provide training data and model outputs.')
 
-    # def select_mutation(self, mutation_type):
-    #     if mutation_type == 'balanced':
-    #         return self.balanced_mutation
-    #     elif mutation_type == 'topology':
-    #         return self.topology_mutation
-    #     elif mutation_type == 'mixed':
-    #         return self.mixed_mutation
-    #     else:
-    #         raise ValueError(f"Unknown mutation type: {mutation_type}. Possible values are 'balanced', 'topology', "
-    #                          f"and 'mixed'")
-    #
-
     def calculate_fitness(self, ga_instance, solutions, solutions_idx):
         """
         Calculate fitness of models by going through all the observations defined in the
         training data and computing individual fitness values for each one of them.
         """
-        fitness_values = []
+        fitness_values = np.zeros(len(solutions))
 
-        for solution in solutions:
+        for idx, solution in enumerate(solutions):
             self._boolean_model.from_binary(solution, self._mutation_type)
             self._boolean_model.calculate_attractors(self._boolean_model.attractor_tool)
             responses = self._training_data.responses
@@ -50,29 +38,20 @@ class Evolution(BooleanModelOptimizer):
                 observed_global_output = float(responses[0].split(":")[1])
                 predicted_global_output = self.calculate_global_output()
                 condition_fitness = 1 - abs(predicted_global_output - observed_global_output)
-                fitness_values.append(condition_fitness)
-
-                print('\nCalculating fitness..')
-                print(f"Scaled fitness [0..1] for solution {solutions_idx}:  {condition_fitness}")
-
+                fitness_values[idx] = condition_fitness
             else:
                 attractors = self._boolean_model.attractors
                 if not attractors:
-                    fitness_values.append(0)
                     continue
 
-                total_matches = []
-
-                for attractor in attractors:
-                    matches = self._calculate_matches(attractor)
-                    total_matches.append(matches)
+                total_matches = np.array([self._calculate_matches(attractor) for attractor in attractors])
 
                 if len(total_matches) > 1:
                     average_matches = np.mean(total_matches)
-                    fitness = average_matches / len(self._training_data.responses)
+                    fitness = average_matches / len(responses)
                 else:
-                    fitness = total_matches[0] / len(self._training_data.responses)
-                fitness_values.append(fitness)
+                    fitness = total_matches[0] / len(responses)
+                fitness_values[idx] = fitness
 
                 print('\nCalculating fitness..')
                 print(f"Scaled fitness [0..1] for solution {solutions_idx}:  {fitness}")
@@ -126,27 +105,31 @@ class Evolution(BooleanModelOptimizer):
         return (pred_global_output - self._model_outputs.min_output) / (
                     self._model_outputs.max_output - self._model_outputs.min_output)
 
-    def balanced_mutation(self, offspring, ga_instance):
-        for individual in offspring:
-            self._boolean_model.update_boolean_model_balance(individual)
-            self._boolean_model.balance_mutation(self._mutation_number)
-            individual[:] = self._boolean_model.to_binary('balanced')
-        return offspring
+    def callback_generation(self, ga_instance, num_best_solutions):
+        # Extract the population and their fitness scores
+        population = ga_instance.population
+        fitness = ga_instance.last_generation_fitness
 
-    def topology_mutation(self, offspring, ga_instance):
-        for individual in offspring:
-            self._boolean_model.update_boolean_model_topology(individual)
-            self._boolean_model.topology_mutations(self._mutation_number)
-            individual[:] = self._boolean_model.to_binary('topology')
-        return offspring
+        # Get the indices of the sorted fitness values in descending order
+        sorted_indices = np.argsort(fitness)[::-1]
 
-    def mixed_mutation(self, offspring, ga_instance):
-        for individual in offspring:
-            self._boolean_model.update_boolean_model_both(individual)
-            self._boolean_model.balance_mutation(self._mutation_number)
-            self._boolean_model.topology_mutations(self._mutation_number)
-            individual[:] = self._boolean_model.to_binary('mixed')
-        return offspring
+        # Initialize a set to track unique solutions and a list for new best models
+        unique_solutions = set()
+        new_best_models = []
+
+        for idx in sorted_indices:
+            solution_tuple = tuple(population[idx])
+            if solution_tuple not in unique_solutions:
+                unique_solutions.add(solution_tuple)
+                new_best_models.append((population[idx], fitness[idx]))
+            if len(unique_solutions) == num_best_solutions:
+                break
+
+        # Sort the best solutions based on fitness values in descending order
+        new_best_models.sort(key=lambda x: x[1], reverse=True)
+
+        # Update the best models, ensuring only the specified number of top solutions
+        self._best_models[:] = new_best_models[:num_best_solutions]
 
     def run(self):
         initial_mutated_population = self._initial_population
@@ -163,10 +146,14 @@ class Evolution(BooleanModelOptimizer):
             crossover_type=self._ga_args.get('crossover_type', "single_point"),
             mutation_type='random',
             mutation_percent_genes=self._ga_args.get('mutation_percent_genes'),
-            parallel_processing=self._ga_args.get('parallel_processing')
+            parallel_processing=self._ga_args.get('parallel_processing'),
+            on_generation=lambda ga_instance: self.callback_generation(ga_instance, 3)
         )
 
         ga_instance.run()
-        solution, solution_fitness, solution_idx = ga_instance.best_solution()
-        print(f"Best solution: {solution}")
-        print(f"Best solution fitness: {solution_fitness}")
+        for idx, (solution, fitness) in enumerate(self._best_models):
+            print(f"Solution {idx + 1}: {solution}, Fitness: {fitness}")
+
+        # solution, solution_fitness, solution_idx = ga_instance.best_solution()
+        # print(f"Best solution: {solution}")
+        # print(f"Best solution fitness: {solution_fitness}")

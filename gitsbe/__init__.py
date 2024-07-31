@@ -1,5 +1,4 @@
 from gitsbe.input.TrainingData import TrainingData
-from gitsbe.model.BooleanEquation import BooleanEquation
 from gitsbe.model.BooleanModel import BooleanModel
 from gitsbe.model.Evolution import Evolution
 from gitsbe.model.InteractionModel import InteractionModel
@@ -22,12 +21,10 @@ if __name__ == '__main__':
 
     # BooleanModel init from .bnet file
     boolean_model_bnet = BooleanModel(file='../example_model_args/toy_ags2_equations.bnet', model_name='test')
-    boolean_model_bnet.to_binary('topology')
     boolean_model_bnet.generate_mutated_lists(5, 1)
 
     # BooleanModel init from .sif file
     boolean_model_sif = BooleanModel(model=interaction, model_name='test2')
-    boolean_model_sif.to_binary('topology')
     boolean_model_sif.generate_mutated_lists(5, 1)
 
     # init pygad.GA
