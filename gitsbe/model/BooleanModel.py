@@ -1,11 +1,10 @@
-import tempfile
-import random
-import biolqm
-import mpbn
-import pyboolnet
 from pyboolnet.file_exchange import bnet2primes
 from pyboolnet.trap_spaces import compute_trap_spaces
 from gitsbe.utils.Util import Util
+import mpbn
+import random
+import pyboolnet
+
 
 
 class BooleanModel:
@@ -73,7 +72,7 @@ class BooleanModel:
         self._model_name = file.rsplit('.', 1)[0]
 
         for line in lines:
-            if line.strip().startswith('#') or not line.strip():
+            if line.strip().startswith('#') or line.strip().startswith('targets') or not line.strip():
                 continue
             equation = line.strip()
             parsed_equation_bnet = self._create_equation_from_bnet(equation)
@@ -81,44 +80,23 @@ class BooleanModel:
             self._boolean_equations.append(parsed_equation_bnet)
             self._is_bnet_file = True
 
-        self._updated_boolean_equations = [tuple(item) for item in self._boolean_equations]
+        self._updated_boolean_equations = [tuple(equation) for equation in self._boolean_equations]
+        print('asd')
 
     def calculate_attractors(self, attractor_tool: str) -> None:
         """
         calculates the attractors of the boolean model. The tool for the calculation
         is based on the value of 'self.attractor_tool'.
         Values for 'self.attractor_tool' (please choose one):
-        'biolqm_trapspaces', 'biolqm_stable_states', 'mpbn_trapspaces', 'pyboolnet_trapspaces'
+        'mpbn_trapspaces', 'pyboolnet_trapspaces'
         :param attractor_tool:
         """
-        if 'biolqm' in attractor_tool:
-            self._calculate_attractors_biolqm()
         if 'mpbn' in attractor_tool:
             self._calculate_attractors_mpbn()
         else:
             self._calculate_attractors_pyboolnet()
 
-    def _calculate_attractors_biolqm(self) -> str:
-        if self._is_bnet_file:
-            result = self._bnet_equations
-        else:
-            result = self.to_bnet_format(self._updated_boolean_equations)
-
-        with tempfile.NamedTemporaryFile('w', delete=False, suffix='.bnet') as temp:
-            temp.write(result)
-            temp_name = temp.name
-        lqm = biolqm.load(temp_name)
-
-        if 'stable' in self._attractor_tool:
-            self._attractors = biolqm.fixpoints(lqm)
-        elif 'trapspace' in self._attractor_tool:
-            self._attractors = biolqm.trapspace(lqm)
-
-        if self._attractors:
-            return f"BioLQM found {len(self._attractors)} attractors."
-        return 'BioLQM found no attractors.'
-
-    def _calculate_attractors_mpbn(self) -> str:
+    def _calculate_attractors_mpbn(self):
         if self._is_bnet_file:
             result = self._bnet_equations
             self._is_bnet_file = False
@@ -128,9 +106,9 @@ class BooleanModel:
         bnet_dict = Util.bnet_string_to_dict(result)
         boolean_network_mpbn = mpbn.MPBooleanNetwork(bnet_dict)
         self._attractors = list(boolean_network_mpbn.attractors())
-        return f"MPBN found {len(self._attractors)} attractors."
+        print(f"\nMPBN found {len(self._attractors)} attractor(s):\n{self._attractors}")
 
-    def _calculate_attractors_pyboolnet(self) -> str:
+    def _calculate_attractors_pyboolnet(self):
         if self._is_bnet_file:
             result = self._bnet_equations
             self._is_bnet_file = False
@@ -139,7 +117,7 @@ class BooleanModel:
 
         primes = bnet2primes(result)
         self._attractors = compute_trap_spaces(primes)
-        return f"PyBoolNet found {len(self._attractors)} attractors."
+        print(f"PyBoolNet found {len(self._attractors)} attractor(s):\n{self._attractors}")
 
     def get_index_of_equation(self, node_name: str) -> int:
         """
@@ -166,7 +144,6 @@ class BooleanModel:
 
         for equation in self._updated_boolean_equations:
             target, activating, inhibitory, act_operators, inhib_operators, link = equation
-            print(f"target {target}, link {link}")
 
             if mutation_type == 'topology':
                 num_activating = len(activating)
@@ -389,34 +366,34 @@ class BooleanModel:
             equation_list.append(modified_line)
 
         final_equation_list = '\n'.join(equation_list)
-        print('Equations:')
-        print(final_equation_list)
         return final_equation_list
 
-    def _create_equation_from_interaction(self, interaction, interaction_index):
-        activating_regulators = {}
-        inhibitory_regulators = {}
-        operators_activating_regulators = []
-        operators_inhibitory_regulators = []
+    def print(self):
+        equation_list = ''
+        for eq in self._updated_boolean_equations:
+            equation = ''
+            target, activating, inhibitory, _, _, link = eq
 
-        target = interaction.get_target(interaction_index)
-        tmp_activating_regulators = interaction.get_activating_regulators(interaction_index)
-        tmp_inhibitory_regulators = interaction.get_inhibitory_regulators(interaction_index)
+            activating_nodes = [node for node, value in activating.items() if value == 1]
+            inhibitory_nodes = [node for node, value in inhibitory.items() if value == 1]
 
-        link = '' if not tmp_activating_regulators or not tmp_inhibitory_regulators else 'and'
+            if activating_nodes and inhibitory_nodes:
+                activating_part = ' or '.join(activating_nodes)
+                inhibitory_part = ' or '.join(inhibitory_nodes)
+                equation += f"{target} *= ({activating_part}) {link} not ({inhibitory_part})"
+            elif activating_nodes and not inhibitory_nodes:
+                activating_part = ' or '.join(activating_nodes)
+                equation += f"{target} *= {activating_part}"
+            elif inhibitory_nodes and not activating_nodes:
+                inhibitory_part = ' or '.join(inhibitory_nodes)
+                equation += f"{target} *= not {inhibitory_part}"
+            else:
+                equation += f"{target} *= 0"
 
-        for i, regulator in enumerate(tmp_activating_regulators):
-            activating_regulators[regulator] = 1
-            if i < (len(tmp_activating_regulators) - 1):
-                operators_activating_regulators.append('or')
+            equation_list += equation
+            equation_list += '\n'
 
-        for i, regulator in enumerate(tmp_inhibitory_regulators):
-            inhibitory_regulators[regulator] = 1
-            if i < (len(tmp_inhibitory_regulators) - 1):
-                operators_inhibitory_regulators.append('or')
-
-        return (target, activating_regulators, inhibitory_regulators,
-                operators_activating_regulators, operators_inhibitory_regulators, link)
+        print(equation_list)
 
     def _create_equation_from_bnet(self, equation_str):
         activating_regulators = {}
@@ -477,12 +454,20 @@ class BooleanModel:
         return self._boolean_equations
 
     @property
+    def updated_boolean_equations(self):
+        return self._updated_boolean_equations
+
+    @property
     def model_name(self) -> str:
         return self._model_name
 
     @property
     def attractors(self) -> object:
         return self._attractors
+
+    @property
+    def bnet_equations(self):
+        return self._bnet_equations
 
     @property
     def binary_boolean_equations(self):

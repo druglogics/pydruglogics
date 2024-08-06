@@ -4,3 +4,7 @@ class BooleanModelOptimizer(ABC):
     @abstractmethod
     def run(self):
         pass
+
+    @abstractmethod
+    def save_to_file_responses(self):
+        pass

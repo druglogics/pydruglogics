@@ -1,15 +1,22 @@
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Tuple
 from gitsbe.utils.Util import Util
 
+
 class TrainingData:
-    def __init__(self, file=None, data_dict=None):
+    def __init__(self, file: str = None, observations: List[Tuple[List[str], List[str], float]] = None):
         self._observations = []
-        if data_dict is None and file is not None:
+        if file is not None:
             self._load_from_file(file)
-        elif data_dict is not None and file is None:
-            self._load_from_dictionary(data_dict)
-        elif data_dict is not None and file is not None:
-            raise ValueError('Provide only a dictionary or a file, not both.')
+        elif observations is not None:
+            self._load_from_observations_list(observations)
+        else:
+            raise ValueError('Please provide a dictionary or a file.')
+
+    def print(self) -> None:
+        try:
+            print(self)
+        except Exception as e:
+            print(f"An error occurred while printing TrainingData: {e}")
 
     def _load_from_file(self, file: str) -> None:
         print(f"Reading training data observations file: {file}")
@@ -38,9 +45,24 @@ class TrainingData:
                 })
             line_index += 1
 
-    def _load_from_dictionary(self, data_dict: Dict) -> None:
-        self._observations = data_dict.get('observations', [])
-        print(self._observations)
+    def _load_from_observations_list(self, observations: List[Tuple[List[str], List[str], float]]) -> None:
+        for observation in observations:
+            condition, response, weight = observation
+            self._add_observation(condition, response, weight)
+
+    def _add_observation(self, condition: List[str], response: List[str], weight: float) -> None:
+        if isinstance(response, str) and 'globaloutput' in response:
+            value = response.split(":")[1]
+            if not Util.is_numeric_string(value):
+                raise ValueError(f"Response: {response} has a non-numeric value: {value}")
+            if not (-1.0 <= float(value) <= 1.0):
+                raise ValueError(f"Response has globaloutput outside the [-1,1] range: {value}")
+
+        self._observations.append({
+            'condition': condition,
+            'response': response,
+            'weight': weight
+        })
 
     @property
     def weight_sum(self) -> float:
