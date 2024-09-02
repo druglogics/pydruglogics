@@ -6,9 +6,9 @@ import random
 import pyboolnet
 
 
-
 class BooleanModel:
-    def __init__(self, model=None, file='', attractor_tool='', mutation_type='mixed', model_name='',):
+    def __init__(self, model=None,  file='', attractor_tool='', mutation_type='mixed', model_name='', equations = None,
+                 fitness=0, binary=None):
         """
         Initializes the BooleanModel instance.
         :param model: An InteractionModel instance.
@@ -22,17 +22,22 @@ class BooleanModel:
         self._updated_boolean_equations = []
         self._attractors = {}
         self._attractor_tool = attractor_tool
-        self._fitness = 0
+        self._fitness = fitness
         self._file = file
-        self._binary_boolean_equations = []
+        self._equations = equations
+        self._binary_boolean_equations = [] if binary is None else binary
         self._is_bnet_file = False
         self._bnet_equations = ''
         self._mutation_type = mutation_type
+        self._perturbations =  []
+        self._global_output = 0.0
 
         if model is not None:
             self.init_from_model(model)
         elif self._file:
             self.init_from_bnet_file(file)
+        elif self._equations is not None:
+            self.init_from_equations(equations)
         else:
             raise ValueError('Please provide a model or a file for the initialization')
 
@@ -81,7 +86,17 @@ class BooleanModel:
             self._is_bnet_file = True
 
         self._updated_boolean_equations = [tuple(equation) for equation in self._boolean_equations]
-        print('asd')
+
+    def init_from_equations(self, variable):
+        self._boolean_equations = variable
+        self._updated_boolean_equations = variable
+
+    def add_perturbations(self, perturbations):
+        self._perturbations = perturbations
+        for drug in perturbations:
+            effect = drug['effect']
+            targets = drug['targets']
+            self.perturb_nodes(targets, effect)
 
     def calculate_attractors(self, attractor_tool: str) -> None:
         """
@@ -130,6 +145,34 @@ class BooleanModel:
             if target == node_name:
                 return index
         return -1
+
+    def calculate_global_output(self, model_outputs, normalized=True) -> float:
+        """
+        Use this function after you have calculated attractors with the calculate_attractors function
+        in order to find the normalized globaloutput of the model, based on the weights of the nodes
+        defined in the ModelOutputs class.
+        :return: float
+        """
+        if not self._attractors:
+            raise ValueError("No attractors found. Ensure calculate_attractors() has been called.")
+
+        pred_global_output = 0.0
+
+        for attractor in self._attractors:
+            for node_name, node_weight in model_outputs.model_outputs.items():
+                if node_name not in attractor:
+                    continue
+                node_state = attractor[node_name]
+                state_value = int(node_state) if node_state in [0, 1] else 0.5
+                pred_global_output += state_value * node_weight
+
+        pred_global_output /= len(self._attractors)
+        if normalized:
+            self._global_output = (pred_global_output - model_outputs.min_output) / (
+                    model_outputs.max_output - model_outputs.min_output)
+        else:
+            self._global_output = pred_global_output
+        return self._global_output
 
     def from_binary(self, binary_representation, mutation_type: str):
         """
@@ -277,16 +320,9 @@ class BooleanModel:
             if i < (len(tmp_inhibitory_regulators) - 1):
                 operators_inhibitory_regulators.append('or')
 
-        interaction_tuple = (
-            target,
-            activating_regulators,
-            inhibitory_regulators,
-            operators_activating_regulators,
-            operators_inhibitory_regulators,
-            link,
-        )
+        return(target, activating_regulators, inhibitory_regulators, operators_activating_regulators,
+            operators_inhibitory_regulators, link,)
 
-        return interaction_tuple
 
     def create_equation_from_bnet(self, equation_str):
         activating_regulators = {}
@@ -395,6 +431,41 @@ class BooleanModel:
 
         print(equation_list)
 
+    def perturb_nodes(self, node_names, effect):
+        value = 0 if effect == 'inhibits' else 1
+
+        for node in node_names:
+            for i, equation in enumerate(self._updated_boolean_equations):
+                target, _, _, _, _, _ = equation
+                if node == target:
+                    new_equation = (node, {str(value): 1}, {}, [], [], '')
+                    self._updated_boolean_equations[i] = new_equation
+                    # print('success, updated:', new_equation)
+                    break
+
+    def apply_perturbations(self, perturbations):
+        """
+        Apply a list of perturbations to the current Boolean model.
+        :param perturbations: A list of perturbations where each perturbation is a dictionary with 'targets' and 'effect'.
+        """
+        for drug in perturbations:
+            effect = drug['effect']
+            targets = drug['targets']
+            self.perturb_nodes(targets, effect)
+
+    def clone(self):
+        """
+        Create a deep copy of the BooleanModel instance.
+        """
+        return BooleanModel(
+            model_name=self._model_name,
+            attractor_tool=self._attractor_tool,
+            mutation_type=self._mutation_type,
+            fitness=self._fitness,
+            equations=self._updated_boolean_equations.copy(),
+            binary=self._binary_boolean_equations.copy()
+        )
+
     def _create_equation_from_bnet(self, equation_str):
         activating_regulators = {}
         inhibitory_regulators = {}
@@ -442,6 +513,9 @@ class BooleanModel:
     def has_stable_states(self) -> bool:
         return bool(self.get_stable_states())
 
+    def has_global_output(self) -> bool:
+        return bool(self.global_output)
+
     def get_stable_states(self) -> object:
         return [state for state in self._attractors if '-' not in state]
 
@@ -450,8 +524,12 @@ class BooleanModel:
         return self._mutation_type
 
     @property
-    def boolean_equations(self) -> object:
-        return self._boolean_equations
+    def perturbations(self):
+        return self._perturbations
+
+    @property
+    def global_output(self):
+        return self._global_output
 
     @property
     def updated_boolean_equations(self):
@@ -460,6 +538,10 @@ class BooleanModel:
     @property
     def model_name(self) -> str:
         return self._model_name
+
+    @property
+    def fitness(self):
+        return self._fitness
 
     @property
     def attractors(self) -> object:
@@ -477,6 +559,18 @@ class BooleanModel:
     def attractor_tool(self) -> str:
         return self._attractor_tool
 
+    @property
+    def boolean_equations(self):
+        return self._boolean_equations
+
     @model_name.setter
     def model_name(self, model_name: str) -> None:
         self._model_name = model_name
+
+    @fitness.setter
+    def fitness(self, fitness: float) -> None:
+        self._fitness = fitness
+
+    @updated_boolean_equations.setter
+    def updated_boolean_equations(self, updated_boolean_equations: dict) -> None:
+        self._updated_boolean_equations = updated_boolean_equations

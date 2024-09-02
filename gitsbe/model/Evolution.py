@@ -1,7 +1,8 @@
 import os
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 import numpy as np
 import pygad
+from gitsbe import BooleanModel
 from gitsbe.input.TrainingData import TrainingData
 from gitsbe.model.BooleanModelOptimizer import BooleanModelOptimizer
 import concurrent.futures
@@ -46,7 +47,7 @@ class Evolution(BooleanModelOptimizer):
         self._num_cores = num_cores if num_cores is not None else multiprocessing.cpu_count()
 
         if self._model_outputs is None:
-            raise ValueError('Please provide training.tab.tab data and model outputs.')
+            raise ValueError('Please provide training.tab data and model outputs.')
 
     def _create_default_training_data(self):
         observations = [(["-"], ["globaloutput:1"], 1.0)]
@@ -67,7 +68,7 @@ class Evolution(BooleanModelOptimizer):
 
             if 'globaloutput' in responses[0]:
                 observed_global_output = float(responses[0].split(":")[1])
-                predicted_global_output = self.calculate_global_output()
+                predicted_global_output = self._boolean_model.calculate_global_output(self._model_outputs)
                 fitness = 1 - abs(predicted_global_output - observed_global_output)
                 fitness_values[idx] = fitness
 
@@ -118,30 +119,6 @@ class Evolution(BooleanModelOptimizer):
 
         return total_matches
 
-    def calculate_global_output(self) -> float:
-        """
-        Use this function after you have calculated attractors with the calculate_attractors function
-        in order to find the normalized globaloutput of the model, based on the weights of the nodes
-        defined in the ModelOutputs class.
-        :return: float
-        """
-        if not self._boolean_model.attractors:
-            raise ValueError("No attractors found. Ensure calculate_attractors() has been called.")
-
-        pred_global_output = 0.0
-
-        for attractor in self._boolean_model.attractors:
-            for node_name, node_weight in self._model_outputs.model_outputs.items():
-                if node_name not in attractor:
-                    continue
-                node_state = attractor[node_name]
-                state_value = int(node_state) if node_state in [0, 1] else 0.5
-                pred_global_output += state_value * node_weight
-
-        pred_global_output /= len(self._boolean_model.attractors)
-        return (pred_global_output - self._model_outputs.min_output) / (
-                    self._model_outputs.max_output - self._model_outputs.min_output)
-
     def callback_generation(self, ga_instance):
         population = ga_instance.population
         fitness = ga_instance.last_generation_fitness
@@ -161,7 +138,7 @@ class Evolution(BooleanModelOptimizer):
         new_best_models.sort(key=lambda x: x[1], reverse=True)
         self._best_models[:] = new_best_models[:self._num_best_solutions]
 
-    def save_best_solutions(self, file_path):
+    def save_to_file_models(self, file_path):
         """
         Save the best solutions to a .bnet file.
         :param file_path: Path to the file where the best solutions will be saved.
@@ -218,26 +195,27 @@ class Evolution(BooleanModelOptimizer):
 
         return best_models
 
-    def run(self):
+    def run(self) -> List[BooleanModel]:
         start_time = time.time()
         all_best_models = []
         with concurrent.futures.ProcessPoolExecutor(max_workers=self._num_cores) as executor:
-            futures = [executor.submit(self.run_single_ga, i + 1) for i in range(self._num_runs)]
+            futures = [executor.submit(self.run_single_ga, i) for i in range(self._num_runs)]
             for future in concurrent.futures.as_completed(futures):
                 all_best_models.extend(future.result())
 
         all_best_models.sort(key=lambda x: x[1], reverse=True)
         self._best_models = all_best_models[:self._num_best_solutions]
 
-        print('\nBest solutions across all evolutions: ')
+        best_boolean_models = []
         for idx, (solution, fitness) in enumerate(self._best_models):
+            model_clone = self._boolean_model.clone()
+            model_clone.updated_boolean_equations = model_clone.from_binary(solution, self._mutation_type)
+            model_clone.fitness = fitness
+            best_boolean_models.append(model_clone)
             print(f"\nBest Solution {idx + 1}: {solution}, Fitness: {fitness}")
-
-        self.save_best_solutions("../solutions/")
 
         end_time = time.time()
         duration = end_time - start_time
         print(f"Total runtime: {duration} seconds")
 
-    def save_to_file_responses(self):
-        pass
+        return best_boolean_models

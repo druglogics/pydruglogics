@@ -52,10 +52,6 @@ class Util:
         return lines
 
     @staticmethod
-    def get_repeated_string(string: str, repeats: int) -> str:
-        return string * repeats
-
-    @staticmethod
     def is_numeric_string(value):
         try:
             float(value)
