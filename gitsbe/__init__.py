@@ -5,20 +5,18 @@ from gitsbe.model.Evolution import Evolution
 from gitsbe.model.InteractionModel import InteractionModel
 from gitsbe.input.ModelOutputs import ModelOutputs
 from gitsbe.model.ModelPredictions import ModelPredictions
-import time
-
 
 
 if __name__ == '__main__':
     # Interaction
     interaction = InteractionModel()
-    interaction.load_sif_file('../ags_cascade_2.0/network.sif')
+    interaction.load_sif_file('../ags_cascade_1.0/network.sif')
     interaction.build_multiple_interactions()
     print('Interactions')
     print(interaction)
 
     # ModelOutputs
-    model_outputs = ModelOutputs('../ags_cascade_1.0/modeloutputs.tab')
+    model_outputs = ModelOutputs('../ags_cascade_1.0/modeloutputs')
     # model_outputs_dict = {
     #     "RPS6KA1": 1.0,
     #     "MYC": 1.0,
@@ -85,7 +83,7 @@ if __name__ == '__main__':
     perturbations.print()
 
     # BooleanModel init from .bnet file
-    boolean_model_bnet = BooleanModel(file='../ags_cascade_1.0/network_b.bnet', model_name='test',
+    boolean_model_bnet = BooleanModel(file='../ags_cascade_1.0/network.bnet', model_name='test',
                                       mutation_type='mixed', attractor_tool='pyboolnet')
     boolean_model_bnet.print()
 
@@ -105,7 +103,6 @@ if __name__ == '__main__':
         'population_size': 20,
         'mutation_num_genes': 3,
         # 'mutation_percent_genes': 40,
-        # 'stop_criteria': 'reach_10'
         # 'parallel_processing': 3
     }
     evolution = Evolution(boolean_model=boolean_model_bnet,
