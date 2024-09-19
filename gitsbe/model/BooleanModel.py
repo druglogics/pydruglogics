@@ -1,21 +1,24 @@
-from pyboolnet.file_exchange import bnet2primes
-from pyboolnet.trap_spaces import compute_trap_spaces
-from gitsbe.utils.Util import Util
 import mpbn
-import random
-import pyboolnet
+from pyboolnet.file_exchange import bnet2primes
+from pyboolnet.trap_spaces import compute_trap_spaces, compute_steady_states
+from gitsbe.utils.Util import Util
+
 
 
 class BooleanModel:
     def __init__(self, model=None,  file='', attractor_tool='', mutation_type='mixed', model_name='', equations = None,
-                 fitness=0, binary=None):
+                 fitness=0.0, binary_equations=None):
         """
         Initializes the BooleanModel instance.
         :param model: An InteractionModel instance.
         :param file: The path to the file containing Boolean Equations in '.bnet' format.
-        :param attractor_tool: Tool to be used for attractor calculation.
-        (Supported values 'biolqm_trapspaces', 'biolqm_stable_states', 'mpbn_trapspaces', 'pyboolnet_trapspaces')
+        :param attractor_tool: The tool to be used for attractor calculation.
+        :param mutation_type: The type of mutation to be performed.
+        (Supported values: 'pyboolnet_stable_states', 'pyboolnet_trapspaces', 'mpbn_trapspaces')
         :param model_name: Name of the model.
+        :param equations: Boolean Equations representing the model's interactions.
+        :param fitness: The fitness score representing how well the model performs.
+        :param binary: A list representing the Mutate Boolean Model in binary representation.
         """
         self._model_name = model_name
         self._boolean_equations = []
@@ -25,7 +28,7 @@ class BooleanModel:
         self._fitness = fitness
         self._file = file
         self._equations = equations
-        self._binary_boolean_equations = [] if binary is None else binary
+        self._binary_boolean_equations = [] if binary_equations is None else binary_equations
         self._is_bnet_file = False
         self._bnet_equations = ''
         self._mutation_type = mutation_type
@@ -33,17 +36,17 @@ class BooleanModel:
         self._global_output = 0.0
 
         if model is not None:
-            self.init_from_model(model)
+            self._init_from_model(model)
         elif self._file:
-            self.init_from_bnet_file(file)
+            self._init_from_bnet_file(file)
         elif self._equations is not None:
-            self.init_from_equations(equations)
+            self._init_from_equations(equations)
         else:
             raise ValueError('Please provide a model or a file for the initialization')
 
         self.to_binary(self._mutation_type)
 
-    def init_from_model(self, model) -> None:
+    def _init_from_model(self, model) -> None:
         """
         Initialize the BooleanModel from an InteractionModel instance.
         :param model: The InteractionModel instance containing interactions.
@@ -52,12 +55,12 @@ class BooleanModel:
         interactions = model
 
         for i in range(interactions.size()):
-            equation = self.create_equation_from_interaction(interactions, i)
+            equation = self._create_equation_from_interaction(interactions, i)
             self._boolean_equations.append(equation)
 
         self._updated_boolean_equations = [tuple(item) for item in self._boolean_equations]
 
-    def init_from_bnet_file(self, file: str) -> None:
+    def _init_from_bnet_file(self, file: str) -> None:
         """
         Initialize the BooleanModel from a '.bnet' file.
         :param file: The directory of the '.bnet' file.
@@ -87,29 +90,40 @@ class BooleanModel:
 
         self._updated_boolean_equations = [tuple(equation) for equation in self._boolean_equations]
 
-    def init_from_equations(self, variable):
-        self._boolean_equations = variable
-        self._updated_boolean_equations = variable
+    def _init_from_equations(self, equations):
+        self._boolean_equations = equations
+        self._updated_boolean_equations = equations
 
-    def add_perturbations(self, perturbations):
-        self._perturbations = perturbations
-        for drug in perturbations:
-            effect = drug['effect']
-            targets = drug['targets']
-            self.perturb_nodes(targets, effect)
 
-    def calculate_attractors(self, attractor_tool: str) -> None:
+    def _create_equation_from_interaction(self, interaction, interaction_index):
         """
-        calculates the attractors of the boolean model. The tool for the calculation
-        is based on the value of 'self.attractor_tool'.
-        Values for 'self.attractor_tool' (please choose one):
-        'mpbn_trapspaces', 'pyboolnet_trapspaces'
-        :param attractor_tool:
+        Create a Boolean equation from an interaction model.
+        :param interaction: InteractionModel instance.
+        :return: Equation dictionary with components.
         """
-        if 'mpbn' in attractor_tool:
-            self._calculate_attractors_mpbn()
-        else:
-            self._calculate_attractors_pyboolnet()
+        activating_regulators = {}
+        inhibitory_regulators = {}
+        operators_activating_regulators = []
+        operators_inhibitory_regulators = []
+
+        target = interaction.get_target(interaction_index)
+        tmp_activating_regulators = interaction.get_activating_regulators(interaction_index)
+        tmp_inhibitory_regulators = interaction.get_inhibitory_regulators(interaction_index)
+        link = '' if not tmp_activating_regulators or not tmp_inhibitory_regulators else 'and'
+
+        for i, regulator in enumerate(tmp_activating_regulators):
+            activating_regulators[regulator] = 1
+            if i < (len(tmp_activating_regulators) - 1):
+                operators_activating_regulators.append('or')
+
+        for i, regulator in enumerate(tmp_inhibitory_regulators):
+            inhibitory_regulators[regulator] = 1
+            if i < (len(tmp_inhibitory_regulators) - 1):
+                operators_inhibitory_regulators.append('or')
+
+        return(target, activating_regulators, inhibitory_regulators, operators_activating_regulators,
+            operators_inhibitory_regulators, link,)
+
 
     def _calculate_attractors_mpbn(self):
         if self._is_bnet_file:
@@ -123,7 +137,7 @@ class BooleanModel:
         self._attractors = list(boolean_network_mpbn.attractors())
         print(f"\nMPBN found {len(self._attractors)} attractor(s):\n{self._attractors}")
 
-    def _calculate_attractors_pyboolnet(self):
+    def _calculate_attractors_pyboolnet(self, tool=''):
         if self._is_bnet_file:
             result = self._bnet_equations
             self._is_bnet_file = False
@@ -131,30 +145,93 @@ class BooleanModel:
             result = self.to_bnet_format(self._updated_boolean_equations)
 
         primes = bnet2primes(result)
-        self._attractors = compute_trap_spaces(primes)
+        if 'trapspaces' in tool:
+            self._attractors = compute_trap_spaces(primes)
+        elif 'stable_states' in tool:
+            self._attractors = compute_steady_states(primes)
+        else:
+            raise ValueError('Please provide valid tool for PyBoolNet attractor calculation. '
+                             'Valid values: pyboolnet_trapspaces, pyboolnet_stable_states')
         print(f"PyBoolNet found {len(self._attractors)} attractor(s):\n{self._attractors}")
 
-    def get_index_of_equation(self, node_name: str) -> int:
-        """
-        Gets the index of the equation for a given node name.
-        :param node_name: The name of the node.
-        :return: The index of the equation or -1 if not found.
-        """
-        for index, equation in enumerate(self._updated_boolean_equations):
-            target, *_ = equation
-            if target == node_name:
-                return index
-        return -1
+    def _create_equation_from_bnet(self, equation_str):
+        activating_regulators = {}
+        inhibitory_regulators = {}
+        operators_activating_regulators = []
+        operators_inhibitory_regulators = []
+        link = ''
 
-    def calculate_global_output(self, model_outputs, normalized=True) -> float:
+        arg = (equation_str.strip()
+               .replace(', ', ' *= ')
+               .replace('!', ' not ')
+               .replace('&', ' and ')
+               .replace('|', ' or '))
+        split_arg = arg.split()
+        target = split_arg.pop(0)
+        if split_arg.pop(0) != '*=':
+            raise ValueError("Equation must start with '*='")
+
+        before_not = True
+
+        for regulator in split_arg:
+            if regulator == 'not':
+                before_not = not before_not
+            elif regulator in ('and', 'or'):
+                if before_not:
+                    operators_activating_regulators.append(regulator)
+                else:
+                    operators_inhibitory_regulators.append(regulator)
+            elif regulator in ('(', ')'):
+                continue
+            else:
+                if before_not:
+                    activating_regulators[regulator] = 1
+                else:
+                    inhibitory_regulators[regulator] = 1
+                    before_not = True
+
+        link = '' if not activating_regulators or not inhibitory_regulators else 'and'
+
+        return (target, activating_regulators, inhibitory_regulators,
+                operators_activating_regulators, operators_inhibitory_regulators, link)
+
+    def _perturb_nodes(self, node_names, effect):
+        value = 0 if effect == 'inhibits' else 1
+
+        for node in node_names:
+            for i, equation in enumerate(self._updated_boolean_equations):
+                target, _, _, _, _, _ = equation
+                if node == target:
+                    new_equation = (node, {str(value): 1}, {}, [], [], '')
+                    self._updated_boolean_equations[i] = new_equation
+                    break
+
+    def calculate_attractors(self, attractor_tool: str) -> None:
+        """
+        calculates the attractors of the boolean model. The tool for the calculation
+        is based on the value of 'self.attractor_tool'.
+        Values for 'self.attractor_tool' (please choose one):
+        'mpbn_trapspaces', 'pyboolnet_trapspaces', 'pyboolnet_stable_states'
+        :param attractor_tool:
+        """
+        if 'mpbn_trapspaces' in attractor_tool:
+            self._calculate_attractors_mpbn()
+        elif 'pyboolnet' in attractor_tool:
+            self._calculate_attractors_pyboolnet(attractor_tool)
+        else:
+            raise ValueError('Please provide a valid attractor_tool! Valid values: mpbn_trapspaces, '
+                             'pyboolnet_trapspaces, pyboolnet_stable_states')
+
+    def calculate_global_output(self, model_outputs, normalized=True):
         """
         Use this function after you have calculated attractors with the calculate_attractors function
-        in order to find the normalized globaloutput of the model, based on the weights of the nodes
+        in order to find the (normalized) globaloutput of the model, based on the weights of the nodes
         defined in the ModelOutputs class.
         :return: float
         """
         if not self._attractors:
-            raise ValueError("No attractors found. Ensure calculate_attractors() has been called.")
+            self._global_output = None
+            return self._global_output
 
         pred_global_output = 0.0
 
@@ -281,99 +358,12 @@ class BooleanModel:
         self._binary_boolean_equations = equation_lists
         return equation_lists
 
-    def generate_mutated_lists(self, num_mutations, num_mutations_per_list):
-        list_length = len(self._binary_boolean_equations)
-        mutated_lists = []
-
-        for _ in range(num_mutations):
-            mutated_list = self._binary_boolean_equations.copy()
-            for _ in range(num_mutations_per_list):
-                index_to_mutate = random.randint(0, list_length - 1)
-                mutated_list[index_to_mutate] = 1 - mutated_list[index_to_mutate]
-            mutated_lists.append(mutated_list)
-
-        return mutated_lists
-
-    def create_equation_from_interaction(self, interaction, interaction_index):
-        """
-        Create a Boolean equation from an interaction model.
-        :param interaction: InteractionModel instance.
-        :return: Equation dictionary with components.
-        """
-        activating_regulators = {}
-        inhibitory_regulators = {}
-        operators_activating_regulators = []
-        operators_inhibitory_regulators = []
-
-        target = interaction.get_target(interaction_index)
-        tmp_activating_regulators = interaction.get_activating_regulators(interaction_index)
-        tmp_inhibitory_regulators = interaction.get_inhibitory_regulators(interaction_index)
-        link = '' if not tmp_activating_regulators or not tmp_inhibitory_regulators else 'and'
-
-        for i, regulator in enumerate(tmp_activating_regulators):
-            activating_regulators[regulator] = 1
-            if i < (len(tmp_activating_regulators) - 1):
-                operators_activating_regulators.append('or')
-
-        for i, regulator in enumerate(tmp_inhibitory_regulators):
-            inhibitory_regulators[regulator] = 1
-            if i < (len(tmp_inhibitory_regulators) - 1):
-                operators_inhibitory_regulators.append('or')
-
-        return(target, activating_regulators, inhibitory_regulators, operators_activating_regulators,
-            operators_inhibitory_regulators, link,)
-
-
-    def create_equation_from_bnet(self, equation_str):
-        activating_regulators = {}
-        inhibitory_regulators = {}
-        operators_activating_regulators = []
-        operators_inhibitory_regulators = []
-        link = ''
-
-        arg = (equation_str.strip()
-               .replace(', ', ' *= ')
-               .replace('!', ' not ')
-               .replace('&', ' and ')
-               .replace('|', ' or '))
-        split_arg = arg.split()
-        target = split_arg.pop(0)
-        if split_arg.pop(0) != '*=':
-            raise ValueError("Equation must start with ','")
-
-        before_not = True
-
-        for regulator in split_arg:
-            if regulator == 'not':
-                before_not = not before_not
-            elif regulator in ('and', 'or'):
-                if before_not:
-                    operators_activating_regulators.append(regulator)
-                    link = 'and'
-                else:
-                    operators_inhibitory_regulators.append(regulator)
-                    link = 'or'
-            elif regulator in ('(', ')'):
-                continue
-            else:
-                if before_not:
-                    activating_regulators[regulator] = 1
-                else:
-                    inhibitory_regulators[regulator] = 1
-                    before_not = True
-
-        link = '' if not activating_regulators or not inhibitory_regulators else 'and'
-
-        interaction_tuple = (
-            target,
-            activating_regulators,
-            inhibitory_regulators,
-            operators_activating_regulators,
-            operators_inhibitory_regulators,
-            link
-        )
-
-        return interaction_tuple
+    def add_perturbations(self, perturbations):
+        self._perturbations = perturbations
+        for drug in perturbations:
+            effect = drug['effect']
+            targets = drug['targets']
+            self._perturb_nodes(targets, effect)
 
     def to_bnet_format(self, boolean_equations):
         equation_list = []
@@ -431,18 +421,6 @@ class BooleanModel:
 
         print(equation_list)
 
-    def perturb_nodes(self, node_names, effect):
-        value = 0 if effect == 'inhibits' else 1
-
-        for node in node_names:
-            for i, equation in enumerate(self._updated_boolean_equations):
-                target, _, _, _, _, _ = equation
-                if node == target:
-                    new_equation = (node, {str(value): 1}, {}, [], [], '')
-                    self._updated_boolean_equations[i] = new_equation
-                    # print('success, updated:', new_equation)
-                    break
-
     def apply_perturbations(self, perturbations):
         """
         Apply a list of perturbations to the current Boolean model.
@@ -451,58 +429,17 @@ class BooleanModel:
         for drug in perturbations:
             effect = drug['effect']
             targets = drug['targets']
-            self.perturb_nodes(targets, effect)
+            self._perturb_nodes(targets, effect)
 
     def clone(self):
-        """
-        Create a deep copy of the BooleanModel instance.
-        """
         return BooleanModel(
             model_name=self._model_name,
             attractor_tool=self._attractor_tool,
             mutation_type=self._mutation_type,
             fitness=self._fitness,
             equations=self._updated_boolean_equations.copy(),
-            binary=self._binary_boolean_equations.copy()
+            binary_equations=self._binary_boolean_equations.copy()
         )
-
-    def _create_equation_from_bnet(self, equation_str):
-        activating_regulators = {}
-        inhibitory_regulators = {}
-        operators_activating_regulators = []
-        operators_inhibitory_regulators = []
-        link = ''
-
-        arg = (equation_str.strip().replace(', ', ' *= ').replace('!', ' not ')
-               .replace('&', ' and ').replace('|', ' or '))
-        split_arg = arg.split()
-        target = split_arg.pop(0)
-        if split_arg.pop(0) != '*=':
-            raise ValueError("Equation must start with '*='")
-
-        before_not = True
-
-        for regulator in split_arg:
-            if regulator == 'not':
-                before_not = not before_not
-            elif regulator in ('and', 'or'):
-                if before_not:
-                    operators_activating_regulators.append(regulator)
-                else:
-                    operators_inhibitory_regulators.append(regulator)
-            elif regulator in ('(', ')'):
-                continue
-            else:
-                if before_not:
-                    activating_regulators[regulator] = 1
-                else:
-                    inhibitory_regulators[regulator] = 1
-                    before_not = True
-
-        link = '' if not activating_regulators or not inhibitory_regulators else 'and'
-
-        return (target, activating_regulators, inhibitory_regulators,
-                operators_activating_regulators, operators_inhibitory_regulators, link)
 
     def reset_attractors(self) -> None:
         self._attractors = []
@@ -517,7 +454,7 @@ class BooleanModel:
         return bool(self.global_output)
 
     def get_stable_states(self) -> object:
-        return [state for state in self._attractors if '-' not in state]
+        return [state for state in self._attractors if '*' not in state]
 
     @property
     def mutation_type(self) -> str:
@@ -548,10 +485,6 @@ class BooleanModel:
         return self._attractors
 
     @property
-    def bnet_equations(self):
-        return self._bnet_equations
-
-    @property
     def binary_boolean_equations(self):
         return self._binary_boolean_equations
 
@@ -574,3 +507,7 @@ class BooleanModel:
     @updated_boolean_equations.setter
     def updated_boolean_equations(self, updated_boolean_equations: dict) -> None:
         self._updated_boolean_equations = updated_boolean_equations
+
+    @binary_boolean_equations.setter
+    def binary_boolean_equations(self, binary_boolean_equations) -> None:
+        self._binary_boolean_equations = binary_boolean_equations

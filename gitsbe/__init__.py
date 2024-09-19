@@ -41,11 +41,11 @@ if __name__ == '__main__':
     # DrugPanel
     drug_panel_data = [
         ['PI', 'PIK3CA', 'inhibits'],
-        ['PD', 'MAP2K1,MAP2K2'],
-        ['CT','GSK3A,GSK3B'],
+        ['PD', 'MEK_f'],
+        ['CT','GSK3_f'],
         ['BI', 'MAPK14'],
         ['PK', 'CTNNB1'],
-        ['AK', 'AKT,AKT1,AKT2,AKT3'],
+        ['AK', 'AKT_f'],
         ['5Z', 'MAP3K7']
     ]
 
@@ -84,11 +84,12 @@ if __name__ == '__main__':
 
     # BooleanModel init from .bnet file
     boolean_model_bnet = BooleanModel(file='../ags_cascade_1.0/network.bnet', model_name='test',
-                                      mutation_type='mixed', attractor_tool='pyboolnet')
+                                      mutation_type='balanced', attractor_tool='pyboolnet_stable_states')
     boolean_model_bnet.print()
 
     # BooleanModel init from .sif file
-    boolean_model_sif = BooleanModel(model=interaction, model_name='test2')
+    boolean_model_sif = BooleanModel(model=interaction, model_name='test2',
+                                     mutation_type='balanced', attractor_tool='pyboolnet_stable_states')
     boolean_model_sif.print()
 
     # init pygad.GA
@@ -96,21 +97,22 @@ if __name__ == '__main__':
         'num_generations': 20,
         'num_parents_mating': 2,
         'sol_per_pop': 20,
-        'num_genes': 20,
         'parent_selection_type': "sss",
         'crossover_type': "single_point",
         'mutation_type': "random",
         'population_size': 20,
         'mutation_num_genes': 3,
-        # 'mutation_percent_genes': 40,
-        # 'parallel_processing': 3
+        # 'random_seed': 20,
+        # 'parallel_processing':["thread", 5]
     }
-    evolution = Evolution(boolean_model=boolean_model_bnet,
-                          model_outputs=model_outputs, num_best_solutions=3, num_mutations=5,
-                          num_mutations_per_eq=3, num_runs=5, num_cores=4, ga_args=ga_args)
+    evolution = Evolution(boolean_model=boolean_model_sif, model_outputs=model_outputs, training_data=training_data,
+                          num_best_solutions=3, num_runs=10, num_cores=4, ga_args=ga_args)
     best_models = evolution.run()
-    evolution.save_to_file_models('../solutions')
+    evolution.save_to_file_models()
 
     # run Drabme
-    model_predictions = ModelPredictions(best_models, perturbations, model_outputs, 'hsa')
+    observed_synergy_scores = ["PI~PD", "PI~5Z", "PD~AK", "AK~5Z"]
+    model_predictions = ModelPredictions(best_models, perturbations, model_outputs,
+                                         observed_synergy_scores, 'hsa')
     model_predictions.run_simulations()
+    model_predictions.plot_roc_and_pr_curve()

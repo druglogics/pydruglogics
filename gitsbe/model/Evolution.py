@@ -1,14 +1,14 @@
 import os
+import concurrent.futures
+import multiprocessing
+import datetime
+import time
 from typing import Optional, Dict, List
 import numpy as np
 import pygad
 from gitsbe import BooleanModel
 from gitsbe.input.TrainingData import TrainingData
 from gitsbe.model.BooleanModelOptimizer import BooleanModelOptimizer
-import concurrent.futures
-import multiprocessing
-import datetime
-import time
 
 
 class Evolution(BooleanModelOptimizer):
@@ -18,8 +18,6 @@ class Evolution(BooleanModelOptimizer):
                  model_outputs=None,
                  ga_args: Optional[Dict] = None,
                  num_best_solutions: int = 3,
-                 num_mutations: int = 3,
-                 num_mutations_per_eq: int = 3,
                  num_runs: int = 10,
                  num_cores: Optional[int] = None):
         """
@@ -30,192 +28,160 @@ class Evolution(BooleanModelOptimizer):
         :param model_outputs: Model outputs for evaluation.
         :param ga_args: Dictionary containing all necessary arguments for pygad.
         :param num_best_solutions: Number of the best solutions to track.
-        :param num_mutations: Number of the initial mutated equations.
-        :param num_mutations_per_eq: Number of the initial mutations per equation.
         :param num_runs: Number of times to run the genetic algorithm.
         :param num_cores: Number of cores to use for parallel execution.
         """
         self._boolean_model = boolean_model
+        self._mutation_type = boolean_model.mutation_type
         self._training_data = training_data or self._create_default_training_data()
         self._model_outputs = model_outputs
         self._ga_args = ga_args or {}
-        self._best_models = []
-        self._initial_population = boolean_model.generate_mutated_lists(num_mutations, num_mutations_per_eq)
-        self._mutation_type = boolean_model.mutation_type
+        self._best_models_per_run = []
+        self._best_boolean_models = []
         self._num_best_solutions = num_best_solutions
         self._num_runs = num_runs
-        self._num_cores = num_cores if num_cores is not None else multiprocessing.cpu_count()
+        self._num_cores = num_cores if num_cores else multiprocessing.cpu_count()
 
-        if self._model_outputs is None:
+        if not self._model_outputs:
             raise ValueError('Please provide training.tab data and model outputs.')
 
-    def _create_default_training_data(self):
-        observations = [(["-"], ["globaloutput:1"], 1.0)]
-        return TrainingData(observations=observations)
-
-    def calculate_fitness(self, ga_instance, solutions, solutions_idx):
-        """
-        Calculate fitness of models by going through all the observations defined in the
-        training.tab data and computing individual fitness values for each one of them.
-        """
-        print(f"Solutions:\n {solutions}")
-        fitness_values = np.zeros(len(solutions))
-
-        for idx, solution in enumerate(solutions):
-            self._boolean_model.from_binary(solution, self._mutation_type)
-            self._boolean_model.calculate_attractors(self._boolean_model.attractor_tool)
-            responses = self._training_data.responses
-
-            if 'globaloutput' in responses[0]:
-                observed_global_output = float(responses[0].split(":")[1])
-                predicted_global_output = self._boolean_model.calculate_global_output(self._model_outputs)
-                fitness = 1 - abs(predicted_global_output - observed_global_output)
-                fitness_values[idx] = fitness
-
-                print('\nCalculating fitness..')
-                print(f"Scaled fitness [0..1] for solution {solutions_idx}:  {fitness}")
-                print(f"Predicted global output: {predicted_global_output}")
-                print(f"Observed global output: {observed_global_output}")
-
-            else:
-                attractors = self._boolean_model.attractors
-                if not attractors:
-                    continue
-
-                total_matches = np.array([self._calculate_matches(attractor) for attractor in attractors])
-
-                if len(total_matches) > 1:
-                    average_matches = np.mean(total_matches)
-                    fitness = average_matches / len(responses)
-                else:
-                    fitness = total_matches[0] / len(responses)
-                fitness_values[idx] = fitness
-
-                print('\nCalculating fitness..')
-                print(f"Scaled fitness [0..1] for solution {solutions_idx}:  {fitness}")
-
-        return fitness_values
-
-    def _calculate_matches(self, attractor):
-        total_matches = 0
-        responses = self._training_data.responses
-        weights = self._training_data.weights
-
-        match_score = 0
-        for node_response in responses:
-            node, expected_value = node_response.split(":")
-            expected_value = float(expected_value)
-            if node not in attractor:
-                continue
-
-            actual_value = attractor[node]
-            if actual_value in [0, 1]:
-                match_score += 1 - abs(expected_value - actual_value)
-            else:
-                match_score += 1 - abs(expected_value - 0.5)
-
-        weighted_match_score = match_score * weights[0]
-        total_matches += weighted_match_score
-
-        return total_matches
-
-    def callback_generation(self, ga_instance):
-        population = ga_instance.population
+    def _callback_generation(self, ga_instance):
         fitness = ga_instance.last_generation_fitness
-        sorted_indices = np.argsort(fitness)[::-1]
-
+        population = ga_instance.population
         unique_solutions = set()
-        new_best_models = []
 
-        for idx in sorted_indices:
-            solution_tuple = tuple(population[idx])
-            if solution_tuple not in unique_solutions:
-                unique_solutions.add(solution_tuple)
-                new_best_models.append((population[idx], fitness[idx]))
-            if len(unique_solutions) == self._num_best_solutions:
-                break
+        self._best_models_per_run = sorted(((population[idx], fitness[idx]) for idx in np.argsort(fitness)[::-1]
+             if tuple(population[idx]) not in unique_solutions and not unique_solutions.add(tuple(population[idx]))),
+            key=lambda x: x[1], reverse=True)[:self._num_best_solutions]
 
-        new_best_models.sort(key=lambda x: x[1], reverse=True)
-        self._best_models[:] = new_best_models[:self._num_best_solutions]
+    def _create_default_training_data(self):
+        return TrainingData(observations=[(["-"], ["globaloutput:1"], 1.0)])
 
-    def save_to_file_models(self, file_path):
+    def _calculate_matches(self, attractor, response):
+        match_score = 0
+        found_observations = 0
+
+        for node in response:
+            node_name, observed_node_state = node.split(":")
+            observed_node_state = float(observed_node_state.strip())
+            attractor_state = attractor.get(node_name, '*')
+            predicted_node_state = 0.5 if attractor_state == '*' else float(attractor_state)
+            match = 1.0 - abs(predicted_node_state - observed_node_state)
+            match_score += match
+            found_observations += 1
+        if found_observations > 0:
+            match_score /= found_observations
+
+        return match_score
+
+    def _run_single_ga(self, evolution_number):
         """
-        Save the best solutions to a .bnet file.
-        :param file_path: Path to the file where the best solutions will be saved.
+        Runs a single GA  and returns the best models_old for this run.
         """
-        current_time = datetime.datetime.now()
-        date_str = current_time.strftime('%y%m%d')
-        time_str = current_time.strftime('%H%M%S')
-        date_str_bnet = current_time.strftime('%y/%m/%d')
-        time_str_bnet = current_time.strftime('%H:%M:%S')
-
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-
-        for idx, (solution, fitness) in enumerate(self._best_models):
-            self._boolean_model.from_binary(solution, self._mutation_type)
-            temp = self._boolean_model.updated_boolean_equations
-            model_str = self._boolean_model.to_bnet_format(temp)
-
-            file_name = f"solution_{idx + 1}_{date_str}_{time_str}.bnet"
-            full_path = os.path.join(file_path, file_name)
-            with open(full_path, 'w') as file:
-                file.write(f"# Solution {idx + 1}\n")
-                file.write(f"# Date: {date_str_bnet}, Time: {time_str_bnet}\n")
-                file.write(f"# Fitness value: {fitness}\n")
-                file.write('targets, factors\n')
-                file.write(model_str + '\n')
-
-        print(f"\nBest solutions saved to files with the format solution_[index]_[date]_[time].bnet")
-
-    def run_single_ga(self, evolution_number):
         ga_instance = pygad.GA(
             num_generations=self._ga_args.get('num_generations'),
             num_parents_mating=self._ga_args.get('num_parents_mating'),
             fitness_func=self.calculate_fitness,
-            fitness_batch_size=len(self._initial_population),
             sol_per_pop=self._ga_args.get('sol_per_pop'),
             gene_space=[0, 1],
-            num_genes=len(self._initial_population),
-            initial_population=self._initial_population,
-            parent_selection_type=self._ga_args.get('parent_selection_type'),
-            crossover_type=self._ga_args.get('crossover_type'),
-            mutation_type=self._ga_args.get('mutation_type'),
-            mutation_num_genes=self._ga_args.get('mutation_num_genes'),
-            stop_criteria=self._ga_args.get('stop_criteria'),
+            num_genes=len(self._boolean_model.binary_boolean_equations),
             parallel_processing=self._ga_args.get('parallel_processing'),
-            on_generation=self.callback_generation,
+            # random_seed = self._ga_args.get('random_seed'),
+            on_generation=self._callback_generation
         )
 
         ga_instance.run()
+        return self._best_models_per_run[:self._num_best_solutions]
 
-        best_models = self._best_models[:self._num_best_solutions]
-        # for idx, (solution, fitness) in enumerate(best_models):
-        #     print(f"Best {idx + 1} result of evolution {evolution_number}: solution: {solution}, fitness: {fitness}")
 
-        return best_models
+    def calculate_fitness(self, ga_instance, solution, solution_idx):
+        mutated_boolean_model = self._boolean_model.clone()
+        mutated_boolean_model.from_binary(solution, self._mutation_type)
+        fitness = 0.0
+
+        for observation in self._training_data.observations:
+            response = observation['response']
+            weight = observation['weight']
+            mutated_boolean_model.calculate_attractors(mutated_boolean_model.attractor_tool)
+            condition_fitness = 0.0
+            if mutated_boolean_model.has_attractors():
+                if 'globaloutput' in response[0]:
+                    observed_global_output = float(response[0].split(":")[1])
+                    predicted_global_output = mutated_boolean_model.calculate_global_output(self._model_outputs)
+                    condition_fitness = 1.0 - abs(predicted_global_output - observed_global_output)
+
+                else:
+                    total_matches = [self._calculate_matches(attractor, response) for attractor in
+                                     mutated_boolean_model.attractors]
+                    if total_matches:
+                        avg_matches = sum(total_matches) / len(total_matches)
+                        condition_fitness += avg_matches
+
+            fitness += condition_fitness * (weight / self._training_data.weight_sum)
+
+            print('\nCalculating fitness..')
+            print(f"Scaled fitness [0..1] for solution {solution_idx}:  {fitness}")
+
+        return fitness
 
     def run(self) -> List[BooleanModel]:
+        """
+        Runs the genetic algorithm for the specified number of runs, accumulating the best
+        models_old from each run and returning all of them.
+        """
         start_time = time.time()
-        all_best_models = []
-        with concurrent.futures.ProcessPoolExecutor(max_workers=self._num_cores) as executor:
-            futures = [executor.submit(self.run_single_ga, i) for i in range(self._num_runs)]
-            for future in concurrent.futures.as_completed(futures):
-                all_best_models.extend(future.result())
 
-        all_best_models.sort(key=lambda x: x[1], reverse=True)
-        self._best_models = all_best_models[:self._num_best_solutions]
+        with concurrent.futures.ProcessPoolExecutor(max_workers=self._num_cores) as executor:
+            futures = [executor.submit(self._run_single_ga, i) for i in range(self._num_runs)]
+            evolution_results = []
+            for evolution_number, future in enumerate(concurrent.futures.as_completed(futures), start=1):
+                models = future.result()
+                evolution_results.append((evolution_number, models))
 
         best_boolean_models = []
-        for idx, (solution, fitness) in enumerate(self._best_models):
-            model_clone = self._boolean_model.clone()
-            model_clone.updated_boolean_equations = model_clone.from_binary(solution, self._mutation_type)
-            model_clone.fitness = fitness
-            best_boolean_models.append(model_clone)
-            print(f"\nBest Solution {idx + 1}: {solution}, Fitness: {fitness}")
 
-        end_time = time.time()
-        duration = end_time - start_time
-        print(f"Total runtime: {duration} seconds")
-
+        for evolution_index, models in evolution_results:
+            for solution_index, (solution, fitness) in enumerate(models, start=1):
+                best_boolean_model = self._boolean_model.clone()
+                best_boolean_model.updated_boolean_equations = best_boolean_model.from_binary(solution,
+                                                                                              self._mutation_type)
+                best_boolean_model.binary_boolean_equations = solution
+                best_boolean_model.fitness = fitness
+                best_boolean_model.model_name = f"e{evolution_index}_s{solution_index}"
+                best_boolean_models.append(best_boolean_model)
+                print(f"\nBest Solution: {solution}, Fitness: {fitness}, BM Name: {best_boolean_model.model_name}")
+        self._best_boolean_models = best_boolean_models
+        print(f"Total runtime: {time.time() - start_time:.3f} seconds")
         return best_boolean_models
+
+    def save_to_file_models(self):
+        now = datetime.datetime.now()
+        current_date = now.strftime('%Y_%m_%d')
+        current_time = now.strftime('%H%M')
+        root = 'models'
+        if not os.path.exists(root):
+            os.makedirs(root)
+
+        subfolder = f"{root}_{current_date}_{current_time}"
+        if not os.path.exists(subfolder):
+            os.makedirs(subfolder)
+
+        for model in self._best_boolean_models:
+            evolution_number = model.model_name.split("_")[0][1:]
+            solution_index = model.model_name.split("_")[1][1:]
+            filename = f"e{evolution_number}_s{solution_index}.bnet"
+            filepath = os.path.join(subfolder, filename)
+
+            boolean_model_bnet = f"# {current_date}, {current_time}\n"
+            boolean_model_bnet += f"# Evolution: {evolution_number} Solution: {solution_index}\n"
+            boolean_model_bnet += f"# Fitness Score: {model.fitness:.3f}\n"
+
+            boolean_equation = model.to_bnet_format(model.updated_boolean_equations)
+            boolean_model_bnet += boolean_equation
+            with open(filepath, "w") as file:
+                file.write(boolean_model_bnet)
+            print(f"Model saved to {filepath}")
+
+    @property
+    def best_boolean_models(self) -> List[BooleanModel]:
+        return self._best_boolean_models
