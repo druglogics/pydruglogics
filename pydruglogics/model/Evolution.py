@@ -4,11 +4,10 @@ import multiprocessing
 import datetime
 import time
 from typing import Optional, Dict, List
-import numpy as np
 import pygad
-from gitsbe import BooleanModel
-from gitsbe.input.TrainingData import TrainingData
-from gitsbe.model.BooleanModelOptimizer import BooleanModelOptimizer
+from pydruglogics import BooleanModel
+from pydruglogics.input.TrainingData import TrainingData
+from pydruglogics.model.BooleanModelOptimizer import BooleanModelOptimizer
 
 
 class Evolution(BooleanModelOptimizer):
@@ -36,23 +35,16 @@ class Evolution(BooleanModelOptimizer):
         self._training_data = training_data or self._create_default_training_data()
         self._model_outputs = model_outputs
         self._ga_args = ga_args or {}
-        self._best_models_per_run = []
         self._best_boolean_models = []
         self._num_best_solutions = num_best_solutions
         self._num_runs = num_runs
         self._num_cores = num_cores if num_cores else multiprocessing.cpu_count()
 
         if not self._model_outputs:
-            raise ValueError('Please provide training.tab data and model outputs.')
+            raise ValueError('Please provide the model outputs.')
 
     def _callback_generation(self, ga_instance):
-        fitness = ga_instance.last_generation_fitness
-        population = ga_instance.population
-        unique_solutions = set()
-
-        self._best_models_per_run = sorted(((population[idx], fitness[idx]) for idx in np.argsort(fitness)[::-1]
-             if tuple(population[idx]) not in unique_solutions and not unique_solutions.add(tuple(population[idx]))),
-            key=lambda x: x[1], reverse=True)[:self._num_best_solutions]
+        print(f"Generation {ga_instance.generations_completed}: Fitness values: {ga_instance.last_generation_fitness}")
 
     def _create_default_training_data(self):
         return TrainingData(observations=[(["-"], ["globaloutput:1"], 1.0)])
@@ -76,7 +68,7 @@ class Evolution(BooleanModelOptimizer):
 
     def _run_single_ga(self, evolution_number):
         """
-        Runs a single GA  and returns the best models_old for this run.
+        Runs a single GA  and returns the best models for this run.
         """
         ga_instance = pygad.GA(
             num_generations=self._ga_args.get('num_generations'),
@@ -86,13 +78,18 @@ class Evolution(BooleanModelOptimizer):
             gene_space=[0, 1],
             num_genes=len(self._boolean_model.binary_boolean_equations),
             parallel_processing=self._ga_args.get('parallel_processing'),
-            # random_seed = self._ga_args.get('random_seed'),
+            random_seed=evolution_number,
             on_generation=self._callback_generation
         )
 
         ga_instance.run()
-        return self._best_models_per_run[:self._num_best_solutions]
 
+        sorted_population = sorted(
+            [(ga_instance.population[idx], ga_instance.last_generation_fitness[idx]) for idx in
+             range(len(ga_instance.population))], key=lambda x: x[1], reverse=True)[:self._num_best_solutions]
+
+        print(f"Simulation {evolution_number}: Fitness = {sorted_population[0][1]}")
+        return sorted_population
 
     def calculate_fitness(self, ga_instance, solution, solution_idx):
         mutated_boolean_model = self._boolean_model.clone()
@@ -127,20 +124,17 @@ class Evolution(BooleanModelOptimizer):
     def run(self) -> List[BooleanModel]:
         """
         Runs the genetic algorithm for the specified number of runs, accumulating the best
-        models_old from each run and returning all of them.
+        models from each run and returning all of them.
         """
         start_time = time.time()
 
         with concurrent.futures.ProcessPoolExecutor(max_workers=self._num_cores) as executor:
             futures = [executor.submit(self._run_single_ga, i) for i in range(self._num_runs)]
-            evolution_results = []
-            for evolution_number, future in enumerate(concurrent.futures.as_completed(futures), start=1):
-                models = future.result()
-                evolution_results.append((evolution_number, models))
+            evolution_results = [future.result() for future in concurrent.futures.as_completed(futures)]
 
-        best_boolean_models = []
+        self._best_boolean_models = []
 
-        for evolution_index, models in evolution_results:
+        for evolution_index, models in enumerate(evolution_results, start=1):
             for solution_index, (solution, fitness) in enumerate(models, start=1):
                 best_boolean_model = self._boolean_model.clone()
                 best_boolean_model.updated_boolean_equations = best_boolean_model.from_binary(solution,
@@ -148,21 +142,17 @@ class Evolution(BooleanModelOptimizer):
                 best_boolean_model.binary_boolean_equations = solution
                 best_boolean_model.fitness = fitness
                 best_boolean_model.model_name = f"e{evolution_index}_s{solution_index}"
-                best_boolean_models.append(best_boolean_model)
-                print(f"\nBest Solution: {solution}, Fitness: {fitness}, BM Name: {best_boolean_model.model_name}")
-        self._best_boolean_models = best_boolean_models
-        print(f"Total runtime: {time.time() - start_time:.3f} seconds")
-        return best_boolean_models
+                self._best_boolean_models.append(best_boolean_model)
 
-    def save_to_file_models(self):
+        print(f"Total runtime: {time.time() - start_time:.3f} seconds")
+        return self._best_boolean_models
+
+    def save_to_file_models(self, base_folder):
         now = datetime.datetime.now()
         current_date = now.strftime('%Y_%m_%d')
         current_time = now.strftime('%H%M')
-        root = 'models'
-        if not os.path.exists(root):
-            os.makedirs(root)
 
-        subfolder = f"{root}_{current_date}_{current_time}"
+        subfolder = os.path.join(base_folder, f"models_{current_date}_{current_time}")
         if not os.path.exists(subfolder):
             os.makedirs(subfolder)
 
@@ -178,6 +168,7 @@ class Evolution(BooleanModelOptimizer):
 
             boolean_equation = model.to_bnet_format(model.updated_boolean_equations)
             boolean_model_bnet += boolean_equation
+
             with open(filepath, "w") as file:
                 file.write(boolean_model_bnet)
             print(f"Model saved to {filepath}")

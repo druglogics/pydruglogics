@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from gitsbe.model import BooleanModel
+from pydruglogics.model import BooleanModel
 
 
 class BooleanModelOptimizer(ABC):

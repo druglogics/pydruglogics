@@ -1,9 +1,9 @@
 from typing import List, Dict, Optional
-from gitsbe.utils.Util import Util
+from pydruglogics.utils.Util import Util
 
 
 class InteractionModel:
-    def __init__(self, interactions=None):
+    def __init__(self, interactions=None, verbosity=1):
         self._interactions: List[Dict] = interactions if interactions is not None else []
         self._model_name = None
 

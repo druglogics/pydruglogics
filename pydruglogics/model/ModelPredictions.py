@@ -5,7 +5,7 @@ import pandas as pd
 
 class ModelPredictions:
     def __init__(self, boolean_models=None, perturbations=None, model_outputs=None,
-                 observed_synergy_scores=None, synergy_method='hsa'):
+                 observed_synergy_scores=None, synergy_method='hsa', verbosity=1):
         """
         Initializes the ModelPredictions class.
 

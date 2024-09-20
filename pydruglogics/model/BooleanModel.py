@@ -1,13 +1,12 @@
 import mpbn
 from pyboolnet.file_exchange import bnet2primes
 from pyboolnet.trap_spaces import compute_trap_spaces, compute_steady_states
-from gitsbe.utils.Util import Util
-
+from pydruglogics.utils.Util import Util
 
 
 class BooleanModel:
     def __init__(self, model=None,  file='', attractor_tool='', mutation_type='mixed', model_name='', equations = None,
-                 fitness=0.0, binary_equations=None):
+                 fitness=0.0, binary_equations=None, verbosity=1):
         """
         Initializes the BooleanModel instance.
         :param model: An InteractionModel instance.

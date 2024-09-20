@@ -1,5 +1,5 @@
 from typing import List, Dict
-from gitsbe.utils.Util import Util
+from pydruglogics.utils.Util import Util
 
 
 class ModelOutputs:

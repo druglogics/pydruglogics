@@ -1,5 +1,5 @@
 from typing import List, Dict, Union, Tuple
-from gitsbe.utils.Util import Util
+from pydruglogics.utils.Util import Util
 
 
 class TrainingData:

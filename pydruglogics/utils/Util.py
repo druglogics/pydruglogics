@@ -5,11 +5,6 @@ from typing import List
 class Util:
     @staticmethod
     def get_file_extension(file_name: str) -> str:
-        """
-
-        :param file_name:
-        :return: str
-        """
         try:
             if file_name:
                 extension = file_name[file_name.rfind('.') + 1:]
@@ -21,11 +16,6 @@ class Util:
 
     @staticmethod
     def remove_extension(file_ext: str) -> str:
-        """
-
-        :param file_ext:
-        :return: str
-        """
         file_name = os.path.basename(file_ext)
         name_without_extension = file_name.rsplit('.', 1)[0]
         if name_without_extension:
@@ -34,12 +24,6 @@ class Util:
 
     @staticmethod
     def read_lines_from_file(file_name: str, skip_empty_lines_and_comments: bool = True) -> List[str]:
-        """
-
-        :param file_name:
-        :param skip_empty_lines_and_comments:
-        :return: list[str]
-        """
         lines = []
         with open(file_name, 'r') as file:
             for line in file:
