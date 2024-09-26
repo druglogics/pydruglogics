@@ -1,11 +1,15 @@
 import concurrent.futures
-from sklearn.metrics import roc_curve, precision_recall_curve, auc
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
+from sklearn.metrics import roc_curve, precision_recall_curve, auc
+from pydruglogics.model.BooleanModel import BooleanModel
+from pydruglogics.utils.Logger import Logger
+
 
 class ModelPredictions:
-    def __init__(self, boolean_models=None, perturbations=None, model_outputs=None,
-                 observed_synergy_scores=None, synergy_method='hsa', verbosity=1):
+    def __init__(self, boolean_models=None, perturbations=None, model_outputs=None, model_directory=None,
+                 attractor_tool= None, observed_synergy_scores=None, synergy_method='hsa', verbosity = 2):
         """
         Initializes the ModelPredictions class.
 
@@ -23,6 +27,12 @@ class ModelPredictions:
         self._predicted_synergy_scores = []
         self._observed_synergy_scores = observed_synergy_scores
         self._response_matrix = {}
+        self._logger = Logger(verbosity)
+
+        if model_directory and not boolean_models:
+            self._load_models_from_directory(model_directory, attractor_tool=attractor_tool)
+        if not model_directory and not boolean_models:
+            raise ValueError('Please provide Boolean Models from file or list.')
 
     def _simulate_model_responses(self, model, perturbation):
         """
@@ -32,11 +42,13 @@ class ModelPredictions:
         :param perturbation: The perturbation to apply to the model.
         :return: The perturbed model, its response, and the perturbation.
         """
+
         perturbed_model = model.clone()
         perturbed_model.add_perturbations(perturbation)
+        self._logger.log(f"Added new perturbed model: {perturbed_model.model_name}", 2)
         perturbed_model.calculate_attractors(perturbed_model.attractor_tool)
-        global_output = perturbed_model.calculate_global_output(self._model_outputs)
-        print(f"Global output: {global_output}")
+        global_output = perturbed_model.calculate_global_output(self._model_outputs, False)
+        self._logger.log(f"Adding predicted response for perturbation {perturbation}: {global_output}", 2)
         return perturbed_model, global_output, perturbation
 
     def _store_result_in_matrix(self, output_matrix, model_name, perturbation, response):
@@ -58,8 +70,8 @@ class ModelPredictions:
         pd.set_option('display.max_columns', None)
         pd.set_option('display.max_rows', None)
         pd.set_option('display.max_colwidth', None)
-        print("Response Matrix:")
-        print(response_matrix_df)
+        self._logger.log("Response Matrix:", 2)
+        self._logger.log(response_matrix_df, 2)
 
     def _calculate_mean_responses(self):
         mean_values = {}
@@ -73,6 +85,7 @@ class ModelPredictions:
         Calculate synergy scores for perturbations that contain two drugs based on
         the chosen synergy method (HSA or Bliss).
         """
+        self._logger.log('Calculating synergies..', 1)
         mean_responses = self._calculate_mean_responses()
 
         for perturbation in perturbations:
@@ -100,7 +113,7 @@ class ModelPredictions:
         else:
             synergy_score = 0
 
-        print(f"HSA Synergy score for {perturbation_name}: {synergy_score}")
+        self._logger.log(f"HSA Synergy score for {perturbation_name}: {synergy_score}", 2)
 
     def _calculate_bliss_synergy(self, mean_combination, mean_drug1, mean_drug2, perturbation_name):
         bliss_expected_response = mean_drug1 * mean_drug2
@@ -112,13 +125,26 @@ class ModelPredictions:
         else:
             synergy_score = 0
 
-        print(f"Bliss Synergy score for {perturbation_name}: {synergy_score}")
+        self._logger.log(f"Bliss Synergy score for {perturbation_name}: {synergy_score}", 2)
+
+    def _load_models_from_directory(self, directory, attractor_tool):
+        """Loads all .bnet files from the specified directory into boolean models."""
+        for filename in os.listdir(directory):
+            if filename.endswith(".bnet"):
+                file_path = os.path.join(directory, filename)
+                try:
+                    model = BooleanModel(file=file_path, attractor_tool=attractor_tool)
+                    self._boolean_models.append(model)
+                    self._logger.log(f"Loaded model from {file_path}", 2)
+                except Exception as e:
+                    print(f"Failed to load model from {file_path}: {str(e)}")
 
     def run_simulations(self, parallel=True):
         self._model_predictions = []
         self._response_matrix = {}
 
         if parallel:
+            self._logger.log('Running simulations in paralell.', 1)
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [
                     executor.submit(self._simulate_model_responses, model, perturbation)
@@ -130,10 +156,9 @@ class ModelPredictions:
                     self._store_result_in_matrix(self._response_matrix, model.model_name, perturbation, global_output)
                     self._model_predictions.append((model.model_name, global_output, perturbation))
         else:
+            self._logger.log('Running simulations serially.', 1)
             for model in self._boolean_models:
-                print(f"New model: {model.updated_boolean_equations}")
                 for single_perturbation in self._perturbations.perturbations:
-                    print(f"New perturbation: {single_perturbation}")
                     model, global_output, perturbation = self._simulate_model_responses(model, single_perturbation)
                     self._store_result_in_matrix(self._response_matrix, model.model_name, perturbation, global_output)
                     self._model_predictions.append((model.model_name, global_output, global_output))

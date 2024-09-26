@@ -1,15 +1,17 @@
-from typing import List, Dict, Optional
+from typing import List, Dict
 from pydruglogics.utils.Util import Util
+from pydruglogics.utils.Logger import Logger
 
 
 class InteractionModel:
-    def __init__(self, interactions=None, verbosity=1):
+    def __init__(self, interactions=None,  verbosity=2):
         self._interactions: List[Dict] = interactions if interactions is not None else []
         self._model_name = None
+        self._logger = Logger(verbosity)
 
     def load_sif_file(self, interactions_file: str) -> None:
         """
-        loads all the lines of the .sif file and initializes the interactions
+        Loads all the lines of the .sif file and initializes the interactions
         :param interactions_file:
         :return None
         """
@@ -44,7 +46,7 @@ class InteractionModel:
 
     def remove_interactions(self, is_input: bool = False, is_output: bool = False) -> None:
         """
-        removes interactions based on input and output criteria.
+        Removes interactions based on input and output criteria.
         :param is_input:
         :param is_output:
         :return None
@@ -52,10 +54,10 @@ class InteractionModel:
         interactions_size_before_trim = len(self._interactions)
         iteration_trim = 0
         if (is_input and not is_output) or (not is_input and is_output):
-            print(f"Removing ({'inputs' if is_input else 'outputs'}). "
-                  f"Interactions before trim: {interactions_size_before_trim}\n")
+            self._logger.log(f"Removing ({'inputs' if is_input else 'outputs'}). "
+                  f"Interactions before trim: {interactions_size_before_trim}\n", 3)
         else:
-            print(f"Interactions before trim: {interactions_size_before_trim}\n")
+            self._logger.log(f"Interactions before trim: {interactions_size_before_trim}\n", 3)
 
         while True:
             iteration_trim += 1
@@ -66,36 +68,36 @@ class InteractionModel:
                 target = self._interactions[i]['target'] if is_output else None
 
                 if target and self.is_not_a_source(target):
-                    print(f"Removing interaction (i = {i})  (not source):  {self._interactions[i]}")
+                    self._logger.log(f"Removing interaction (i = {i})  (not source):  {self._interactions[i]}")
                     self._interactions.pop(i)
                 if source and self.is_not_a_target(source):
-                    print(f"Removing interaction (i = {i})  (not target):  {self._interactions[i]}")
+                    self._logger.log(f"Removing interaction (i = {i})  (not target):  {self._interactions[i]}")
                     self._interactions.pop(i)
 
             if interactions_size_before_trim <= len(self._interactions):
                 break
-        print(f"Interactions after trim ({iteration_trim} iterations): {len(self._interactions)}\n")
+        self._logger.log(f"Interactions after trim ({iteration_trim} iterations): {len(self._interactions)}\n", 3)
 
     def remove_self_regulated_interactions(self) -> None:
         """
-        removes interactions that are self regulated
+        Removes interactions that are self regulated
         :return None
         """
         for i in range(len(self._interactions) - 1, -1, -1):
             target = self._interactions[i]['target']
             source = self._interactions[i]['source']
             if target == source:
-                print(f"Removing self regulation:  {self._interactions[i]}")
+                self._logger.log(f"Removing self regulation:  {self._interactions[i]}", 2)
                 self._interactions.pop(i)
 
     def build_multiple_interactions(self) -> None:
         """
-        creates interactions with multiple regulators for every single target
+        Creates interactions with multiple regulators for every single target
         :return None
         """
         checked_targets = {}
         multiple_interaction = []
-
+        self._logger.log('Building Boolean Equations for Interactions (.sif).', 2)
         for interaction in self._interactions:
             target = interaction['target']
             if target not in checked_targets:

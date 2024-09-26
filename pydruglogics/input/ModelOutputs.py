@@ -1,10 +1,15 @@
 from typing import List, Dict
+
+from fontTools.ttLib.tables.otBase import valueRecordFormat
+
 from pydruglogics.utils.Util import Util
+from pydruglogics.utils.Logger import Logger
 
 
 class ModelOutputs:
-    def __init__(self, file: str = None, model_outputs_dict: Dict[str, float] = None):
+    def __init__(self, file: str = None, model_outputs_dict: Dict[str, float] = None, verbosity=2):
         self._model_outputs: Dict[str, float] = {}
+        self._logger = Logger(verbosity)
         if file is not None:
             self._load_model_outputs_file(file)
         elif model_outputs_dict is not None:
@@ -34,14 +39,14 @@ class ModelOutputs:
         return sum(min(weight, 0) for weight in self._model_outputs.values())
 
     def _load_model_outputs_file(self, file: str):
-        print(f"Reading model outputs file: {file}")
+        self._logger.log(f"Reading model outputs file: {file}", 2)
         lines = Util.read_lines_from_file(file, True)
         for line in lines:
             node_name, weight = map(str.strip, line.split("\t"))
             self._model_outputs[node_name] = float(weight)
 
     def _load_model_outputs_dict(self, model_outputs_dict: Dict[str, float]):
-        print('Loading model outputs from dictionary')
+        self._logger.log('Loading model outputs from dictionary', 2)
         self._model_outputs = model_outputs_dict
 
     @property

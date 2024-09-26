@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List
 
 
@@ -94,3 +95,42 @@ class Util:
             result[node] = definition
 
         return result
+
+    @staticmethod
+    def create_equation_from_bnet(equation_str):
+        equation = equation_str.strip()
+        target, regulators = equation.split(',', 1)
+        target = target.strip()
+        activating_regulators = {}
+        inhibitory_regulators = {}
+        link = ''
+
+        regulators = regulators.replace('(', '').replace(')', '')
+        if '!' in regulators:
+            parts = regulators.split('!')
+            inhibitory_part = parts[1].strip()
+            before_inhibitory = parts[0].strip()
+            if '&' in before_inhibitory:
+                link = '&'
+            elif '|' in before_inhibitory:
+                link = '|'
+
+            inhibitory_nodes = re.split(r'[|&]', inhibitory_part)
+            for node in inhibitory_nodes:
+                node = node.strip()
+                if node:
+                    inhibitory_regulators[node] = 1
+
+            activating_nodes = re.split(r'[|&]', before_inhibitory)
+            for node in activating_nodes:
+                node = node.strip()
+                if node:
+                    activating_regulators[node] = 1
+        else:
+            activating_nodes = re.split(r'[|&]', regulators)
+            for node in activating_nodes:
+                node = node.strip()
+                if node:
+                    activating_regulators[node] = 1
+
+        return (target, activating_regulators, inhibitory_regulators, link,)

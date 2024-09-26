@@ -1,10 +1,12 @@
 from typing import List, Dict, Union, Tuple
 from pydruglogics.utils.Util import Util
+from pydruglogics.utils.Logger import Logger
 
 
 class TrainingData:
-    def __init__(self, file: str = None, observations: List[Tuple[List[str], List[str], float]] = None):
+    def __init__(self, file: str = None, observations: List[Tuple[List[str], List[str], float]] = None, verbosity=2):
         self._observations = []
+        self._logger = Logger(verbosity)
         if file is not None:
             self._load_from_file(file)
         elif observations is not None:
@@ -19,7 +21,7 @@ class TrainingData:
             print(f"An error occurred while printing TrainingData: {e}")
 
     def _load_from_file(self, file: str) -> None:
-        print(f"Reading training data observations file: {file}")
+        self._logger.log(f"Reading training data observations file: {file}")
         lines = Util.read_lines_from_file(file)
         line_index = 0
         while line_index < len(lines):

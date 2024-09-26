@@ -1,12 +1,16 @@
 import itertools
 from typing import List, Dict, Union
 
+from pydruglogics.utils.Logger import Logger
+
 
 class Perturbation:
-    def __init__(self, drug_data: List[List[Union[str, None]]] = None, perturbation_data: List[List[str]] = None):
+    def __init__(self, drug_data: List[List[Union[str, None]]] = None, perturbation_data: List[List[str]] = None,
+                 verbosity=2):
         self._drug_panel = []
         self._perturbations = []
         self._drug_perturbations = []
+        self._logger = Logger(verbosity)
 
         if drug_data is not None:
             self._load_drug_panel_from_data(drug_data)
@@ -19,6 +23,7 @@ class Perturbation:
             self._init_perturbations_from_drugpanel()
 
     def _load_drug_panel_from_data(self, drug_data: List[List[Union[str, None]]]) -> None:
+        self._logger.log('Loading drug panel data.', 2)
         for drug in drug_data:
             if len(drug) < 2:
                 raise ValueError("Each drug entry must contain at least 'name' and 'targets'.")
@@ -42,6 +47,7 @@ class Perturbation:
         self._init_drug_perturbations()
 
     def _init_drug_perturbations(self) -> None:
+        self._logger.log('Loading drug perturbations.', 2)
         name_to_drug = {drug['name']: drug for drug in self._drug_panel}
         perturbed_drugs = []
 
@@ -55,6 +61,8 @@ class Perturbation:
         self._perturbations = perturbed_drugs
 
     def _init_perturbations_from_drugpanel(self):
+        self._logger.log('Initializing perturbations from drug panel.', 2)
+
         self._perturbations = [
             list(combination)
             for number_of_combination in range(1, 3)
