@@ -3,7 +3,6 @@ import random
 import concurrent.futures
 import multiprocessing
 import datetime
-import time
 from typing import List
 import pygad
 import numpy as np
@@ -15,6 +14,15 @@ from pydruglogics.utils.Logger import Logger
 class Evolution(BooleanModelOptimizer):
     def __init__(self, boolean_model=None, training_data=None, model_outputs=None,
                  ga_args=None, ev_args=None, verbosity=2):
+        """
+        Initializes the Evolution class with a BooleanModel and genetic algorithm parameters.
+        :param boolean_model: The boolean model to be evolved.
+        :param training_data: Training data for the model.
+        :param model_outputs: Model outputs for evaluation.
+        :param ga_args: Dictionary containing all necessary arguments for pygad.
+        :param ev_args: Dictionary containing all necessary arguments for runnning the evolution.
+        :param verbosity: Verbosity level of logging.
+        """
         self._boolean_model = boolean_model
         self._mutation_type = boolean_model.mutation_type
         self._training_data = training_data or self._create_default_training_data()
@@ -23,7 +31,6 @@ class Evolution(BooleanModelOptimizer):
         self._ev_args = ev_args or {}
         self._best_boolean_models = []
         self._logger = Logger(verbosity)
-        self.total_runtime = 0.0
 
         if not self._model_outputs:
             raise ValueError('Please provide the model outputs.')
@@ -64,7 +71,6 @@ class Evolution(BooleanModelOptimizer):
             reverse=True)[:self._ev_args.get('num_best_solutions')]
 
         self._logger.log(f"Best fitness in Simulation {evolution_number}: Fitness = {sorted_population[0][1]}", 2)
-
         return sorted_population
 
     def calculate_fitness(self, ga_instance, solutions, solution_idx):
@@ -162,7 +168,6 @@ class Evolution(BooleanModelOptimizer):
         Runs the genetic algorithm for the specified number of runs, accumulating the best
         models from each run and returning all of them.
         """
-        start_time = time.time()
         seeds = self._ev_args.get('num_of_seeds')
         cores = self._ev_args.get('num_of_cores') if self._ev_args.get('num_of_cores')\
             else multiprocessing.cpu_count()
@@ -172,7 +177,7 @@ class Evolution(BooleanModelOptimizer):
         if seeds is not None:
             np.random.seed(seeds)
 
-        with concurrent.futures.ProcessPoolExecutor(max_workers=cores) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
             futures = []
             for i in range(self._ev_args.get('num_of_runs')):
                 initial_population = self.create_initial_population(
@@ -195,14 +200,10 @@ class Evolution(BooleanModelOptimizer):
                 best_boolean_model.model_name = f"e{evolution_index}_s{solution_index}"
                 self._best_boolean_models.append(best_boolean_model)
 
-        total_runtime = time.time() - start_time
-        self.total_runtime = total_runtime
-        self._logger.log(f"Total evolutionary process runtime: {total_runtime:.3f} seconds", 1)
-
         return self._best_boolean_models
 
 
-    def save_to_file_models(self, base_folder):
+    def save_to_file_models(self, base_folder= './models'):
         now = datetime.datetime.now()
         current_date = now.strftime('%Y_%m_%d')
         current_time = now.strftime('%H%M')

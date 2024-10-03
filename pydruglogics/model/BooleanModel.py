@@ -1,9 +1,12 @@
+import os
+import numpy as np
+from colomoto import minibn
 import mpbn
+import biolqm
 from pyboolnet.file_exchange import bnet2primes
 from pyboolnet.trap_spaces import compute_trap_spaces, compute_steady_states
 from pydruglogics.utils.Util import Util
 from pydruglogics.utils.Logger import Logger
-
 
 
 class BooleanModel:
@@ -18,7 +21,8 @@ class BooleanModel:
         (Supported values: 'pyboolnet_stable_states', 'pyboolnet_trapspaces', 'mpbn_trapspaces')
         :param model_name: Name of the model.
         :param equations: Boolean Equations representing the model's interactions.
-        :param binary: A list representing the Mutate Boolean Model in binary representation.
+        :param binary_equations: A list representing the Mutate Boolean Model in binary representation.
+        :param verbosity: Verbosity level of logging.
         """
         self._model_name = model_name
         self._boolean_equations = []
@@ -36,12 +40,12 @@ class BooleanModel:
         self.verbose = verbosity
         self._logger = Logger(verbosity)
 
-        if model is not None:
+        if model is not None: # init from InteractionModel instance
             self._init_from_model(model)
         elif self._file:
-            self._init_from_bnet_file(file)
+            self._init_from_bnet_file(file) # init from .bnet file
         elif self._equations is not None:
-            self._init_from_equations(equations)
+            self._init_from_equations(equations) # for cloning
         else:
             raise ValueError('Please provide a model or a file for the initialization')
 
@@ -79,7 +83,7 @@ class BooleanModel:
             raise IOError('ERROR: The extension needs to be .bnet!')
 
         self._boolean_equations = []
-        self._model_name = file.rsplit('.', 1)[0]
+        self._model_name = os.path.splitext(os.path.basename(file))[0]
 
         for line in lines:
             if line.strip().startswith('#') or line.strip().startswith('targets') or not line.strip():
@@ -95,6 +99,28 @@ class BooleanModel:
     def _init_from_equations(self, equations):
         self._boolean_equations = equations
         self._updated_boolean_equations = equations
+
+    def _calculate_attractors_biolqm_fixpoints(self):
+        if self._is_bnet_file:
+            result = self._bnet_equations
+            self._is_bnet_file = False
+        else:
+            result = self.to_bnet_format(self._updated_boolean_equations)
+
+        bnet_dict = Util.bnet_string_to_dict(result)
+        boolean_network_minibn = minibn.BooleanNetwork(bnet_dict)
+        network_biolqm = boolean_network_minibn.to_biolqm()
+        calced_valued = biolqm.fixpoints(network_biolqm)
+
+        if calced_valued:
+            self._attractors = [
+                {key: ('*' if value == 254 else value) for key, value in attractor.items()}
+                for attractor in calced_valued
+            ]
+        else:
+            self._attractors = []
+
+        self._logger.log(f"BioLQM found {len(self._attractors)} attractor(s):\n{self._attractors}", 1)
 
     def _calculate_attractors_mpbn(self):
         if self._is_bnet_file:
@@ -175,26 +201,29 @@ class BooleanModel:
         calculates the attractors of the boolean model. The tool for the calculation
         is based on the value of 'self.attractor_tool'.
         Values for 'self.attractor_tool' (please choose one):
-        'mpbn_trapspaces', 'pyboolnet_trapspaces', 'pyboolnet_stable_states'
+        'mpbn_trapspaces', 'pyboolnet_trapspaces', 'pyboolnet_stable_states', 'biolqm_fixpoints'
         :param attractor_tool:
         """
         if 'mpbn_trapspaces' in attractor_tool:
             self._calculate_attractors_mpbn()
         elif 'pyboolnet' in attractor_tool:
             self._calculate_attractors_pyboolnet(attractor_tool)
+        elif 'biolqm_fixpoints' in attractor_tool:
+            self._calculate_attractors_biolqm_fixpoints()
         else:
             raise ValueError('Please provide a valid attractor_tool! Valid values: mpbn_trapspaces, '
-                             'pyboolnet_trapspaces, pyboolnet_stable_states')
+                             'pyboolnet_trapspaces, pyboolnet_stable_states, biolqm_fixpoints')
 
     def calculate_global_output(self, model_outputs, normalized=True):
         """
-        Use this function after you have calculated attractors with the calculate_attractors function
-        in order to find the (normalized) globaloutput of the model, based on the weights of the nodes
-        defined in the ModelOutputs class.
+        Use this function after you have calculated attractors to find the (normalized) global output of the model.
+        :param model_outputs: An instance containing node weights defined in the ModelOutputs class.
+        :param normalized: Whether to normalize the global output.
         :return: float
         """
         if not self._attractors:
             self._global_output = None
+            self._logger.log('No attractors were found', 2)
             return self._global_output
 
         pred_global_output = 0.0
@@ -219,8 +248,8 @@ class BooleanModel:
         """
         Updates the Boolean Equations from a binary representation based on the mutation type.
         :param binary_representation: The binary representation of the Boolean Equations as a list.
-        :param mutation_type: The type of mutation can be: 'topology', 'balanced', 'mixed'
-        :return: None
+        :param mutation_type: The type of mutation can be: 'topology', 'balanced', 'mixed'.
+        :return: Updated Boolean Equations as a list.
         """
         index = 0
         updated_equations = []
@@ -237,6 +266,14 @@ class BooleanModel:
                 index += num_activating
                 new_inhibitory_values = binary_representation[index:index + num_inhibitory]
                 index += num_inhibitory
+
+                if all(val == 0 for val in new_activating_values) and all(val == 0 for val in new_inhibitory_values):
+                    combined_indices = list(range(num_activating + num_inhibitory))
+                    random_index = np.random.choice(combined_indices)
+                    if random_index < num_activating:
+                        new_activating_values[random_index] = 1
+                    else:
+                        new_inhibitory_values[random_index - num_activating] = 1
 
                 new_activating = {key: int(val) for key, val in zip(activating.keys(), new_activating_values)}
                 new_inhibitory = {key: int(val) for key, val in zip(inhibitory.keys(), new_inhibitory_values)}
@@ -261,6 +298,15 @@ class BooleanModel:
                 index += num_activating
                 new_inhibitory_values = binary_representation[index:index + num_inhibitory]
                 index += num_inhibitory
+
+                if all(val == 0 for val in new_activating_values) and all(val == 0 for val in new_inhibitory_values):
+                    combined_indices = list(range(num_activating + num_inhibitory))
+                    random_index = np.random.choice(combined_indices)
+                    if random_index < num_activating:
+                        new_activating_values[random_index] = 1
+                    else:
+                        new_inhibitory_values[random_index - num_activating] = 1
+
                 if link != '':
                     link_value = binary_representation[index]
                     index += 1
@@ -319,11 +365,15 @@ class BooleanModel:
 
             binary_lists.append(binary_representation)
 
-        equation_lists = [item for sublist in binary_lists for item in sublist]
+        equation_lists = [equation for sublist in binary_lists for equation in sublist]
         self._binary_boolean_equations = equation_lists
         return equation_lists
 
     def add_perturbations(self, perturbations):
+        """
+        Adds perturbations to the Boolean Model.
+        :param perturbations: A list of Perturbations.
+        """
         self._perturbations = perturbations
         for drug in perturbations:
             effect = drug['effect']
@@ -331,6 +381,11 @@ class BooleanModel:
             self._perturb_nodes(targets, effect)
 
     def to_bnet_format(self, boolean_equations):
+        """
+        Converts Boolean equations to the '.bnet' format.
+        :param boolean_equations: Boolean equations to be converted.
+        :return: Boolean Equations in BNet format.
+        """
         equation_list = []
 
         for eq in boolean_equations:
@@ -339,21 +394,30 @@ class BooleanModel:
             target_value = f"{target}, "
 
             activation_terms = [regulator for regulator, value in activating_regulators.items() if value == 1]
-            inhibition_terms = [f"!{regulator}" for regulator, value in inhibitory_regulators.items() if value == 1]
+            if activation_terms:
+                activation_expression = f"({activation_terms[0]})"
+                for reg in activation_terms[1:]:
+                    activation_expression = f"({activation_expression} | {reg})"
+            else:
+                activation_expression = ''
 
-            activation_expression = " | ".join(activation_terms)
-            inhibition_expression = " | ".join(inhibition_terms)
+            inhibition_terms = [regulator for regulator, value in inhibitory_regulators.items() if value == 1]
+            if inhibition_terms:
+                inhibition_expression = f"({inhibition_terms[0]})"
+                for reg in inhibition_terms[1:]:
+                    inhibition_expression = f"({inhibition_expression} | {reg})"
+            else:
+                inhibition_expression = ''
 
             if activation_expression and inhibition_expression:
-                combined_expression = f"{activation_expression} {link} {inhibition_expression}"
+                combined_expression = f"{activation_expression} {link} !{inhibition_expression}"
             elif activation_expression or inhibition_expression:
-                combined_expression = activation_expression or inhibition_expression
+                combined_expression = activation_expression if activation_expression else f"!{inhibition_expression}"
             else:
                 combined_expression = '0'
 
-            equation_line = f"{target_value.strip()} {combined_expression.strip()}"
-            modified_line = equation_line.replace('(', '').replace(')', '')
-            equation_list.append(modified_line)
+            equation_line = f"{target_value}{combined_expression}".strip()
+            equation_list.append(equation_line)
 
         final_equation_list = '\n'.join(equation_list)
         return final_equation_list
@@ -388,7 +452,7 @@ class BooleanModel:
     def apply_perturbations(self, perturbations):
         """
         Apply a list of perturbations to the current Boolean model.
-        :param perturbations: A list of perturbations where each perturbation is a dictionary with 'targets' and 'effect'.
+        :param perturbations: A list of perturbations with 'targets' and 'effect'.
         """
         for drug in perturbations:
             effect = drug['effect']
@@ -423,10 +487,6 @@ class BooleanModel:
     @property
     def mutation_type(self) -> str:
         return self._mutation_type
-
-    @property
-    def perturbations(self):
-        return self._perturbations
 
     @property
     def global_output(self):

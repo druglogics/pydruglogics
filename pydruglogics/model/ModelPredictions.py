@@ -1,48 +1,50 @@
+import os
+import datetime
 import concurrent.futures
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
-import os
-from sklearn.metrics import roc_curve, precision_recall_curve, auc
+from sklearn.metrics import roc_curve, auc, precision_recall_curve
 from pydruglogics.model.BooleanModel import BooleanModel
 from pydruglogics.utils.Logger import Logger
 
 
 class ModelPredictions:
-    def __init__(self, boolean_models=None, perturbations=None, model_outputs=None, model_directory=None,
-                 attractor_tool= None, observed_synergy_scores=None, synergy_method='hsa', verbosity = 2):
+    def __init__(self, boolean_models=None, perturbations=None, model_outputs=None, observed_synergy_scores=None,
+                 synergy_method='hsa', model_directory=None, attractor_tool=None, verbosity=2):
         """
         Initializes the ModelPredictions class.
-
         :param boolean_models: List of BooleanModel instances.
         :param perturbations: List of perturbations to apply.
         :param model_outputs: Model outputs for evaluating the predictions.
-        :param observed_synergy_scores: Lost of observed synergy scores.
-        :param synergy_method: The method used to check for synergy ('hsa' or 'bliss').
+        :param observed_synergy_scores: List of observed synergy scores.
+        :param synergy_method: Method to check for synergy ('hsa' or 'bliss').
+        :param model_directory: Directory from which to load models. (Needed only when there is not Evolution result.)
+        :param attractor_tool: Tool to calculate attractors in models. (Needed only when loads models from directory)
+        :param verbosity: Verbosity level of logging.
         """
         self._boolean_models = boolean_models or []
         self._perturbations = perturbations or []
         self._model_outputs = model_outputs
+        self._observed_synergy_scores = observed_synergy_scores
         self._synergy_method = synergy_method
         self._model_predictions = []
         self._predicted_synergy_scores = []
-        self._observed_synergy_scores = observed_synergy_scores
-        self._response_matrix = {}
+        self._prediction_matrix = {}
         self._logger = Logger(verbosity)
 
         if model_directory and not boolean_models:
-            self._load_models_from_directory(model_directory, attractor_tool=attractor_tool)
+            self._load_models_from_directory(directory=model_directory, attractor_tool=attractor_tool)
         if not model_directory and not boolean_models:
             raise ValueError('Please provide Boolean Models from file or list.')
 
     def _simulate_model_responses(self, model, perturbation):
         """
         Initializes a single perturbed Boolean model and simulates its response.
-
         :param model: The Boolean model to perturb.
         :param perturbation: The perturbation to apply to the model.
         :return: The perturbed model, its response, and the perturbation.
         """
-
         perturbed_model = model.clone()
         perturbed_model.add_perturbations(perturbation)
         self._logger.log(f"Added new perturbed model: {perturbed_model.model_name}", 2)
@@ -60,35 +62,24 @@ class ModelPredictions:
         output_matrix[perturbation_name][model_name] = response
 
     def _get_perturbation_name(self, perturbation):
-        perturbation_parts = [drug['name'] for drug in perturbation]
-        return "-".join(perturbation_parts)
-
-    def _print_response_matrix(self, response_matrix):
-        response_matrix_df = pd.DataFrame.from_dict(response_matrix, orient='index').fillna('NA')
-        response_matrix_df = response_matrix_df.map(lambda x: round(x, 2) if isinstance(x, (int, float)) else x)
-
-        pd.set_option('display.max_columns', None)
-        pd.set_option('display.max_rows', None)
-        pd.set_option('display.max_colwidth', None)
-        self._logger.log("Response Matrix:", 2)
-        self._logger.log(response_matrix_df, 2)
+        return "-".join(drug['name'] for drug in perturbation)
 
     def _calculate_mean_responses(self):
         mean_values = {}
-        for perturbation, model_responses in self._response_matrix.items():
+        for perturbation, model_responses in self._prediction_matrix.items():
             values = [response for response in model_responses.values() if isinstance(response, (int, float))]
-            mean_values[perturbation] = sum(values) / len(values) if values else 0
+            mean_values[perturbation] = np.mean(values) if values else 0
         return mean_values
 
-    def _calculate_synergy(self, perturbations):
+    def _calculate_synergy(self):
         """
         Calculate synergy scores for perturbations that contain two drugs based on
         the chosen synergy method (HSA or Bliss).
         """
-        self._logger.log('Calculating synergies..', 1)
+        self._logger.log('\nCalculating synergies..', 3)
         mean_responses = self._calculate_mean_responses()
-
-        for perturbation in perturbations:
+        self._logger.log(f"\nSynergy scores ({self._synergy_method}):", 0)
+        for perturbation in self._perturbations.perturbations:
             perturbation_name = self._get_perturbation_name(perturbation)
 
             if '-' in perturbation_name:
@@ -113,39 +104,47 @@ class ModelPredictions:
         else:
             synergy_score = 0
 
-        self._logger.log(f"HSA Synergy score for {perturbation_name}: {synergy_score}", 2)
+        self._predicted_synergy_scores.append((perturbation_name, synergy_score))
+        self._logger.log(f"{perturbation_name}: {synergy_score}", 0)
 
     def _calculate_bliss_synergy(self, mean_combination, mean_drug1, mean_drug2, perturbation_name):
-        bliss_expected_response = mean_drug1 * mean_drug2
+        drug1_response = ((mean_drug1 - self._model_outputs.min_output) /
+                            (self._model_outputs.max_output - self._model_outputs.min_output))
+        drug2_response = ((mean_drug2 - self._model_outputs.min_output) /
+                          (self._model_outputs.max_output - self._model_outputs.min_output))
+        expected_combination_response = 1.0 * drug1_response * drug2_response
+        combination_response = ((mean_combination - self._model_outputs.min_output) /
+                                (self._model_outputs.max_output - self._model_outputs.min_output))
+        synergy_score = combination_response - expected_combination_response
 
-        if mean_combination < bliss_expected_response:
-            synergy_score = mean_combination - bliss_expected_response
-        elif mean_combination > bliss_expected_response:
-            synergy_score = mean_combination - bliss_expected_response
-        else:
-            synergy_score = 0
-
-        self._logger.log(f"Bliss Synergy score for {perturbation_name}: {synergy_score}", 2)
+        self._predicted_synergy_scores.append((perturbation_name, synergy_score))
+        self._logger.log(f"{perturbation_name}: {synergy_score}", 2)
 
     def _load_models_from_directory(self, directory, attractor_tool):
-        """Loads all .bnet files from the specified directory into boolean models."""
+        """Loads all .bnet files from the given directory into Boolean Models with attractors and global outputs."""
         for filename in os.listdir(directory):
-            if filename.endswith(".bnet"):
+            if filename.endswith('.bnet'):
                 file_path = os.path.join(directory, filename)
                 try:
                     model = BooleanModel(file=file_path, attractor_tool=attractor_tool)
+                    model.calculate_attractors(attractor_tool)
+                    model.calculate_global_output(self._model_outputs, False)
                     self._boolean_models.append(model)
                     self._logger.log(f"Loaded model from {file_path}", 2)
                 except Exception as e:
                     print(f"Failed to load model from {file_path}: {str(e)}")
 
     def run_simulations(self, parallel=True):
+        """
+        Runs the model simulations in parallel or serially.
+        :param parallel: Whether to run simulations in parallel.
+        """
         self._model_predictions = []
-        self._response_matrix = {}
+        self._prediction_matrix = {}
 
         if parallel:
-            self._logger.log('Running simulations in paralell.', 1)
-            with concurrent.futures.ThreadPoolExecutor() as executor:
+            self._logger.log('Running simulations in parallel.', 1)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
                 futures = [
                     executor.submit(self._simulate_model_responses, model, perturbation)
                     for model in self._boolean_models
@@ -153,74 +152,103 @@ class ModelPredictions:
                 ]
                 for future in concurrent.futures.as_completed(futures):
                     model, global_output, perturbation = future.result()
-                    self._store_result_in_matrix(self._response_matrix, model.model_name, perturbation, global_output)
+                    self._store_result_in_matrix(self._prediction_matrix, model.model_name, perturbation, global_output)
                     self._model_predictions.append((model.model_name, global_output, perturbation))
         else:
             self._logger.log('Running simulations serially.', 1)
             for model in self._boolean_models:
-                for single_perturbation in self._perturbations.perturbations:
-                    model, global_output, perturbation = self._simulate_model_responses(model, single_perturbation)
-                    self._store_result_in_matrix(self._response_matrix, model.model_name, perturbation, global_output)
-                    self._model_predictions.append((model.model_name, global_output, global_output))
+                for perturbation in self._perturbations.perturbations:
+                    model, global_output, perturbation = self._simulate_model_responses(model, perturbation)
+                    self._store_result_in_matrix(self._prediction_matrix, model.model_name, perturbation, global_output)
+                    self._model_predictions.append((model.model_name, global_output, perturbation))
 
-        self._print_response_matrix(self._response_matrix)
-        self._calculate_synergy(self._perturbations.perturbations)
+
+        self.get_prediction_matrix()
+        self._calculate_synergy()
+
+    def get_prediction_matrix(self):
+        filtered_matrix = {k: v for k, v in self._prediction_matrix.items() if k.count('-') == 1}
+        response_matrix_df = pd.DataFrame.from_dict(filtered_matrix, orient='index').fillna('NA')
+
+        pd.set_option('display.max_columns', None)
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_colwidth', None)
+        self._logger.log("Response Matrix:", 2)
+        self._logger.log(response_matrix_df, 2)
 
     def plot_roc_and_pr_curve(self):
         """
-        Plot the ROC and Precision-Recall curves using the predicted synergy scores
-        and the observed synergy combinations.
+        Plot the ROC and PR Curves using the predicted synergy scores and the observed synergy combinations.
         """
-        predicted_data = []
-        for perturbation, model_responses in self._response_matrix.items():
-            if '-' in perturbation:
-                drugs = perturbation.split('-')
-                if len(drugs) == 2:
-                    mean_drug1 = self._calculate_mean_responses().get(drugs[0])
-                    mean_drug2 = self._calculate_mean_responses().get(drugs[1])
-                    mean_combination = self._calculate_mean_responses().get(perturbation)
+        df = pd.DataFrame(self._predicted_synergy_scores, columns=['perturbation', 'synergy_score'])
+        df['observed'] = df['perturbation'].apply(lambda x: 1 if x in self._observed_synergy_scores else 0)
+        df['synergy_score'] = df['synergy_score'] * -1
+        df = df.sort_values(by='synergy_score', ascending=False).reset_index(drop=True)
+        self._logger.log("\nPredicted Data with Observed Synergies:", 2)
+        self._logger.log(df, 2)
 
-                    if mean_drug1 is not None and mean_drug2 is not None and mean_combination is not None:
-                        if self._synergy_method == 'hsa':
-                            min_single_agent_response = min(mean_drug1, mean_drug2)
-                            synergy_score = mean_combination - min_single_agent_response
-                        else:
-                            bliss_expected_response = mean_drug1 * mean_drug2
-                            synergy_score = mean_combination - bliss_expected_response
-
-                        predicted_data.append((perturbation, synergy_score))
-
-
-
-        predicted_df = pd.DataFrame(predicted_data, columns=['Combination', 'Score'])
-        predicted_df['Combination'] = predicted_df['Combination'].apply(
-            lambda x: x.replace('[', '').replace(']', '').replace('-', '~'))
-
-        predicted_df['Observed'] = predicted_df['Combination'].apply(
-            lambda x: 1 if x in self._observed_synergy_scores else 0)
-        print(predicted_df.head())
-
-        y_true = predicted_df['Observed']
-        y_scores = predicted_df['Score']
-        fpr, tpr, _ = roc_curve(y_true, y_scores)
+        # ROC Curve
+        fpr, tpr, thresholds = roc_curve(df['observed'], df['synergy_score'])
         roc_auc = auc(fpr, tpr)
 
         plt.figure()
-        plt.plot(fpr, tpr, color='red', label=f"ROC curve (AUC={roc_auc:.2f})")
-        plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('ROC Curve')
-        plt.legend(loc='lower right')
+        plt.plot(fpr, tpr, color='blue', lw=2, label=f"AUC: {roc_auc:.2f} Calibrated")
+        plt.plot([0, 1], [0, 1], color='lightgrey', lw=1.2, linestyle='--')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate (FPR)')
+        plt.ylabel('True Positive Rate (TPR)')
+        plt.title(f"ROC Curve, Ensemble-wise synergies ({self._synergy_method})")
+        plt.legend(loc="lower right")
+        plt.grid(lw=0.5, color='lightgrey')
         plt.show()
+        self._logger.log(f"ROC AUC: {roc_auc:.2f}", 3)
 
-        precision, recall, _ = precision_recall_curve(y_true, y_scores)
+        # PR Curve
+        precision, recall, thresholds = precision_recall_curve(df['observed'], df['synergy_score'])
         pr_auc = auc(recall, precision)
 
         plt.figure()
-        plt.plot(recall, precision, color='green', label=f"PR curve (AUC={pr_auc:.2f})")
+        plt.plot(recall, precision, color='blue', lw=2, label=f"AUC: {pr_auc:.2f} Calibrated")
         plt.xlabel('Recall')
         plt.ylabel('Precision')
-        plt.title(f"Precision-Recall Curve, Method: {self._synergy_method}")
-        plt.legend(loc='lower left')
+        plt.title(f"PR Curve, Ensemble-wise synergies ({self._synergy_method})")
+        plt.legend(loc="upper right")
+        plt.grid(lw=0.5, color='lightgrey')
+        plt.plot([0, 1], [sum(df['observed']) / len(df['observed'])] * 2, linestyle='--', color='grey',)
+        plt.legend(loc="upper right")
         plt.show()
+        self._logger.log(f"PR AUC: {pr_auc:.2f}", 3)
+
+    def save_to_file_predictions(self, base_folder='./predictions'):
+        time_now = datetime.datetime.now()
+        current_date = time_now.strftime('%Y_%m_%d')
+        current_time = time_now.strftime('%H%M')
+
+        subfolder = os.path.join(base_folder, f"predictions_{current_date}_{current_time}")
+        if not os.path.exists(subfolder):
+            os.makedirs(subfolder)
+
+        with open(os.path.join(subfolder, "model_scores.tab"), "w") as file:
+            filtered_matrix = {k: v for k, v in self._prediction_matrix.items() if k.count('-') == 1}
+            response_matrix_df = pd.DataFrame.from_dict(filtered_matrix, orient='index').fillna('NA')
+
+            file.write("# Perturbed scores\n")
+            response_matrix_df.to_csv(file, sep='\t', mode='w')
+
+            file.write("\n# Unperturbed scores\n")
+            for model in self._boolean_models:
+                file.write(f"{model.model_name}\t{model.global_output}\n")
+
+        with open(os.path.join(subfolder, f"synergies_{self._synergy_method}.tab"), "w") as file:
+            file.write(f"# Synergies ({self._synergy_method})\n")
+            file.write("perturbation_name\tsynergy_score\n")
+            for perturbation, score in self._predicted_synergy_scores:
+                if perturbation.count('-') == 1:
+                    file.write(f"{perturbation}\t{score}\n")
+
+        self._logger.log(f"Predictions saved to {subfolder}", 2)
+
+    @property
+    def predicted_synergy_scores(self):
+        return self._predicted_synergy_scores
