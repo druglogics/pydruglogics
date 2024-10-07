@@ -4,24 +4,17 @@ from pydruglogics.utils.Logger import Logger
 
 
 class TrainingData:
-    def __init__(self, file: str = None, observations: List[Tuple[List[str], List[str], float]] = None, verbosity=2):
+    def __init__(self, input_file: str = None, observations: List[Tuple[List[str], List[str], float]] = None, verbosity=2):
         self._observations = []
         self._logger = Logger(verbosity)
-        if file is not None:
-            self._load_from_file(file)
+        if input_file is not None:
+            self._load_from_file(input_file)
         elif observations is not None:
             self._load_from_observations_list(observations)
         else:
             raise ValueError('Please provide a dictionary or a file.')
 
-    def print(self) -> None:
-        try:
-            print(self)
-        except Exception as e:
-            print(f"An error occurred while printing TrainingData: {e}")
-
     def _load_from_file(self, file: str) -> None:
-        self._logger.log(f"Reading training data observations file: {file}")
         lines = Util.read_lines_from_file(file)
         line_index = 0
         while line_index < len(lines):
@@ -46,11 +39,13 @@ class TrainingData:
                     'weight': weight
                 })
             line_index += 1
+            self._logger.log(f"Training data is initialized from file: {file}", 2)
 
     def _load_from_observations_list(self, observations: List[Tuple[List[str], List[str], float]]) -> None:
         for observation in observations:
             condition, response, weight = observation
             self._add_observation(condition, response, weight)
+            self._logger.log(f"Training data is initialized from list.", 2)
 
     def _add_observation(self, condition: List[str], response: List[str], weight: float) -> None:
         if isinstance(response, str) and 'globaloutput' in response:
@@ -65,6 +60,12 @@ class TrainingData:
             'response': response,
             'weight': weight
         })
+
+    def print(self) -> None:
+        try:
+            print(str(self))
+        except Exception as e:
+            print(f"An error occurred while printing Training Data: {e}")
 
     @property
     def weight_sum(self) -> float:

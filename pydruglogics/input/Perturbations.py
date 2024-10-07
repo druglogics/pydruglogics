@@ -1,6 +1,5 @@
 import itertools
 from typing import List, Dict, Union
-
 from pydruglogics.utils.Logger import Logger
 
 
@@ -23,7 +22,6 @@ class Perturbation:
             self._init_perturbations_from_drugpanel()
 
     def _load_drug_panel_from_data(self, drug_data: List[List[Union[str, None]]]) -> None:
-        self._logger.log('Loading drug panel data.', 2)
         for drug in drug_data:
             if len(drug) < 2:
                 raise ValueError("Each drug entry must contain at least 'name' and 'targets'.")
@@ -39,15 +37,17 @@ class Perturbation:
                 'effect': effect
             })
 
+        self._logger.log('Drug panel data is initialized from list.', 2)
+
     def _load_perturbations_from_data(self, perturbation_data: List[List[str]]) -> None:
         if not all(perturbation_data):
             raise ValueError('Each perturbation entry must contain at least one perturbation.')
 
         self._drug_perturbations = perturbation_data
         self._init_drug_perturbations()
+        self._logger.log('Perturbations are initialized from list.', 2)
 
     def _init_drug_perturbations(self) -> None:
-        self._logger.log('Loading drug perturbations.', 2)
         name_to_drug = {drug['name']: drug for drug in self._drug_panel}
         perturbed_drugs = []
 
@@ -59,14 +59,14 @@ class Perturbation:
                 print('Warning: Some drugs in the perturbation were not found in the drug panel.')
 
         self._perturbations = perturbed_drugs
+        self._logger.log('Drug perturbations is loaded.', 2)
 
     def _init_perturbations_from_drugpanel(self):
-        self._logger.log('Initializing perturbations from drug panel.', 2)
-
         self._perturbations = [
             list(combination)
             for number_of_combination in range(1, 3)
             for combination in itertools.combinations(self._drug_panel, number_of_combination)]
+        self._logger.log('Perturbations are initialized from drug panel.', 2)
 
     @property
     def drugs(self) -> List[Dict[str, str]]:
@@ -90,7 +90,7 @@ class Perturbation:
 
     def print(self) -> None:
         try:
-            print(self)
+            print(str(self))
         except Exception as e:
             print(f"An error occurred while printing Perturbation: {e}")
 

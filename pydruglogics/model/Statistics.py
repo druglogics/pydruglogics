@@ -8,7 +8,7 @@ from pydruglogics.utils.Logger import Logger
 
 class Statistics:
     def __init__(self, boolean_models=None, observed_synergy_scores=None, model_outputs=None, perturbations=None,
-                 synergy_method='hsa'):
+                 synergy_method='hsa', verbosity=3):
         """
         Initializes the Statistics class.
         :param boolean_models: List of BooleanModel instances.
@@ -17,55 +17,56 @@ class Statistics:
         :param perturbations: Perturbations to apply to the Boolean Models.
         :param synergy_method: Method to check for synergy ('hsa' or 'bliss').
         """
-        self.boolean_models = boolean_models or []
+        self._boolean_models = boolean_models or []
         self._observed_synergy_scores = observed_synergy_scores
         self._model_outputs = model_outputs
         self._perturbations = perturbations
         self._synergy_method = synergy_method
-        self._logger = Logger(2)
+        self._logger = Logger(verbosity)
 
-    def sampling(self, times=5, sub_ratio=0.8):
+    def sampling(self, repeat_time=10, sub_ratio=0.8):
         """
         Perform bootstrap sampling on the boolean models, run model predictions, and plot ROC and PR curves.
-        :param times: Number of times to repeat the sampling process.
+        :param repeat_time: Number of repeat the sampling process.
         :param sub_ratio: Fraction of models to sample randomly for each iteration.
         """
-        num_models = len(self.boolean_models)
+        num_models = len(self._boolean_models)
         sample_size = int(sub_ratio * num_models)
 
         predicted_synergy_scores_list = []
-        for i in range(times):
-            sampled_models = np.random.choice(self.boolean_models, size=sample_size, replace=False).tolist()
+        for i in range(repeat_time):
+            sampled_models = np.random.choice(self._boolean_models, size=sample_size, replace=False).tolist()
             model_predictions = ModelPredictions(
                 boolean_models=sampled_models,
                 perturbations=self._perturbations,
                 model_outputs=self._model_outputs,
                 observed_synergy_scores=self._observed_synergy_scores,
                 synergy_method=self._synergy_method,
-                verbosity=2
+                verbosity=0
             )
             model_predictions.run_simulations(parallel=True)
             predicted_synergy_scores_list.append(model_predictions.predicted_synergy_scores)
 
         self.plot_roc_and_pr_curve_multiple(predicted_synergy_scores_list)
 
-    def compare_calibrate_vs_random(self, evolution_result_calibrated, evolution_result_random):
+    def compare_two_simulations(self, evolution_result1, evolution_result2, label1='Evolution 1 Models',
+                                label2='Evolution 2 Models'):
         """
-        Compares the ROC and PR curves of two evolution results by running predictions on both and plotting.
-        :param evolution_result_calibrated: List of BooleanModel instances with calibrated data (Training Data)
-        :param evolution_result_random: List of BooleanModel instances with random data (no Training Data, global output:1)
+        Compares the ROC and PR Curves of two Evolution results by running predictions on both and plotting.
+        :param evolution_result1: List of the best Boolean Models produced by one Evolution run
+        :param evolution_result2: List of the best Boolean Models produced by another Evolution run
         """
         predicted_synergy_scores_list = []
-        labels = ["Calibrated", "Random"]
+        labels = [label1, label2]
 
-        for idx, best_boolean_models in enumerate([evolution_result_calibrated, evolution_result_random]):
+        for index, best_boolean_models in enumerate([evolution_result1, evolution_result2]):
             model_predictions = ModelPredictions(
                 boolean_models=best_boolean_models,
                 perturbations=self._perturbations,
                 model_outputs=self._model_outputs,
                 observed_synergy_scores=self._observed_synergy_scores,
                 synergy_method=self._synergy_method,
-                verbosity=2
+                verbosity=0
             )
             model_predictions.run_simulations(parallel=True)
             predicted_synergy_scores_list.append(model_predictions.predicted_synergy_scores)
@@ -116,7 +117,7 @@ class Statistics:
             df = df.sort_values(by='synergy_score', ascending=False).reset_index(drop=True)
 
             # PR Curve
-            precision, recall, _ = precision_recall_curve(df['observed'], df['synergy_score'])
+            precision, recall, tresholds = precision_recall_curve(df['observed'], df['synergy_score'])
             pr_auc = auc(recall, precision)
             plt.plot(recall, precision, lw=2, label=f"{label} AUC: {pr_auc:.2f}")
 

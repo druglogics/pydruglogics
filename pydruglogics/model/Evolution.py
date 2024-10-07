@@ -1,15 +1,16 @@
 import os
-import random
-import concurrent.futures
 import multiprocessing
 import datetime
 from typing import List
 import pygad
 import numpy as np
+from numpy.random import default_rng
+from joblib import Parallel, delayed
 from pydruglogics import BooleanModel
 from pydruglogics.input.TrainingData import TrainingData
 from pydruglogics.model.BooleanModelOptimizer import BooleanModelOptimizer
 from pydruglogics.utils.Logger import Logger
+from pydruglogics.utils.Util import Util
 
 class Evolution(BooleanModelOptimizer):
     def __init__(self, boolean_model=None, training_data=None, model_outputs=None,
@@ -55,10 +56,10 @@ class Evolution(BooleanModelOptimizer):
             num_parents_mating=self._ga_args.get('num_parents_mating'),
             fitness_func=self.calculate_fitness,
             sol_per_pop=self._ga_args.get('sol_per_pop'),
-            keep_elitism=self._ga_args.get('keep_elitism'),
+            mutation_num_genes=self._ga_args.get('mutation_num_genes'),
             gene_space=[0, 1],
             initial_population=initial_population,
-            random_seed=evolution_number,
+            random_seed=self._ga_args.get('num_generations'),
             on_generation=self._callback_generation,
             fitness_batch_size=self._ga_args.get('fitness_batch_size')
         )
@@ -80,63 +81,63 @@ class Evolution(BooleanModelOptimizer):
         :param solution_idx: The index of the current solution batch.
         :return: A list of fitness values, one for each solution in the batch.
         """
-        fitness_values = []
-
-        for solution in solutions:
-            mutated_boolean_model = self._boolean_model.clone()
-            mutated_boolean_model.from_binary(solution, self._mutation_type)
-            fitness = 0.0
-            self._logger.log(f"Model {mutated_boolean_model.model_name}", 2)
-
-            for observation in self._training_data.observations:
-                response = observation['response']
-                weight = observation['weight']
-                mutated_boolean_model.calculate_attractors(mutated_boolean_model.attractor_tool)
-                condition_fitness = 0.0
-                if mutated_boolean_model.has_attractors():
-                    if 'globaloutput' in response[0]:
-                        observed_global_output = float(response[0].split(":")[1])
-                        predicted_global_output = mutated_boolean_model.calculate_global_output(self._model_outputs)
-                        condition_fitness = 1.0 - abs(predicted_global_output - observed_global_output)
-                        self._logger.log(f"Observed Global Output: {observed_global_output:.2f}, ", 3)
-                        self._logger.log(f"Predicted Global Output: {predicted_global_output:.2f}", 3)
-                    else:
-                        if mutated_boolean_model.has_stable_states():
-                            condition_fitness += 1.0
-
-                        total_matches = []
-                        for index, attractor in enumerate(mutated_boolean_model.attractors):
-                            self._logger.log(f"Checking stable state no. {index + 1}", 2)
-                            match_score = 0
-                            found_observations = 0
-                            for node in response:
-                                node_name, observed_node_state = node.split(":")
-                                observed_node_state = float(observed_node_state.strip())
-                                attractor_state = attractor.get(node_name, '*')
-                                predicted_node_state = 0.5 if attractor_state == '*' else float(attractor_state)
-                                match = 1.0 - abs(predicted_node_state - observed_node_state)
-                                self._logger.log(f"Match for observation on node {node_name}: {match} (1 - "
-                                                 f"|{predicted_node_state} - {observed_node_state}|)", 3)
-                                match_score += match
-                                found_observations += 1
-                            self._logger.log(f"From {found_observations} observations, found {match_score} matches",2)
-                            if found_observations > 0:
-                                if mutated_boolean_model.has_stable_states():
-                                    condition_fitness /= (found_observations+1)
-                                else:
-                                    condition_fitness /= found_observations
-                                match_score /= found_observations
-                            total_matches.append(match_score)
-                        if total_matches:
-                            avg_matches = sum(total_matches) / len(total_matches)
-                            self._logger.log(f"Average match value through all stable states: {avg_matches}", 2)
-                            condition_fitness += avg_matches
-
-                fitness += condition_fitness * (weight / self._training_data.weight_sum)
-
-            fitness_values.append(fitness)
-
+        fitness_values = Parallel(n_jobs=-1)(
+            delayed(self._calculate_fitness_for_solution)(solution) for solution in solutions
+        )
         return fitness_values
+
+    def _calculate_fitness_for_solution(self, solution):
+        fitness = 0.0
+        mutated_boolean_model = self._boolean_model.clone()
+        mutated_boolean_model.from_binary(solution, self._mutation_type)
+
+        for observation in self._training_data.observations:
+            response = observation['response']
+            weight = observation['weight']
+            mutated_boolean_model.calculate_attractors(mutated_boolean_model.attractor_tool)
+            condition_fitness = 0.0
+
+            if mutated_boolean_model.has_attractors():
+                if 'globaloutput' in response[0]:
+                    observed_global_output = float(response[0].split(":")[1])
+                    predicted_global_output = mutated_boolean_model.calculate_global_output(self._model_outputs)
+                    condition_fitness = 1.0 - abs(predicted_global_output - observed_global_output)
+                    self._logger.log(f"Observed Global Output: {observed_global_output:.2f}, ", 3)
+                    self._logger.log(f"Predicted Global Output: {predicted_global_output:.2f}", 3)
+                else:
+                    if mutated_boolean_model.has_stable_states():
+                        condition_fitness += 1.0
+
+                    total_matches = []
+                    for index, attractor in enumerate(mutated_boolean_model.attractors):
+                        self._logger.log(f"Checking stable state no. {index + 1}", 2)
+                        match_score = 0
+                        found_observations = 0
+                        for node in response:
+                            node_name, observed_node_state = node.split(":")
+                            observed_node_state = float(observed_node_state.strip())
+                            attractor_state = attractor.get(node_name, '*')
+                            predicted_node_state = 0.5 if attractor_state == '*' else float(attractor_state)
+                            match = 1.0 - abs(predicted_node_state - observed_node_state)
+                            self._logger.log(f"Match for observation on node {node_name}: {match} (1 - "
+                                             f"|{predicted_node_state} - {observed_node_state}|)", 3)
+                            match_score += match
+                            found_observations += 1
+                        self._logger.log(f"From {found_observations} observations, found {match_score} matches", 2)
+                        if found_observations > 0:
+                            if mutated_boolean_model.has_stable_states():
+                                condition_fitness /= (found_observations + 1)
+                            else:
+                                condition_fitness /= found_observations
+                            match_score /= found_observations
+                        total_matches.append(match_score)
+                    if total_matches:
+                        avg_matches = sum(total_matches) / len(total_matches)
+                        self._logger.log(f"Average match value through all stable states: {avg_matches}", 2)
+                        condition_fitness += avg_matches
+            fitness += condition_fitness * (weight / self._training_data.weight_sum)
+
+        return fitness
 
     def create_initial_population(self, population_size, num_mutations, seed=None):
         """
@@ -146,48 +147,43 @@ class Evolution(BooleanModelOptimizer):
         :param seed: Seed for reproducibility.
         :return: List of binary vectors representing the initial population.
         """
-        if seed is not None:
-            random.seed(seed)
-            np.random.seed(seed)
-
-        initial_vector = self._boolean_model.to_binary(self._mutation_type)
+        rng = default_rng(seed)
+        initial_vector = self._boolean_model.binary_boolean_equations
         population = []
 
         for _ in range(population_size):
             individual = initial_vector.copy()
-            mutation_indices = np.random.choice(len(individual), num_mutations, replace=False)
-            for idx in mutation_indices:
-                individual[idx] = 1 - individual[idx]
+            individual_mutation = rng.choice(len(individual), num_mutations, replace=False)
+            for index in individual_mutation:
+                individual[index] = 1-individual[index]
 
             population.append(individual)
 
         return population
 
-    def run(self) -> List[BooleanModel]:
-        """
-        Runs the genetic algorithm for the specified number of runs, accumulating the best
-        models from each run and returning all of them.
-        """
-        seeds = self._ev_args.get('num_of_seeds')
-        cores = self._ev_args.get('num_of_cores') if self._ev_args.get('num_of_cores')\
-            else multiprocessing.cpu_count()
+    def run(self):
+        seeds = self._ev_args.get('num_of_seeds', 20)
+        cores = self._ev_args.get('num_of_cores') if self._ev_args.get('num_of_cores') else multiprocessing.cpu_count()
+        num_of_runs = self._ev_args.get('num_of_runs', 20)
 
         self._logger.log("Starting the evolutionary process...", 0)
+        initial_populations = []
 
         if seeds is not None:
             np.random.seed(seeds)
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=cores) as executor:
-            futures = []
-            for i in range(self._ev_args.get('num_of_runs')):
-                initial_population = self.create_initial_population(
-                    population_size=self._ga_args.get('sol_per_pop'),
-                    num_mutations=3,
-                    seed=seeds + i if seeds is not None else None
-                )
-                futures.append(executor.submit(self._run_single_ga, i, initial_population))
+        for i in range(num_of_runs):
+            seed = seeds + i if seeds is not None else None
+            initial_population = self.create_initial_population(
+                population_size=self._ga_args.get('sol_per_pop'),
+                num_mutations=self._ev_args.get('num_of_init_mutation', 10),
+                seed=seed
+            )
+            initial_populations.append((i, initial_population))
 
-            evolution_results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        evolution_results = Parallel(n_jobs=cores)(
+            delayed(self._run_single_ga)(i, initial_population) for i, initial_population in initial_populations
+        )
 
         self._best_boolean_models = []
 
@@ -222,7 +218,7 @@ class Evolution(BooleanModelOptimizer):
             boolean_model_bnet += f"# Evolution: {evolution_number} Solution: {solution_index}\n"
             boolean_model_bnet += f"# Fitness Score: {model.fitness:.3f}\n"
 
-            boolean_equation = model.to_bnet_format(model.updated_boolean_equations)
+            boolean_equation = Util.to_bnet_format(model.updated_boolean_equations)
             boolean_model_bnet += boolean_equation
 
             with open(filepath, "w") as file:

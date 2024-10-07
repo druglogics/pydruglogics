@@ -2,6 +2,9 @@ import os
 import re
 from typing import List
 
+import numpy as np
+from numba import jit, njit
+
 
 class Util:
     @staticmethod
@@ -97,6 +100,49 @@ class Util:
         return result
 
     @staticmethod
+    def to_bnet_format(boolean_equations):
+        """
+        Converts Boolean equations to the '.bnet' format.
+        :param boolean_equations: Boolean equations to be converted.
+        :return: Boolean Equations in BNet format.
+        """
+        equation_list = []
+
+        for eq in boolean_equations:
+            target, activating_regulators, inhibitory_regulators, link = eq
+
+            target_value = f"{target}, "
+
+            activation_terms = [regulator for regulator, value in activating_regulators.items() if value == 1]
+            if activation_terms:
+                activation_expression = f"({activation_terms[0]})"
+                for reg in activation_terms[1:]:
+                    activation_expression = f"({activation_expression} | {reg})"
+            else:
+                activation_expression = ''
+
+            inhibition_terms = [regulator for regulator, value in inhibitory_regulators.items() if value == 1]
+            if inhibition_terms:
+                inhibition_expression = f"({inhibition_terms[0]})"
+                for reg in inhibition_terms[1:]:
+                    inhibition_expression = f"({inhibition_expression} | {reg})"
+            else:
+                inhibition_expression = ''
+
+            if activation_expression and inhibition_expression:
+                combined_expression = f"{activation_expression} {link} !{inhibition_expression}"
+            elif activation_expression or inhibition_expression:
+                combined_expression = activation_expression if activation_expression else f"!{inhibition_expression}"
+            else:
+                combined_expression = '0'
+
+            equation_line = f"{target_value}{combined_expression}".strip()
+            equation_list.append(equation_line)
+
+        final_equation_list = '\n'.join(equation_list)
+        return final_equation_list
+
+    @staticmethod
     def create_equation_from_bnet(equation_str):
         equation = equation_str.strip()
         target, regulators = equation.split(',', 1)
@@ -134,3 +180,8 @@ class Util:
                     activating_regulators[node] = 1
 
         return (target, activating_regulators, inhibitory_regulators, link,)
+
+    @staticmethod
+    @jit
+    def calculate_match_score(observed_state, predicted_state):
+        return 1.0 - np.abs(predicted_state - observed_state)

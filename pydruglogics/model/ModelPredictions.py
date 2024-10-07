@@ -4,6 +4,7 @@ import concurrent.futures
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed
 from sklearn.metrics import roc_curve, auc, precision_recall_curve
 from pydruglogics.model.BooleanModel import BooleanModel
 from pydruglogics.utils.Logger import Logger
@@ -144,16 +145,15 @@ class ModelPredictions:
 
         if parallel:
             self._logger.log('Running simulations in parallel.', 1)
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-                futures = [
-                    executor.submit(self._simulate_model_responses, model, perturbation)
-                    for model in self._boolean_models
-                    for perturbation in self._perturbations.perturbations
-                ]
-                for future in concurrent.futures.as_completed(futures):
-                    model, global_output, perturbation = future.result()
-                    self._store_result_in_matrix(self._prediction_matrix, model.model_name, perturbation, global_output)
-                    self._model_predictions.append((model.model_name, global_output, perturbation))
+            results = Parallel(n_jobs=-1)(
+                delayed(self._simulate_model_responses)(model, perturbation)
+                for model in self._boolean_models
+                for perturbation in self._perturbations.perturbations
+            )
+
+            for model, global_output, perturbation in results:
+                self._store_result_in_matrix(self._prediction_matrix, model.model_name, perturbation, global_output)
+                self._model_predictions.append((model.model_name, global_output, perturbation))
         else:
             self._logger.log('Running simulations serially.', 1)
             for model in self._boolean_models:
@@ -161,7 +161,6 @@ class ModelPredictions:
                     model, global_output, perturbation = self._simulate_model_responses(model, perturbation)
                     self._store_result_in_matrix(self._prediction_matrix, model.model_name, perturbation, global_output)
                     self._model_predictions.append((model.model_name, global_output, perturbation))
-
 
         self.get_prediction_matrix()
         self._calculate_synergy()

@@ -35,7 +35,7 @@ class Executor:
             training_data=training_data,
             ga_args=ga_args,
             ev_args=ev_args,
-            verbosity=verbosity,
+            verbosity=verbosity
         )
         self.best_boolean_models = evolution.run()
         if save_best_models:

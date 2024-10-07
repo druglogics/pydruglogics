@@ -43,6 +43,7 @@ class InteractionModel:
                     self._interactions.extend([Util.parse_interaction(line1), Util.parse_interaction(line2)])
                 else:
                     self._interactions.append(Util.parse_interaction(interaction))
+        self._logger.log('Interactions loaded successfully', 2)
 
     def remove_interactions(self, is_input: bool = False, is_output: bool = False) -> None:
         """

@@ -10,7 +10,7 @@ from pydruglogics.model.Statistics import Statistics
 
 if __name__ == '__main__':
     # Interaction
-    interaction = InteractionModel(verbosity=0)
+    interaction = InteractionModel(verbosity=1)
     interaction.load_sif_file('../ags_cascade_1.0/network.sif')
     interaction.build_multiple_interactions()
     print('Interactions')
@@ -85,12 +85,12 @@ if __name__ == '__main__':
 
     # BooleanModel init from .bnet file
     boolean_model_bnet = BooleanModel(file='../ags_cascade_1.0/network.bnet', model_name='test',
-                                      mutation_type='balanced', attractor_tool='biolqm_fixpoints',verbosity=2)
+                                      mutation_type='balanced', attractor_tool='biolqm_fixpoints',verbosity=0)
     # boolean_model_bnet.print()
 
     # BooleanModel init from .sif file
     boolean_model_sif = BooleanModel(model=interaction, model_name='test2',
-                                     mutation_type='balanced', attractor_tool='biolqm_fixpoints', verbosity=2)
+                                     mutation_type='balanced', attractor_tool='biolqm_fixpoints', verbosity=0)
     # boolean_model_sif.print()
 
     # init pygad.GA
@@ -100,16 +100,15 @@ if __name__ == '__main__':
         'mutation_num_genes': 3,
         'sol_per_pop': 20,
         'fitness_batch_size': 20,
-        'keep_elitism': 0,
-        'gene_type': int
+        'gene_type': int,
     }
 
     # init evolution params
     ev_args = {
         'num_best_solutions': 3,
-        'num_of_runs': 40,
-        'num_of_seeds': 40,
-        'num_of_cores': 2
+        'num_of_runs': 50,
+        'num_of_seeds':50,
+        'num_of_cores': 4
     }
 
     # init observed synergy scores
@@ -125,20 +124,20 @@ if __name__ == '__main__':
     #     training_data=training_data,
     #     ga_args=ga_args,
     #     ev_args=ev_args,
-    #     save_best_models=True,
+    #     save_best_models=False,
     #     save_path='./models',
     #     verbosity=2
     # )
-
+    # #
     # Running predictions
     # executor.run_predictions(
     #     perturbations=perturbations,
     #     model_outputs=model_outputs,
     #     observed_synergy_scores=observed_synergy_scores,
-    #     synergy_method='bliss',
+    #     synergy_method='hsa',
     #     verbosity=2,
     #     best_boolean_models=None,
-    #     model_directory = './models/models_java',
+    #     model_directory = './models/models_2024_10_07_0010',
     #     attractor_tool='biolqm_fixpoints'
     # )
 
@@ -147,7 +146,7 @@ if __name__ == '__main__':
         run_evolution=True,
         run_predictions=True,
         evolution_params={
-            'boolean_model': boolean_model_sif,
+            'boolean_model': boolean_model_bnet,
             'model_outputs': model_outputs,
             'training_data': training_data,
             'ga_args': ga_args,
