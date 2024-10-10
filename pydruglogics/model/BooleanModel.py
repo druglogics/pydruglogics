@@ -55,7 +55,6 @@ class BooleanModel:
         Initialize the BooleanModel from an InteractionModel instance.
         :param model: The InteractionModel instance containing interactions.
         """
-        self._logger.log('Creating Boolean Model from Interaction Model.', 3)
         self._model_name = model.model_name
         interactions = model
 
@@ -64,6 +63,7 @@ class BooleanModel:
             self._boolean_equations.append(equation)
 
         self._updated_boolean_equations = [tuple(item) for item in self._boolean_equations]
+        self._logger.log('Boolean Model from Interaction Model is created.', 2)
 
     def _init_from_bnet_file(self, file: str) -> None:
         """
@@ -94,6 +94,7 @@ class BooleanModel:
             self._is_bnet_file = True
 
         self._updated_boolean_equations = [tuple(equation) for equation in self._boolean_equations]
+        self._logger.log('Boolean Model from .bnet file is created.', 2)
 
     def _init_from_equations(self, equations):
         self._boolean_equations = equations
@@ -266,27 +267,26 @@ class BooleanModel:
                 updated_equations.append((target, activating, inhibitory, link))
                 continue
 
-            if mutation_type in ['topology', 'mixed'] and len(activating) == 1 and len(inhibitory) == 1:
-                updated_equations.append((target, activating, inhibitory, link))
-                continue
-
             if mutation_type == 'topology':
-                num_activating = len(activating)
-                num_inhibitory = len(inhibitory)
+                if len(activating) == 1 and len(inhibitory) == 1:
+                    updated_equations.append((target, activating, inhibitory, link))
+                else:
+                    num_activating = len(activating)
+                    num_inhibitory = len(inhibitory)
 
-                new_activating_values = binary_representation[index:index + num_activating]
-                index += num_activating
-                new_inhibitory_values = binary_representation[index:index + num_inhibitory]
-                index += num_inhibitory
+                    new_activating_values = binary_representation[index:index + num_activating]
+                    index += num_activating
+                    new_inhibitory_values = binary_representation[index:index + num_inhibitory]
+                    index += num_inhibitory
 
-                if all(val == 0 for val in new_activating_values) and all(val == 0 for val in new_inhibitory_values):
-                    if num_activating > 0:
-                        new_activating_values[0] = 1
-                    if num_inhibitory > 0:
-                        new_inhibitory_values[0] = 1
+                    if all(val == 0 for val in new_activating_values) and all(val == 0 for val in new_inhibitory_values):
+                        if num_activating > 0:
+                            new_activating_values[0] = 1
+                        if num_inhibitory > 0:
+                            new_inhibitory_values[0] = 1
 
-                new_activating = {key: val for key, val in zip(activating.keys(), new_activating_values)}
-                new_inhibitory = {key: val for key, val in zip(inhibitory.keys(), new_inhibitory_values)}
+                new_activating = dict(zip(activating.keys(), new_activating_values))
+                new_inhibitory = dict(zip(inhibitory.keys(), new_inhibitory_values))
                 updated_equations.append((target, new_activating, new_inhibitory, link))
 
             elif mutation_type == 'balanced':
@@ -303,45 +303,43 @@ class BooleanModel:
                 num_activating = len(activating)
                 num_inhibitory = len(inhibitory)
                 if num_activating == 1 and num_inhibitory == 1:
+                    link_value = binary_representation[index]
+                    index += 1
+                    new_link = '&' if link_value == 1 else '|'
+                    updated_equations.append((target, activating, inhibitory, new_link))
+
+                else:
+                    new_activating_values = binary_representation[index:index + num_activating]
+                    index += num_activating
+                    new_inhibitory_values = binary_representation[index:index + num_inhibitory]
+                    index += num_inhibitory
+
+                    if all(value == 0 for value in new_activating_values) and all(
+                            value == 0 for value in new_inhibitory_values):
+                        if num_activating > 0:
+                            new_activating_values[0] = 1
+                        else:
+                            new_inhibitory_values[0] = 1
 
                     if link != '':
                         link_value = binary_representation[index]
                         index += 1
                         new_link = '&' if link_value == 1 else '|'
-                        updated_equations.append((target, activating, inhibitory, new_link))
+
+                        if all(value == 0 for value in new_inhibitory_values):
+                            new_inhibitory_values[0] = 1
+
+                        new_activating = dict(zip(activating.keys(), new_activating_values))
+                        new_inhibitory = dict(zip(inhibitory.keys(), new_inhibitory_values))
+                        updated_equations.append((target, new_activating, new_inhibitory, new_link))
 
                     else:
-                        updated_equations.append((target, activating, inhibitory, link))
+                        new_activating = dict(zip(activating.keys(), new_activating_values))
+                        new_inhibitory = dict(zip(inhibitory.keys(), new_inhibitory_values))
+                        updated_equations.append((target, new_activating, new_inhibitory, link))
 
-                new_activating_values = binary_representation[index:index + num_activating]
-                index += num_activating
-                new_inhibitory_values = binary_representation[index:index + num_inhibitory]
-                index += num_inhibitory
-
-                if all(value == 0 for value in new_activating_values) and all(
-                        value == 0 for value in new_inhibitory_values):
-                    if num_activating > 0:
-                        new_activating_values[0] = 1
-                    else:
-                        new_inhibitory_values[0] = 1
-
-                if link != '':
-                    link_value = binary_representation[index]
-                    index += 1
-                    new_link = '&' if link_value == 1 else '|'
-
-                    if all(value == 0 for value in new_inhibitory_values):
-                        new_inhibitory_values[0] = 1
-
-                    new_activating = dict(zip(activating.keys(), new_activating_values))
-                    new_inhibitory = dict(zip(inhibitory.keys(), new_inhibitory_values))
-                    updated_equations.append((target, new_activating, new_inhibitory, new_link))
-
-                else:
-
-                    new_activating = dict(zip(activating.keys(), new_activating_values))
-                    new_inhibitory = dict(zip(inhibitory.keys(), new_inhibitory_values))
-                    updated_equations.append((target, new_activating, new_inhibitory, link))
+            else:
+                raise ValueError('Invalid mutation type')
 
         self._updated_boolean_equations = updated_equations
         return self._updated_boolean_equations
@@ -415,31 +413,31 @@ class BooleanModel:
             self._perturb_nodes(targets, effect)
 
     def print(self):
-        equation_list = ''
-        for eq in self._updated_boolean_equations:
-            equation = ''
-            target, activating, inhibitory, link = eq
+        equations = []
+        link_operator_map = {'&': 'and', '|': 'or', '': ''}
 
+        for eq in self._updated_boolean_equations:
+            target, activating, inhibitory, link = eq
             activating_nodes = [node for node, value in activating.items() if value == 1]
             inhibitory_nodes = [node for node, value in inhibitory.items() if value == 1]
 
             if activating_nodes and inhibitory_nodes:
                 activating_part = ' or '.join(activating_nodes)
                 inhibitory_part = ' or '.join(inhibitory_nodes)
-                equation += f"{target} *= ({activating_part}) {link} not ({inhibitory_part})"
-            elif activating_nodes and not inhibitory_nodes:
+                converted_link = link_operator_map.get(link, link)
+                equation = f"{target} *= ({activating_part}) {converted_link} not ({inhibitory_part})"
+            elif activating_nodes:
                 activating_part = ' or '.join(activating_nodes)
-                equation += f"{target} *= {activating_part}"
-            elif inhibitory_nodes and not activating_nodes:
+                equation = f"{target} *= ({activating_part})"
+            elif inhibitory_nodes:
                 inhibitory_part = ' or '.join(inhibitory_nodes)
-                equation += f"{target} *= not {inhibitory_part}"
+                equation = f"{target} *= not ({inhibitory_part})"
             else:
-                equation += f"{target} *= 0"
+                equation = f"{target} *= 0"
 
-            equation_list += equation
-            equation_list += '\n'
+            equations.append(equation)
 
-        print(equation_list)
+        print('\n'.join(equations))
 
     def clone(self):
         return BooleanModel(
@@ -464,7 +462,7 @@ class BooleanModel:
         return bool(self.global_output)
 
     def get_stable_states(self) -> object:
-        return [state for state in self._attractors if '*' not in state]
+        return [state for state in self._attractors if '*' not in state.values()]
 
     @property
     def mutation_type(self) -> str:

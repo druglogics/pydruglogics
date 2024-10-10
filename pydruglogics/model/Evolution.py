@@ -52,16 +52,19 @@ class Evolution(BooleanModelOptimizer):
         self._logger.log(f"Running GA simulation {evolution_number}...", 1)
 
         ga_instance = pygad.GA(
-            num_generations=self._ga_args.get('num_generations'),
-            num_parents_mating=self._ga_args.get('num_parents_mating'),
+            num_generations=self._ga_args.get('num_generations', 20),
+            num_parents_mating=self._ga_args.get('num_parents_mating', 3),
             fitness_func=self.calculate_fitness,
-            sol_per_pop=self._ga_args.get('sol_per_pop'),
-            mutation_num_genes=self._ga_args.get('mutation_num_genes'),
+            mutation_num_genes=self._ga_args.get('mutation_num_genes', 3),
             gene_space=[0, 1],
+            gene_type= int,
             initial_population=initial_population,
             random_seed=self._ga_args.get('num_generations'),
             on_generation=self._callback_generation,
-            fitness_batch_size=self._ga_args.get('fitness_batch_size')
+            fitness_batch_size=self._ga_args.get('fitness_batch_size', 20),
+            crossover_type=self._ga_args.get('crossover_type', 'single_point'),
+            mutation_type=self._ga_args.get('mutation_type', 'random'),
+            parent_selection_type=self._ga_args.get('parent_selection_type', 'sss')
         )
 
         ga_instance.run()
@@ -175,7 +178,7 @@ class Evolution(BooleanModelOptimizer):
         for i in range(num_of_runs):
             seed = seeds + i if seeds is not None else None
             initial_population = self.create_initial_population(
-                population_size=self._ga_args.get('sol_per_pop'),
+                population_size=self._ga_args.get('fitness_batch_size'),
                 num_mutations=self._ev_args.get('num_of_init_mutation', 10),
                 seed=seed
             )

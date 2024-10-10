@@ -10,11 +10,8 @@ from pydruglogics.model.Statistics import Statistics
 
 if __name__ == '__main__':
     # Interaction
-    interaction = InteractionModel(verbosity=1)
-    interaction.load_sif_file('../ags_cascade_1.0/network.sif')
-    interaction.build_multiple_interactions()
-    print('Interactions')
-    print(interaction)
+    interaction = InteractionModel(interactions_file='../ags_cascade_1.0/network.sif', verbosity=1)
+    interaction.print()
 
     # ModelOutputs
     model_outputs = ModelOutputs('../ags_cascade_1.0/modeloutputs', verbosity=0)
@@ -98,7 +95,6 @@ if __name__ == '__main__':
         'num_generations': 20,
         'num_parents_mating': 3,
         'mutation_num_genes': 3,
-        'sol_per_pop': 20,
         'fitness_batch_size': 20,
         'gene_type': int,
     }
@@ -106,8 +102,8 @@ if __name__ == '__main__':
     # init evolution params
     ev_args = {
         'num_best_solutions': 3,
-        'num_of_runs': 50,
-        'num_of_seeds':50,
+        'num_of_runs': 30,
+        'num_of_seeds':30,
         'num_of_cores': 4
     }
 
@@ -128,7 +124,7 @@ if __name__ == '__main__':
     #     save_path='./models',
     #     verbosity=2
     # )
-    # #
+
     # Running predictions
     # executor.run_predictions(
     #     perturbations=perturbations,

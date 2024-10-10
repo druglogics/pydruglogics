@@ -109,8 +109,7 @@ class Executor:
             logger.log(f'Evolution runtime: {self._time_evolution:.2f}\n'
                        f'Total runtime: {self._time_evolution + self._time_predictions:.2f} seconds', 0)
 
-    @staticmethod
-    def display_parameter_hints():
+    def display_parameter_hints(self):
         hints = {
             'boolean_model': 'Instance of a BooleanModel, required for the evolution process.',
             'ga_args': 'Dictionary of genetic algorithm settings.',

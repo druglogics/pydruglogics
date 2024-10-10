@@ -4,12 +4,28 @@ from pydruglogics.utils.Logger import Logger
 
 
 class InteractionModel:
-    def __init__(self, interactions=None,  verbosity=2):
-        self._interactions: List[Dict] = interactions if interactions is not None else []
-        self._model_name = None
+    def __init__(self, interactions_file=None, model_name='', self_regulated_interactions=True, remove_inputs=False,
+                 remove_outputs=False, verbosity=2):
+        """
+        Initializes the InteractionModel from .sif file.
+        :param interactions_file: Path to the .sif file.
+        :param verbosity: Level of verbosity for logging.
+        """
+        self._interactions: List[Dict] = []
+        self._model_name = model_name
         self._logger = Logger(verbosity)
 
-    def load_sif_file(self, interactions_file: str) -> None:
+        if interactions_file is not None:
+            self._load_sif_file(interactions_file)
+            if not self_regulated_interactions:
+                self._remove_self_regulated_interactions()
+            self._remove_interactions(remove_inputs, remove_outputs)
+            self._build_multiple_interactions()
+        else:
+            raise ValueError("An 'interactions_file' must be provided for initialization.")
+
+
+    def _load_sif_file(self, interactions_file: str) -> None:
         """
         Loads all the lines of the .sif file and initializes the interactions
         :param interactions_file:
@@ -45,7 +61,7 @@ class InteractionModel:
                     self._interactions.append(Util.parse_interaction(interaction))
         self._logger.log('Interactions loaded successfully', 2)
 
-    def remove_interactions(self, is_input: bool = False, is_output: bool = False) -> None:
+    def _remove_interactions(self, is_input: bool = False, is_output: bool = False) -> None:
         """
         Removes interactions based on input and output criteria.
         :param is_input:
@@ -68,10 +84,10 @@ class InteractionModel:
                 source = self._interactions[i]['source'] if is_input else None
                 target = self._interactions[i]['target'] if is_output else None
 
-                if target and self.is_not_a_source(target):
+                if target and self._is_not_a_source(target):
                     self._logger.log(f"Removing interaction (i = {i})  (not source):  {self._interactions[i]}")
                     self._interactions.pop(i)
-                if source and self.is_not_a_target(source):
+                if source and self._is_not_a_target(source):
                     self._logger.log(f"Removing interaction (i = {i})  (not target):  {self._interactions[i]}")
                     self._interactions.pop(i)
 
@@ -79,9 +95,9 @@ class InteractionModel:
                 break
         self._logger.log(f"Interactions after trim ({iteration_trim} iterations): {len(self._interactions)}\n", 3)
 
-    def remove_self_regulated_interactions(self) -> None:
+    def _remove_self_regulated_interactions(self) -> None:
         """
-        Removes interactions that are self regulated
+        Removes interactions that are self regulated.
         :return None
         """
         for i in range(len(self._interactions) - 1, -1, -1):
@@ -91,7 +107,7 @@ class InteractionModel:
                 self._logger.log(f"Removing self regulation:  {self._interactions[i]}", 2)
                 self._interactions.pop(i)
 
-    def build_multiple_interactions(self) -> None:
+    def _build_multiple_interactions(self) -> None:
         """
         Creates interactions with multiple regulators for every single target
         :return None
@@ -122,7 +138,7 @@ class InteractionModel:
 
         sources = {interaction['source'] for interaction in self._interactions}
         for source in sources:
-            if source not in checked_targets and self.is_not_a_target(source):
+            if source not in checked_targets and self._is_not_a_target(source):
                 interaction = Util.create_interaction(target=source)
                 interaction['activating_regulators'].append(source)
                 multiple_interaction.append(interaction)
@@ -132,19 +148,25 @@ class InteractionModel:
     def size(self) -> int:
         return len(self._interactions)
 
-    def is_not_a_source(self, node_name: str) -> bool:
+    def _is_not_a_source(self, node_name: str) -> bool:
         result = True
         for interaction in self._interactions:
             if node_name == interaction['source']:
                 result = False
         return result
 
-    def is_not_a_target(self, node_name: str) -> bool:
+    def _is_not_a_target(self, node_name: str) -> bool:
         result = True
         for interaction in self._interactions:
             if node_name == interaction['target']:
                 result = False
         return result
+
+    def print(self) -> None:
+        try:
+            print(str(self))
+        except Exception as e:
+            print(f"An error occurred while printing the Interactions: {e}")
 
     @property
     def interactions(self) -> List[Dict]:
@@ -176,10 +198,16 @@ class InteractionModel:
 
     def __str__(self):
         multiple_interaction = ''
-        for interation in self._interactions:
-            multiple_interaction += (f"{interation['target']} <- "
-                                     f"{interation['activating_regulators']}  "
-                                     f"{interation['activating_regulator_complexes']}  "
-                                     f"{interation['inhibitory_regulators']}  "
-                                     f"{interation['inhibitory_regulator_complexes']}\n")
+        for interaction in self._interactions:
+            interaction_str = f"Target: {interaction['target']}"
+            if interaction['activating_regulators']:
+                activators_str = ', '.join(interaction['activating_regulators'])
+                interaction_str += f", activating regulators: {activators_str}"
+
+            if interaction['inhibitory_regulators']:
+                inhibitors_str = ', '.join(interaction['inhibitory_regulators'])
+                interaction_str += f", inhibitory regulators: {inhibitors_str}"
+
+            multiple_interaction += interaction_str + "\n"
+
         return multiple_interaction
