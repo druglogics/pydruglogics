@@ -1,6 +1,7 @@
 import os
 import multiprocessing
 import datetime
+import logging
 from typing import List
 import pygad
 import numpy as np
@@ -9,12 +10,10 @@ from joblib import Parallel, delayed
 from pydruglogics import BooleanModel
 from pydruglogics.input.TrainingData import TrainingData
 from pydruglogics.model.BooleanModelOptimizer import BooleanModelOptimizer
-from pydruglogics.utils.Logger import Logger
 from pydruglogics.utils.Util import Util
 
 class Evolution(BooleanModelOptimizer):
-    def __init__(self, boolean_model=None, training_data=None, model_outputs=None,
-                 ga_args=None, ev_args=None, verbosity=2):
+    def __init__(self, boolean_model=None, training_data=None, model_outputs=None, ga_args=None, ev_args=None):
         """
         Initializes the Evolution class with a BooleanModel and genetic algorithm parameters.
         :param boolean_model: The boolean model to be evolved.
@@ -22,7 +21,6 @@ class Evolution(BooleanModelOptimizer):
         :param model_outputs: Model outputs for evaluation.
         :param ga_args: Dictionary containing all necessary arguments for pygad.
         :param ev_args: Dictionary containing all necessary arguments for runnning the evolution.
-        :param verbosity: Verbosity level of logging.
         """
         self._boolean_model = boolean_model
         self._mutation_type = boolean_model.mutation_type
@@ -31,17 +29,18 @@ class Evolution(BooleanModelOptimizer):
         self._ga_args = ga_args or {}
         self._ev_args = ev_args or {}
         self._best_boolean_models = []
-        self._logger = Logger(verbosity)
+        self.global_seed = self._ev_args.get('num_of_runs', 20)
+        np.random.seed(self.global_seed)
 
         if not self._model_outputs:
-            raise ValueError('Please provide the model outputs.')
+            raise ValueError('Model outputs are not provided.')
 
     def _callback_generation(self, ga_instance):
-        self._logger.log(f"Generation {ga_instance.generations_completed}: Fitness values: "
-                        f"{ga_instance.last_generation_fitness}", 2)
+        logging.debug(f"Generation {ga_instance.generations_completed}: Fitness values: "
+                        f"{ga_instance.last_generation_fitness}")
 
     def _create_default_training_data(self):
-        return TrainingData(observations=[(["-"], ["globaloutput:1"], 1.0)])
+        return TrainingData(observations=[(["globaloutput:1"], 1.0)])
 
     def _run_single_ga(self, evolution_number, initial_population):
         """
@@ -49,7 +48,8 @@ class Evolution(BooleanModelOptimizer):
         :param evolution_number: The index of the current GA run.
         :param initial_population: The initial population for the GA.
         """
-        self._logger.log(f"Running GA simulation {evolution_number}...", 1)
+        logging.debug(f"Running GA simulation {evolution_number}...")
+        ga_seed = self.global_seed + evolution_number
 
         ga_instance = pygad.GA(
             num_generations=self._ga_args.get('num_generations', 20),
@@ -59,7 +59,7 @@ class Evolution(BooleanModelOptimizer):
             gene_space=[0, 1],
             gene_type= int,
             initial_population=initial_population,
-            random_seed=self._ga_args.get('num_generations'),
+            random_seed=ga_seed,
             on_generation=self._callback_generation,
             fitness_batch_size=self._ga_args.get('fitness_batch_size', 20),
             crossover_type=self._ga_args.get('crossover_type', 'single_point'),
@@ -74,7 +74,7 @@ class Evolution(BooleanModelOptimizer):
              for idx in range(len(ga_instance.population))], key=lambda x: x[1],
             reverse=True)[:self._ev_args.get('num_best_solutions')]
 
-        self._logger.log(f"Best fitness in Simulation {evolution_number}: Fitness = {sorted_population[0][1]}", 2)
+        logging.debug(f"Best fitness in Simulation {evolution_number}: Fitness = {sorted_population[0][1]}")
         return sorted_population
 
     def calculate_fitness(self, ga_instance, solutions, solution_idx):
@@ -105,15 +105,15 @@ class Evolution(BooleanModelOptimizer):
                     observed_global_output = float(response[0].split(":")[1])
                     predicted_global_output = mutated_boolean_model.calculate_global_output(self._model_outputs)
                     condition_fitness = 1.0 - abs(predicted_global_output - observed_global_output)
-                    self._logger.log(f"Observed Global Output: {observed_global_output:.2f}, ", 3)
-                    self._logger.log(f"Predicted Global Output: {predicted_global_output:.2f}", 3)
+                    logging.debug(f"Observed Global Output: {observed_global_output:.2f}, ")
+                    logging.debug(f"Predicted Global Output: {predicted_global_output:.2f}")
                 else:
                     if mutated_boolean_model.has_stable_states():
                         condition_fitness += 1.0
 
                     total_matches = []
                     for index, attractor in enumerate(mutated_boolean_model.attractors):
-                        self._logger.log(f"Checking stable state no. {index + 1}", 2)
+                        logging.debug(f"Checking stable state no. {index + 1}")
                         match_score = 0
                         found_observations = 0
                         for node in response:
@@ -122,11 +122,11 @@ class Evolution(BooleanModelOptimizer):
                             attractor_state = attractor.get(node_name, '*')
                             predicted_node_state = 0.5 if attractor_state == '*' else float(attractor_state)
                             match = 1.0 - abs(predicted_node_state - observed_node_state)
-                            self._logger.log(f"Match for observation on node {node_name}: {match} (1 - "
-                                             f"|{predicted_node_state} - {observed_node_state}|)", 3)
+                            logging.debug(f"Match for observation on node {node_name}: {match} (1 - "
+                                             f"|{predicted_node_state} - {observed_node_state}|)")
                             match_score += match
                             found_observations += 1
-                        self._logger.log(f"From {found_observations} observations, found {match_score} matches", 2)
+                        logging.debug(f"From {found_observations} observations, found {match_score} matches")
                         if found_observations > 0:
                             if mutated_boolean_model.has_stable_states():
                                 condition_fitness /= (found_observations + 1)
@@ -136,7 +136,7 @@ class Evolution(BooleanModelOptimizer):
                         total_matches.append(match_score)
                     if total_matches:
                         avg_matches = sum(total_matches) / len(total_matches)
-                        self._logger.log(f"Average match value through all stable states: {avg_matches}", 2)
+                        logging.debug(f"Average match value through all stable states: {avg_matches}")
                         condition_fitness += avg_matches
             fitness += condition_fitness * (weight / self._training_data.weight_sum)
 
@@ -165,18 +165,12 @@ class Evolution(BooleanModelOptimizer):
         return population
 
     def run(self):
-        seeds = self._ev_args.get('num_of_seeds', 20)
         cores = self._ev_args.get('num_of_cores') if self._ev_args.get('num_of_cores') else multiprocessing.cpu_count()
         num_of_runs = self._ev_args.get('num_of_runs', 20)
-
-        self._logger.log("Starting the evolutionary process...", 0)
         initial_populations = []
 
-        if seeds is not None:
-            np.random.seed(seeds)
-
         for i in range(num_of_runs):
-            seed = seeds + i if seeds is not None else None
+            seed = self.global_seed + i
             initial_population = self.create_initial_population(
                 population_size=self._ga_args.get('fitness_batch_size'),
                 num_mutations=self._ev_args.get('num_of_init_mutation', 10),
@@ -199,35 +193,43 @@ class Evolution(BooleanModelOptimizer):
                 best_boolean_model.model_name = f"e{evolution_index}_s{solution_index}"
                 self._best_boolean_models.append(best_boolean_model)
 
+        logging.info("Evolution finished.")
         return self._best_boolean_models
 
-
     def save_to_file_models(self, base_folder= './models'):
-        now = datetime.datetime.now()
-        current_date = now.strftime('%Y_%m_%d')
-        current_time = now.strftime('%H%M')
+        try:
+            now = datetime.datetime.now()
+            current_date = now.strftime('%Y_%m_%d')
+            current_time = now.strftime('%H%M')
 
-        subfolder = os.path.join(base_folder, f"models_{current_date}_{current_time}")
-        if not os.path.exists(subfolder):
-            os.makedirs(subfolder)
+            subfolder = os.path.join(base_folder, f"models_{current_date}_{current_time}")
+            if not os.path.exists(subfolder):
+                os.makedirs(subfolder)
 
-        for model in self._best_boolean_models:
-            evolution_number = model.model_name.split("_")[0][1:]
-            solution_index = model.model_name.split("_")[1][1:]
-            filename = f"e{evolution_number}_s{solution_index}.bnet"
-            filepath = os.path.join(subfolder, filename)
+            for model in self._best_boolean_models:
+                evolution_number = model.model_name.split("_")[0][1:]
+                solution_index = model.model_name.split("_")[1][1:]
+                filename = f"e{evolution_number}_s{solution_index}.bnet"
+                filepath = os.path.join(subfolder, filename)
 
-            boolean_model_bnet = f"# {current_date}, {current_time}\n"
-            boolean_model_bnet += f"# Evolution: {evolution_number} Solution: {solution_index}\n"
-            boolean_model_bnet += f"# Fitness Score: {model.fitness:.3f}\n"
+                boolean_model_bnet = f"# {current_date}, {current_time}\n"
+                boolean_model_bnet += f"# Evolution: {evolution_number} Solution: {solution_index}\n"
+                boolean_model_bnet += f"# Fitness Score: {model.fitness:.3f}\n"
 
-            boolean_equation = Util.to_bnet_format(model.updated_boolean_equations)
-            boolean_model_bnet += boolean_equation
+                boolean_equation = Util.to_bnet_format(model.updated_boolean_equations)
+                boolean_model_bnet += boolean_equation
 
-            with open(filepath, "w") as file:
-                file.write(boolean_model_bnet)
+                with open(filepath, "w") as file:
+                    file.write(boolean_model_bnet)
 
-            self._logger.log(f"Model saved to {filepath}", 2)
+            logging.info(f"Models saved to {base_folder}")
+
+        except IOError as e:
+            logging.error(f"File I/O error while saving models: {str(e)}")
+            raise
+        except Exception as e:
+            logging.error(f"Error saving models to file: {str(e)}")
+            raise
 
     @property
     def best_boolean_models(self) -> List[BooleanModel]:

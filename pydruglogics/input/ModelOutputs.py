@@ -1,12 +1,11 @@
+import logging
 from typing import List, Dict
 from pydruglogics.utils.Util import Util
-from pydruglogics.utils.Logger import Logger
 
 
 class ModelOutputs:
-    def __init__(self, input_file: str = None, input_dictionary: Dict[str, float] = None, verbosity=2):
+    def __init__(self, input_file: str = None, input_dictionary: Dict[str, float] = None):
         self._model_outputs: Dict[str, float] = {}
-        self._logger = Logger(verbosity)
         if input_file is not None:
             self._load_model_outputs_file(input_file)
         elif input_dictionary is not None:
@@ -17,6 +16,7 @@ class ModelOutputs:
         self._min_output = self._calculate_min_output()
         self._max_output = self._calculate_max_output()
 
+
     def _calculate_max_output(self) -> float:
         return sum(max(weight, 0) for weight in self._model_outputs.values())
 
@@ -24,15 +24,27 @@ class ModelOutputs:
         return sum(min(weight, 0) for weight in self._model_outputs.values())
 
     def _load_model_outputs_file(self, file: str):
-        lines = Util.read_lines_from_file(file, True)
-        for line in lines:
-            node_name, weight = map(str.strip, line.split("\t"))
-            self._model_outputs[node_name] = float(weight)
-        self._logger.log(f"Model outputs are initialized from file: {file}", 2)
+        try:
+            lines = Util.read_lines_from_file(file, True)
+            for line in lines:
+                node_name, weight = map(str.strip, line.split("\t"))
+                self._model_outputs[node_name] = float(weight)
+
+            logging.info(f"Model outputs loaded from file: {file}.")
+        except IOError as e:
+            logging.error(f"File read error: {str(e)}")
+            raise
+        except Exception as e:
+            logging.error(f"Error while loading model outputs from file: {str(e)}")
+            raise
 
     def _load_model_outputs_dict(self, model_outputs_dict: Dict[str, float]):
-        self._model_outputs = model_outputs_dict
-        self._logger.log('Model outputs are initialized from dictionary', 2)
+        try:
+            self._model_outputs = model_outputs_dict
+            logging.info('Model outputs are initialized from dictionary')
+        except Exception as e:
+            logging.error(f"Error loading model outputs from dictionary: {str(e)}")
+            raise
 
     def get_model_output(self, node_name: str) -> float:
         return self._model_outputs.get(node_name, 0.0)
@@ -44,7 +56,8 @@ class ModelOutputs:
         try:
             print(str(self))
         except Exception as e:
-            print(f"An error occurred while printing ModelOutputs: {e}")
+            logging.error(f"An error occurred while printing ModelOutputs: {str(e)}")
+            raise
 
     @property
     def node_names(self) -> List[str]:

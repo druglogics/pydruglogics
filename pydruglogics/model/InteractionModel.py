@@ -1,19 +1,17 @@
 from typing import List, Dict
 from pydruglogics.utils.Util import Util
-from pydruglogics.utils.Logger import Logger
+import logging
 
 
 class InteractionModel:
     def __init__(self, interactions_file=None, model_name='', self_regulated_interactions=True, remove_inputs=False,
-                 remove_outputs=False, verbosity=2):
+                 remove_outputs=False):
         """
         Initializes the InteractionModel from .sif file.
         :param interactions_file: Path to the .sif file.
-        :param verbosity: Level of verbosity for logging.
         """
         self._interactions: List[Dict] = []
         self._model_name = model_name
-        self._logger = Logger(verbosity)
 
         if interactions_file is not None:
             self._load_sif_file(interactions_file)
@@ -59,7 +57,7 @@ class InteractionModel:
                     self._interactions.extend([Util.parse_interaction(line1), Util.parse_interaction(line2)])
                 else:
                     self._interactions.append(Util.parse_interaction(interaction))
-        self._logger.log('Interactions loaded successfully', 2)
+        logging.info('Interactions loaded successfully')
 
     def _remove_interactions(self, is_input: bool = False, is_output: bool = False) -> None:
         """
@@ -71,10 +69,10 @@ class InteractionModel:
         interactions_size_before_trim = len(self._interactions)
         iteration_trim = 0
         if (is_input and not is_output) or (not is_input and is_output):
-            self._logger.log(f"Removing ({'inputs' if is_input else 'outputs'}). "
-                  f"Interactions before trim: {interactions_size_before_trim}\n", 3)
+            logging.debug(f"Removing ({'inputs' if is_input else 'outputs'}). "
+                  f"Interactions before trim: {interactions_size_before_trim}\n")
         else:
-            self._logger.log(f"Interactions before trim: {interactions_size_before_trim}\n", 3)
+            logging.debug(f"Interactions before trim: {interactions_size_before_trim}\n")
 
         while True:
             iteration_trim += 1
@@ -85,15 +83,15 @@ class InteractionModel:
                 target = self._interactions[i]['target'] if is_output else None
 
                 if target and self._is_not_a_source(target):
-                    self._logger.log(f"Removing interaction (i = {i})  (not source):  {self._interactions[i]}")
+                    logging.debug(f"Removing interaction (i = {i})  (not source):  {self._interactions[i]}")
                     self._interactions.pop(i)
                 if source and self._is_not_a_target(source):
-                    self._logger.log(f"Removing interaction (i = {i})  (not target):  {self._interactions[i]}")
+                    logging.debug(f"Removing interaction (i = {i})  (not target):  {self._interactions[i]}")
                     self._interactions.pop(i)
 
             if interactions_size_before_trim <= len(self._interactions):
                 break
-        self._logger.log(f"Interactions after trim ({iteration_trim} iterations): {len(self._interactions)}\n", 3)
+        logging.debug(f"Interactions after trim ({iteration_trim} iterations): {len(self._interactions)}\n")
 
     def _remove_self_regulated_interactions(self) -> None:
         """
@@ -104,7 +102,7 @@ class InteractionModel:
             target = self._interactions[i]['target']
             source = self._interactions[i]['source']
             if target == source:
-                self._logger.log(f"Removing self regulation:  {self._interactions[i]}", 2)
+                logging.debug(f"Removing self regulation:  {self._interactions[i]}")
                 self._interactions.pop(i)
 
     def _build_multiple_interactions(self) -> None:
@@ -114,7 +112,7 @@ class InteractionModel:
         """
         checked_targets = {}
         multiple_interaction = []
-        self._logger.log('Building Boolean Equations for Interactions (.sif).', 2)
+        logging.debug('Building Boolean Equations for Interactions (.sif).')
         for interaction in self._interactions:
             target = interaction['target']
             if target not in checked_targets:
@@ -166,7 +164,8 @@ class InteractionModel:
         try:
             print(str(self))
         except Exception as e:
-            print(f"An error occurred while printing the Interactions: {e}")
+            logging.error(f"An error occurred while printing the Interactions: {str(e)}")
+            raise
 
     @property
     def interactions(self) -> List[Dict]:

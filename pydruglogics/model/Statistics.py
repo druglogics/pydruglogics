@@ -3,12 +3,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc, precision_recall_curve
 from pydruglogics.model.ModelPredictions import ModelPredictions
-from pydruglogics.utils.Logger import Logger
+import logging
 
 
 class Statistics:
     def __init__(self, boolean_models=None, observed_synergy_scores=None, model_outputs=None, perturbations=None,
-                 synergy_method='hsa', verbosity=3):
+                 synergy_method='hsa'):
         """
         Initializes the Statistics class.
         :param boolean_models: List of BooleanModel instances.
@@ -22,7 +22,6 @@ class Statistics:
         self._model_outputs = model_outputs
         self._perturbations = perturbations
         self._synergy_method = synergy_method
-        self._logger = Logger(verbosity)
 
     def sampling(self, repeat_time=10, sub_ratio=0.8):
         """
@@ -41,8 +40,7 @@ class Statistics:
                 perturbations=self._perturbations,
                 model_outputs=self._model_outputs,
                 observed_synergy_scores=self._observed_synergy_scores,
-                synergy_method=self._synergy_method,
-                verbosity=0
+                synergy_method=self._synergy_method
             )
             model_predictions.run_simulations(parallel=True)
             predicted_synergy_scores_list.append(model_predictions.predicted_synergy_scores)
@@ -65,8 +63,7 @@ class Statistics:
                 perturbations=self._perturbations,
                 model_outputs=self._model_outputs,
                 observed_synergy_scores=self._observed_synergy_scores,
-                synergy_method=self._synergy_method,
-                verbosity=0
+                synergy_method=self._synergy_method
             )
             model_predictions.run_simulations(parallel=True)
             predicted_synergy_scores_list.append(model_predictions.predicted_synergy_scores)
@@ -92,7 +89,7 @@ class Statistics:
             df['synergy_score'] = df['synergy_score'] * -1
             df = df.sort_values(by='synergy_score', ascending=False).reset_index(drop=True)
 
-            self._logger.log(f"Predicted Data with Observed Synergies for {label}:", 1)
+            logging.info(f"Predicted Data with Observed Synergies for {label}:")
             print(df)
 
             fpr, tpr, _ = roc_curve(df['observed'], df['synergy_score'])
@@ -140,5 +137,5 @@ class Statistics:
             roc_auc = auc(fpr, tpr)
             precision, recall, _ = precision_recall_curve(df['observed'], df['synergy_score'])
             pr_auc = auc(recall, precision)
-            self._logger.log(f"ROC AUC for {label}: {roc_auc:.2f}", 3)
-            self._logger.log(f"PR AUC for {label}: {pr_auc:.2f}", 3)
+            logging.debug(f"ROC AUC for {label}: {roc_auc:.2f}", 3)
+            logging.debug(f"PR AUC for {label}: {pr_auc:.2f}", 3)
