@@ -7,6 +7,7 @@ from pydruglogics.input.TrainingData import TrainingData
 from pydruglogics.input.Perturbations import Perturbation
 from pydruglogics.model.Evolution import Evolution
 from pydruglogics.model.ModelPredictions import ModelPredictions
+from pydruglogics.utils.PlotUtil import PlotUtil
 
 
 class Executor:
@@ -15,7 +16,7 @@ class Executor:
         self._time_evolution = 0.0
         self._time_predictions = 0.0
 
-    def run_evolution(self,
+    def train(self,
                       boolean_model: BooleanModel = None,
                       model_outputs: ModelOutputs = None,
                       ga_args: Dict[str, Any] = None,
@@ -31,7 +32,7 @@ class Executor:
             if not ga_args or not ev_args:
                 raise ValueError("GA arguments and EV arguments must be provided.")
             start_time = time.time()
-            logging.info('Starting evolution...')
+            logging.info('Training has started...')
 
             evolution = Evolution(
                 boolean_model=boolean_model,
@@ -44,16 +45,16 @@ class Executor:
                 evolution.save_to_file_models(save_path)
 
             self._time_evolution = time.time() - start_time
-            logging.info(f'Evolution runtime: {self._time_evolution:.2f} seconds')
+            logging.info(f'Training runtime: {self._time_evolution:.2f} seconds')
 
         except ValueError as ve:
-            logging.error(f"ValueError in evolution: {str(ve)}")
+            logging.error(f"ValueError in train: {str(ve)}")
             raise
         except Exception as e:
-            logging.error(f"Error during evolution: {str(e)}")
+            logging.error(f"Error during train: {str(e)}")
             raise
 
-    def run_predictions(self,
+    def predict(self,
                         best_boolean_models: List[BooleanModel] or None,
                         model_outputs: ModelOutputs = None,
                         perturbations: Perturbation = None,
@@ -61,9 +62,11 @@ class Executor:
                         run_parallel: bool = True,
                         save_predictions: bool = False,
                         save_path: str = './predictions',
-                        synergy_method='hsa',
+                        synergy_method = 'hsa',
                         model_directory: str = '',
-                        attractor_tool: str = ''):
+                        attractor_tool: str = '',
+                        attractor_type: str = '',
+                        cores = 4):
 
         try:
             if not model_outputs:
@@ -72,16 +75,16 @@ class Executor:
                 raise ValueError("Observed synergy scores are required.")
 
             start_time = time.time()
-            logging.info('Starting predictions...')
+            logging.info('Prediction has started...')
 
             if self.best_boolean_models is None and best_boolean_models is None:
                 model_predictions = ModelPredictions(
                     perturbations=perturbations,
                     model_outputs=model_outputs,
-                    observed_synergy_scores=observed_synergy_scores,
                     model_directory=model_directory,
                     attractor_tool=attractor_tool,
-                    synergy_method=synergy_method,
+                    attractor_type=attractor_type,
+                    synergy_method=synergy_method
                 )
 
             else:
@@ -89,40 +92,40 @@ class Executor:
                     boolean_models=self.best_boolean_models if self.best_boolean_models is not None else best_boolean_models,
                     perturbations=perturbations,
                     model_outputs=model_outputs,
-                    observed_synergy_scores=observed_synergy_scores,
-                    synergy_method=synergy_method,
+                    synergy_method=synergy_method
                 )
 
-            model_predictions.run_simulations(run_parallel)
-            model_predictions.plot_roc_and_pr_curve()
+            model_predictions.run_simulations(run_parallel, cores)
+            PlotUtil.plot_roc_and_pr_curve(model_predictions.predicted_synergy_scores,
+                                           observed_synergy_scores, synergy_method)
             if save_predictions:
                 model_predictions.save_to_file_predictions(save_path)
 
             self._time_predictions = time.time() - start_time
             logging.info(f'Predictions runtime: {self._time_predictions:.2f} seconds')
         except ValueError as ve:
-            logging.error(f"Value Errror in running predictions: {str(ve)}")
+            logging.error(f"Value Error in running predictions: {str(ve)}")
             raise
         except Exception as e:
             logging.error(f"Error during predictions: {str(e)}")
             raise
 
-    def execute(self, run_evolution=True, run_predictions=True, evolution_params=None, prediction_params=None):
-        if run_evolution and not run_predictions:
-            if not evolution_params:
-                raise ValueError("Missing parameters for running evolution.")
-            self.run_evolution(**evolution_params)
+    def execute(self, train=True, predict=True, train_params=None, predict_params=None):
+        if train and not predict:
+            if not train_params:
+                raise ValueError("Missing parameters for running training.")
+            self.train(**train_params)
 
-        if run_predictions and not run_evolution:
-            if not prediction_params:
+        if predict and not train:
+            if not predict_params:
                 raise ValueError("Missing parameters for running predictions.")
-            self.run_predictions(**prediction_params)
+            self.predict(**predict_params)
         else:
-            if not prediction_params and not run_evolution:
+            if not predict_params and not train:
                 raise ValueError("Missing parameters for running evolution and predictions.")
-            self.run_evolution(**evolution_params)
-            self.run_predictions(**prediction_params)
-            logging.info(f'Evolution runtime: {self._time_evolution:.2f}\n'
+            self.train(**train_params)
+            self.predict(**predict_params)
+            logging.info(f'Train runtime: {self._time_evolution:.2f}\n'
                        f'Total runtime: {self._time_evolution + self._time_predictions:.2f} seconds')
 
     def display_parameter_hints(self):

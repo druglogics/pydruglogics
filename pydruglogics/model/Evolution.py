@@ -10,7 +10,7 @@ from joblib import Parallel, delayed
 from pydruglogics import BooleanModel
 from pydruglogics.input.TrainingData import TrainingData
 from pydruglogics.model.BooleanModelOptimizer import BooleanModelOptimizer
-from pydruglogics.utils.Util import Util
+from pydruglogics.utils.BNetworkUtil import BNetworkUtil
 
 class Evolution(BooleanModelOptimizer):
     def __init__(self, boolean_model=None, training_data=None, model_outputs=None, ga_args=None, ev_args=None):
@@ -29,8 +29,8 @@ class Evolution(BooleanModelOptimizer):
         self._ga_args = ga_args or {}
         self._ev_args = ev_args or {}
         self._best_boolean_models = []
-        self.global_seed = self._ev_args.get('num_of_runs', 20)
-        np.random.seed(self.global_seed)
+        self._global_seed = self._ev_args.get('num_of_runs', 20)
+        np.random.seed(self._global_seed)
 
         if not self._model_outputs:
             raise ValueError('Model outputs are not provided.')
@@ -49,7 +49,7 @@ class Evolution(BooleanModelOptimizer):
         :param initial_population: The initial population for the GA.
         """
         logging.debug(f"Running GA simulation {evolution_number}...")
-        ga_seed = self.global_seed + evolution_number
+        ga_seed = self._global_seed + evolution_number
 
         ga_instance = pygad.GA(
             num_generations=self._ga_args.get('num_generations', 20),
@@ -58,13 +58,15 @@ class Evolution(BooleanModelOptimizer):
             mutation_num_genes=self._ga_args.get('mutation_num_genes', 3),
             gene_space=[0, 1],
             gene_type= int,
+            keep_elitism=self._ga_args.get('keep_elitism', 0),
             initial_population=initial_population,
             random_seed=ga_seed,
             on_generation=self._callback_generation,
             fitness_batch_size=self._ga_args.get('fitness_batch_size', 20),
             crossover_type=self._ga_args.get('crossover_type', 'single_point'),
             mutation_type=self._ga_args.get('mutation_type', 'random'),
-            parent_selection_type=self._ga_args.get('parent_selection_type', 'sss')
+            parent_selection_type=self._ga_args.get('parent_selection_type', 'sss'),
+            suppress_warnings=True
         )
 
         ga_instance.run()
@@ -79,12 +81,15 @@ class Evolution(BooleanModelOptimizer):
 
     def calculate_fitness(self, ga_instance, solutions, solution_idx):
         """
-        Calculates fitness for a batch of solutions. Each solution is evaluated in a batch, and a fitness score is returned for each.
-        :param solutions: A batch of solutions (list of binary vectors).
-        :param solution_idx: The index of the current solution batch.
+        Calculates fitness for a batch of solutions. Each solution is evaluated in a batch,
+        and a fitness score is returned for each.
+        :param ga_instance: Instance of the GA. It is required by PayGAD.
+        :param solutions: A batch of solutions (list of binary vectors). It is required by PayGAD.
+        :param solution_idx: The index of the current solution batch. It is required by PayGAD.
         :return: A list of fitness values, one for each solution in the batch.
         """
-        fitness_values = Parallel(n_jobs=-1)(
+        cores = self._ev_args.get('num_of_cores') if self._ev_args.get('num_of_cores') else multiprocessing.cpu_count()
+        fitness_values = Parallel(n_jobs=cores, backend='loky',  max_nbytes=None)(
             delayed(self._calculate_fitness_for_solution)(solution) for solution in solutions
         )
         return fitness_values
@@ -97,7 +102,8 @@ class Evolution(BooleanModelOptimizer):
         for observation in self._training_data.observations:
             response = observation['response']
             weight = observation['weight']
-            mutated_boolean_model.calculate_attractors(mutated_boolean_model.attractor_tool)
+            mutated_boolean_model.calculate_attractors(mutated_boolean_model.attractor_tool,
+                                                       mutated_boolean_model.attractor_type)
             condition_fitness = 0.0
 
             if mutated_boolean_model.has_attractors():
@@ -151,17 +157,13 @@ class Evolution(BooleanModelOptimizer):
         :return: List of binary vectors representing the initial population.
         """
         rng = default_rng(seed)
-        initial_vector = self._boolean_model.binary_boolean_equations
-        population = []
+        initial_boolean_model = np.array(self._boolean_model.binary_boolean_equations)
+        population = np.zeros((population_size, len(initial_boolean_model)), dtype=int)
 
-        for _ in range(population_size):
-            individual = initial_vector.copy()
-            individual_mutation = rng.choice(len(individual), num_mutations, replace=False)
-            for index in individual_mutation:
-                individual[index] = 1-individual[index]
-
-            population.append(individual)
-
+        for i in range(population_size):
+            population[i] = initial_boolean_model
+            mutated_idx = rng.choice(len(initial_boolean_model), num_mutations, replace=False)
+            population[i][mutated_idx] = 1 - population[i][mutated_idx]
         return population
 
     def run(self):
@@ -170,7 +172,7 @@ class Evolution(BooleanModelOptimizer):
         initial_populations = []
 
         for i in range(num_of_runs):
-            seed = self.global_seed + i
+            seed = self._global_seed + i
             initial_population = self.create_initial_population(
                 population_size=self._ga_args.get('fitness_batch_size'),
                 num_mutations=self._ev_args.get('num_of_init_mutation', 10),
@@ -178,7 +180,7 @@ class Evolution(BooleanModelOptimizer):
             )
             initial_populations.append((i, initial_population))
 
-        evolution_results = Parallel(n_jobs=cores)(
+        evolution_results = Parallel(n_jobs=cores, backend='loky',  max_nbytes=None)(
             delayed(self._run_single_ga)(i, initial_population) for i, initial_population in initial_populations
         )
 
@@ -193,7 +195,7 @@ class Evolution(BooleanModelOptimizer):
                 best_boolean_model.model_name = f"e{evolution_index}_s{solution_index}"
                 self._best_boolean_models.append(best_boolean_model)
 
-        logging.info("Evolution finished.")
+        logging.info("Training finished.")
         return self._best_boolean_models
 
     def save_to_file_models(self, base_folder= './models'):
@@ -216,7 +218,7 @@ class Evolution(BooleanModelOptimizer):
                 boolean_model_bnet += f"# Evolution: {evolution_number} Solution: {solution_index}\n"
                 boolean_model_bnet += f"# Fitness Score: {model.fitness:.3f}\n"
 
-                boolean_equation = Util.to_bnet_format(model.updated_boolean_equations)
+                boolean_equation = BNetworkUtil.to_bnet_format(model.updated_boolean_equations)
                 boolean_model_bnet += boolean_equation
 
                 with open(filepath, "w") as file:

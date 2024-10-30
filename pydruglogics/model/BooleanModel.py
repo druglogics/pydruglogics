@@ -1,52 +1,50 @@
 import os
 import logging
-from colomoto import minibn
+import numpy as np
 import mpbn
-import biolqm
 from pyboolnet.file_exchange import bnet2primes
 from pyboolnet.trap_spaces import compute_trap_spaces, compute_steady_states
-from pydruglogics.utils.Util import Util
-
+from pydruglogics.utils.BNetworkUtil import BNetworkUtil
 
 
 class BooleanModel:
-    def __init__(self, model=None,  file='', attractor_tool='', mutation_type='balanced', model_name='',
-                 equations=None, binary_equations=None):
+    def __init__(self, model=None,  file=None, attractor_tool='mpbn', attractor_type='stable_states',
+                 mutation_type='topology', model_name='', cloned_equations=None, cloned_binary_equations=None):
         """
         Initializes the BooleanModel instance.
         :param model: An InteractionModel instance.
         :param file: The path to the file containing Boolean Equations in '.bnet' format.
-        :param attractor_tool: The tool to be used for attractor calculation.
+        :param attractor_tool: The tool to be used for attractor calculation. Possible values are: 'mpbn', 'pyboolnet'.
+        :param attractor_type: The type of the attractor calculation. Possible values are 'stable_states', 'trapspaces'.
         :param mutation_type: The type of mutation to be performed.
-        (Supported values: 'pyboolnet_stable_states', 'pyboolnet_trapspaces', 'mpbn_fixpoints',
-        'mpbn_trapspaces', 'biolqm_fixpoints', 'biolqm_trapspaces')
-        :param model_name: Name of the model.
-        :param equations: Boolean Equations representing the model's interactions.
-        :param binary_equations: A list representing the Mutate Boolean Model in binary representation.
+        :param model_name: Name for the model.
+        :param cloned_equations: Boolean Equations representing the model's interactions.
+        :param cloned_binary_equations: A list representing the Mutate Boolean Model in binary representation.
         """
         self._model_name = model_name
         self._boolean_equations = []
-        self._updated_boolean_equations = []
+        self._binary_boolean_equations = np.array([])
         self._attractors = {}
         self._attractor_tool = attractor_tool
-        self._file = file
-        self._equations = equations
-        self._binary_boolean_equations = [] if binary_equations is None else binary_equations
+        self._attractor_type = attractor_type
+        self._mutation_type = mutation_type
+        self._global_output = 0.0
         self._is_bnet_file = False
         self._bnet_equations = ''
-        self._mutation_type = mutation_type
-        self._perturbations =  []
-        self._global_output = 0.0
+
+        if attractor_tool not in ['mpbn', 'pyboolnet'] or attractor_type not in ['stable_states', 'trapspaces']:
+            raise ValueError("Invalid attractor tool or type. Use 'mpbn' or 'pyboolnet' for attractor_tool, and "
+                             "'stable_states' or 'trapspaces' for attractor_type.")
 
         try:
             if model is not None: # init from InteractionModel instance
                 self._init_from_model(model)
                 self.to_binary(self._mutation_type)
-            elif self._file:
+            elif file is not None:
                 self._init_from_bnet_file(file) # init from .bnet file
                 self.to_binary(self._mutation_type)
-            elif self._equations is not None:
-                self._init_from_equations(equations) # for cloning
+            elif cloned_equations is not None:
+                self._init_from_equations(cloned_equations, cloned_binary_equations) # for cloning
             else:
                 raise ValueError('Initialization failed: Please provide a model or a file for the Boolean Model.')
         except Exception as e:
@@ -65,7 +63,6 @@ class BooleanModel:
             equation = self._create_equation_from_interaction(interactions, i)
             self._boolean_equations.append(equation)
 
-        self._updated_boolean_equations = [tuple(item) for item in self._boolean_equations]
         logging.info('Boolean Model from Interaction Model is created.')
 
     def _init_from_bnet_file(self, file: str) -> None:
@@ -78,7 +75,7 @@ class BooleanModel:
             with open(file, 'r') as model_file:
                 lines = model_file.readlines()
 
-            if Util.get_file_extension(file) != 'bnet':
+            if BNetworkUtil.get_file_extension(file) != 'bnet':
                 raise ValueError('The file extension has to be .bnet format.')
 
             self._boolean_equations = []
@@ -88,12 +85,11 @@ class BooleanModel:
                 if line.strip().startswith('#') or line.strip().startswith('targets') or not line.strip():
                     continue
                 equation = line.strip()
-                parsed_equation_bnet = Util.create_equation_from_bnet(equation)
+                parsed_equation_bnet = BNetworkUtil.create_equation_from_bnet(equation)
                 self._bnet_equations += f"{equation}\n"
                 self._boolean_equations.append(parsed_equation_bnet)
                 self._is_bnet_file = True
 
-            self._updated_boolean_equations = [tuple(equation) for equation in self._boolean_equations]
             logging.info('Boolean Model from .bnet file is created.')
 
         except IOError as e:
@@ -103,87 +99,66 @@ class BooleanModel:
             logging.error(f"Error occurred during the initialization from file: {str(e)}")
             raise
 
-    def _init_from_equations(self, equations):
+    def _init_from_equations(self, equations, binary_equations):
         self._boolean_equations = equations
-        self._updated_boolean_equations = equations
+        self._binary_boolean_equations = np.array(binary_equations)
 
-    def _calculate_attractors_biolqm(self, tool=''):
+    def _calculate_attractors_mpbn(self, attractor_type):
+        """
+        Calculate attractors using MPBN based on attractor_type.
+        :param attractor_type: Type of attractor to calculate ('stable_states' or 'trapspaces').
+        """
         if self._is_bnet_file:
             result = self._bnet_equations
             self._is_bnet_file = False
         else:
-            result = Util.to_bnet_format(self._updated_boolean_equations)
+            result = BNetworkUtil.to_bnet_format(self._boolean_equations)
 
-        bnet_dict = Util.bnet_string_to_dict(result)
-        boolean_network_minibn = minibn.BooleanNetwork(bnet_dict)
-        network_biolqm = boolean_network_minibn.to_biolqm()
-        if 'fixpoints' in tool:
-            calculated_attractors = biolqm.fixpoints(network_biolqm)
-        elif 'trapspaces' in tool:
-            calculated_attractors = biolqm.trapspaces(network_biolqm)
-        else:
-            logging.error('Attractor tool is not provided.')
-            raise ValueError('Please provide valid tool for BioLQM attractor calculation. '
-                             'Valid values: biolqm_trapspaces, biolqm_fixpoints')
-
-        if calculated_attractors:
-            self._attractors = [
-                {key: ('*' if value == 254 else value) for key, value in attractor.items()}
-                for attractor in calculated_attractors
-            ]
-        else:
-            self._attractors = []
-
-        logging.debug(f"BioLQM found {len(self._attractors)} attractor(s):\n{self._attractors}")
-
-    def _calculate_attractors_mpbn(self, tool=''):
-        if self._is_bnet_file:
-            result = self._bnet_equations
-            self._is_bnet_file = False
-        else:
-            result = Util.to_bnet_format(self._updated_boolean_equations)
-
-        bnet_dict = Util.bnet_string_to_dict(result)
+        bnet_dict = BNetworkUtil.bnet_string_to_dict(result)
         boolean_network_mpbn = mpbn.MPBooleanNetwork(bnet_dict)
-        if 'fixpoints' in tool:
-            self._attractors = list(boolean_network_mpbn.fixedpoints())
-        elif 'trapspaces' in tool:
-            self._attractors = list(boolean_network_mpbn.attractors())
-        logging.debug(f"\nMPBN found {len(self._attractors)} attractor(s):\n{self._attractors}")
 
-    def _calculate_attractors_pyboolnet(self, tool=''):
+        if attractor_type == 'stable_states':
+            self._attractors = list(boolean_network_mpbn.fixedpoints())
+        elif attractor_type == 'trapspaces':
+            self._attractors = list(boolean_network_mpbn.attractors())
+
+        logging.debug(f"MPBN found {len(self._attractors)} attractor(s):\n{self._attractors}")
+
+    def _calculate_attractors_pyboolnet(self, attractor_type):
+        """
+        Calculate attractors using PyBoolNet based on attractor_type.
+        :param attractor_type: Type of attractor to calculate ('stable_states' or 'trapspaces').
+        """
         if self._is_bnet_file:
             result = self._bnet_equations
             self._is_bnet_file = False
         else:
-            result = Util.to_bnet_format(self._updated_boolean_equations)
+            result = BNetworkUtil.to_bnet_format(self._boolean_equations)
 
         primes = bnet2primes(result)
-        if 'trapspaces' in tool:
+        if attractor_type == 'trapspaces':
             self._attractors = compute_trap_spaces(primes)
-            total_nodes = len(self._updated_boolean_equations)
+            total_nodes = len(self._boolean_equations)
 
             updated_attractors = []
             for attractor in self._attractors:
                 if len(attractor) != total_nodes:
-                    full_node_set = set(target for target, _, _, _ in self._updated_boolean_equations)
+                    full_node_set = set(target for target, _, _, _ in self._boolean_equations)
                     full_attractor = {node: '*' for node in full_node_set}
                     full_attractor.update(attractor)
                     updated_attractors.append(full_attractor)
-                    self._attractors = updated_attractors
-                break
+            self._attractors = updated_attractors
 
-        elif 'stable_states' in tool:
+        elif attractor_type == 'stable_states':
             self._attractors = compute_steady_states(primes)
-        else:
-            raise ValueError('Please provide valid tool for PyBoolNet attractor calculation. '
-                             'Valid values: pyboolnet_trapspaces, pyboolnet_stable_states')
+
         logging.debug(f"PyBoolNet found {len(self._attractors)} attractor(s):\n{self._attractors}")
 
     def _create_equation_from_interaction(self, interaction, interaction_index):
         """
-        Create a Boolean equation from an interaction model.
-        :param interaction: InteractionModel instance.
+        Create a Boolean equation from an InteractionModel.
+        :param interaction: An interaction of the InteractionModel.
+        :param interaction_index: Index of an interaction.
         :return: Equation dictionary with components.
         """
         activating_regulators = {}
@@ -206,36 +181,31 @@ class BooleanModel:
         value = 0 if effect == 'inhibits' else 1
 
         for node in node_names:
-            for i, equation in enumerate(self._updated_boolean_equations):
+            for i, equation in enumerate(self._boolean_equations):
                 target, _, _, _= equation
                 if node == target:
                     new_equation = (node, {str(value): 1}, {}, '')
-                    self._updated_boolean_equations[i] = new_equation
+                    self._boolean_equations[i] = new_equation
                     break
 
-    def calculate_attractors(self, attractor_tool: str) -> None:
+    def calculate_attractors(self, attractor_tool, attractor_type) -> None:
         """
-        calculates the attractors of the boolean model. The tool for the calculation
-        is based on the value of 'self.attractor_tool'.
-        Values for 'self.attractor_tool' (please choose one):
-        'mpbn_trapspaces',  'mpbn_fixepoints', 'pyboolnet_trapspaces',
-        'pyboolnet_stable_states','biolqm_trapspaces',  'biolqm_fixpoints'
-        :param attractor_tool:
+        Calculate attractors based on the chosen attractor_tool and attractor_type.
+        :param attractor_tool: Tool for attractor calculation. Possible values: 'mpbn', 'pyboolnet'.
+        :param attractor_type: Type of attractor. Possible values: 'stable_states', 'trapspaces'.
         """
-        if 'mpbn' in attractor_tool:
-            self._calculate_attractors_mpbn(attractor_tool)
-        elif 'pyboolnet' in attractor_tool:
-            self._calculate_attractors_pyboolnet(attractor_tool)
-        elif 'biolqm' in attractor_tool:
-            self._calculate_attractors_biolqm(attractor_tool)
+        if attractor_tool == 'mpbn':
+            self._calculate_attractors_mpbn(attractor_type)
+        elif attractor_tool == 'pyboolnet':
+            self._calculate_attractors_pyboolnet(attractor_type)
         else:
-            raise ValueError("Please provide a valid attractor tool. Valid tools: 'mpbn_trapspaces', "
-                             "'pyboolnet_trapspaces', 'pyboolnet_stable_states', 'biolqm_fixpoints', 'biolqm_trapspaces'")
+            raise ValueError("Please provide a valid attractor tool and type. Valid tools: 'mpbn', 'pyboolnet'."
+                             "Valid types: 'stable_states', 'trapspaces'.")
 
 
     def calculate_global_output(self, model_outputs, normalized=True):
         """
-        Use this function after you have calculated attractors to find the (normalized) global output of the model.
+        Calculates the (normalized) global output of the model.
         :param model_outputs: An instance containing node weights defined in the ModelOutputs class.
         :param normalized: Whether to normalize the global output.
         :return: float
@@ -271,15 +241,13 @@ class BooleanModel:
         :return: Updated Boolean Equations as a list.
         """
         index = 0
-        updated_equations = []
         new_link = ''
 
-        for target, activating, inhibitory, link in self._updated_boolean_equations:
+        for i, (target, activating, inhibitory, link) in enumerate(self._boolean_equations):
             num_activating = len(activating)
             num_inhibitory = len(inhibitory)
 
             if mutation_type in ['topology', 'mixed'] and len(activating) + len(inhibitory) <= 1:
-                updated_equations.append((target, activating, inhibitory, link))
                 continue
 
             elif mutation_type in ['topology', 'mixed']:
@@ -304,14 +272,12 @@ class BooleanModel:
                 new_activating = dict(zip(activating.keys(), new_activating_values))
                 new_inhibitory = dict(zip(inhibitory.keys(), new_inhibitory_values))
 
-                if mutation_type ==  'mixed' and link != '':
+                if mutation_type == 'mixed' and link != '':
                     link_value = binary_representation[index]
                     index += 1
                     link = '&' if link_value == 1 else '|'
-                    new_activating = dict(zip(activating.keys(), new_activating_values))
-                    new_inhibitory = dict(zip(inhibitory.keys(), new_inhibitory_values))
 
-                updated_equations.append((target, new_activating, new_inhibitory, link))
+                self._boolean_equations[i] = (target, new_activating, new_inhibitory, link)
 
             elif mutation_type == 'balanced':
                 if link != '':
@@ -319,15 +285,14 @@ class BooleanModel:
                     index += 1
 
                     new_link = '&' if link_value == 1 else '|'
-                    updated_equations.append((target, activating, inhibitory, new_link))
+                    self._boolean_equations[i] = (target, activating, inhibitory, new_link)
                 else:
-                    updated_equations.append((target, activating, inhibitory, link))
+                    continue
 
             else:
-                raise ValueError("Please provide a valid mutation type: 'balanced', 'topology',  'mixed'")
+                raise ValueError("Please provide a valid mutation type: 'balanced', 'topology', 'mixed'")
 
-        self._updated_boolean_equations = updated_equations
-        return self._updated_boolean_equations
+        return self._boolean_equations
 
     def to_binary(self, mutation_type: str):
         """
@@ -335,36 +300,19 @@ class BooleanModel:
         :param mutation_type: The type of mutation can be: 'topology', 'balanced', 'mixed'
         :return: The binary representation of the Boolean Equations as a list.
         """
-        binary_lists = []
+        binary_representation = []
 
-        for _, activating, inhibitory, link in self._updated_boolean_equations:
-            num_activating = len(activating)
-            num_inhibitory = len(inhibitory)
-            binary_representation = []
-
-            if mutation_type in ['topology', 'mixed'] and len(activating) + len(inhibitory) <= 1:
-                continue
-
-            elif mutation_type in ['topology', 'mixed'] and (num_activating + num_inhibitory > 1):
-                binary_representation = [int(val) for val in activating.values()]
+        for _, activating, inhibitory, link in self._boolean_equations:
+            if mutation_type in ['topology', 'mixed'] and len(activating) + len(inhibitory) > 1:
+                binary_representation.extend(int(val) for val in activating.values())
                 binary_representation.extend(int(val) for val in inhibitory.values())
-
                 if mutation_type == 'mixed' and link != '':
-                    binary_representation.append(1 if link=='&' else 0)
-
-                binary_lists.append(binary_representation)
-
-            elif mutation_type == 'balanced':
-                if link != '':
                     binary_representation.append(1 if link == '&' else 0)
-                else:
-                    pass
-                binary_lists.append(binary_representation)
 
-            else:
-                raise ValueError("Please provide a valid mutation type: 'topology', 'balanced', 'mixed'")
+            elif mutation_type == 'balanced' and link != '':
+                binary_representation.append(1 if link == '&' else 0)
 
-        self._binary_boolean_equations = [bit for binary_rep in binary_lists for bit in binary_rep]
+        self._binary_boolean_equations = np.array(binary_representation)
         return self._binary_boolean_equations
 
     def add_perturbations(self, perturbations):
@@ -372,7 +320,6 @@ class BooleanModel:
         Adds perturbations to the Boolean Model.
         :param perturbations: A list of Perturbations.
         """
-        self._perturbations = perturbations
         for drug in perturbations:
             effect = drug['effect']
             targets = drug['targets']
@@ -382,7 +329,7 @@ class BooleanModel:
         equations = []
         link_operator_map = {'&': 'and', '|': 'or', '': ''}
 
-        for eq in self._updated_boolean_equations:
+        for eq in self._boolean_equations:
             target, activating, inhibitory, link = eq
             activating_nodes = [node for node, value in activating.items() if value == 1]
             inhibitory_nodes = [node for node, value in inhibitory.items() if value == 1]
@@ -409,9 +356,10 @@ class BooleanModel:
         return BooleanModel(
             model_name=self._model_name,
             attractor_tool=self._attractor_tool,
+            attractor_type=self._attractor_type,
             mutation_type=self._mutation_type,
-            equations=self._updated_boolean_equations.copy(),
-            binary_equations=self._binary_boolean_equations.copy()
+            cloned_equations=self._boolean_equations.copy(),
+            cloned_binary_equations=self._binary_boolean_equations.copy()
         )
 
     def reset_attractors(self) -> None:
@@ -438,8 +386,8 @@ class BooleanModel:
         return self._global_output
 
     @property
-    def updated_boolean_equations(self):
-        return self._updated_boolean_equations
+    def boolean_equations(self):
+        return self._boolean_equations
 
     @property
     def model_name(self) -> str:
@@ -458,16 +406,16 @@ class BooleanModel:
         return self._attractor_tool
 
     @property
-    def boolean_equations(self):
-        return self._boolean_equations
+    def attractor_type(self) -> str:
+        return self._attractor_type
 
     @model_name.setter
     def model_name(self, model_name: str) -> None:
         self._model_name = model_name
 
-    @updated_boolean_equations.setter
-    def updated_boolean_equations(self, updated_boolean_equations: dict) -> None:
-        self._updated_boolean_equations = updated_boolean_equations
+    @boolean_equations.setter
+    def boolean_equations(self, boolean_equations: dict) -> None:
+        self._boolean_equations = boolean_equations
 
     @binary_boolean_equations.setter
     def binary_boolean_equations(self, binary_boolean_equations) -> None:

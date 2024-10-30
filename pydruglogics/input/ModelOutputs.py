@@ -1,6 +1,6 @@
 import logging
 from typing import List, Dict
-from pydruglogics.utils.Util import Util
+from pydruglogics.utils.BNetworkUtil import BNetworkUtil
 
 
 class ModelOutputs:
@@ -25,7 +25,7 @@ class ModelOutputs:
 
     def _load_model_outputs_file(self, file: str):
         try:
-            lines = Util.read_lines_from_file(file, True)
+            lines = BNetworkUtil.read_lines_from_file(file, True)
             for line in lines:
                 node_name, weight = map(str.strip, line.split("\t"))
                 self._model_outputs[node_name] = float(weight)

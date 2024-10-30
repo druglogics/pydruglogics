@@ -1,17 +1,15 @@
 import os
 import datetime
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
-from sklearn.metrics import roc_curve, auc, precision_recall_curve
 from pydruglogics.model.BooleanModel import BooleanModel
 import logging
 
 
 class ModelPredictions:
-    def __init__(self, boolean_models=None, perturbations=None, model_outputs=None, observed_synergy_scores=None,
-                 synergy_method='hsa', model_directory=None, attractor_tool=None):
+    def __init__(self, boolean_models=None, perturbations=None, model_outputs=None,
+                 synergy_method='hsa', model_directory=None, attractor_tool=None, attractor_type=None):
         """
         Initializes the ModelPredictions class.
         :param boolean_models: List of BooleanModel instances.
@@ -19,20 +17,21 @@ class ModelPredictions:
         :param model_outputs: Model outputs for evaluating the predictions.
         :param observed_synergy_scores: List of observed synergy scores.
         :param synergy_method: Method to check for synergy ('hsa' or 'bliss').
-        :param model_directory: Directory from which to load models. (Needed only when there is not Evolution result.)
+        :param model_directory: Directory from which to load models. (Needed only when there is no Evolution result.)
         :param attractor_tool: Tool to calculate attractors in models. (Needed only when loads models from directory)
+        :param attractor_type: Type to calculate attractors in models. (Needed only when loads models from directory)
         """
         self._boolean_models = boolean_models or []
         self._perturbations = perturbations or []
         self._model_outputs = model_outputs
-        self._observed_synergy_scores = observed_synergy_scores
         self._synergy_method = synergy_method
         self._model_predictions = []
         self._predicted_synergy_scores = []
         self._prediction_matrix = {}
 
         if model_directory and not boolean_models:
-            self._load_models_from_directory(directory=model_directory, attractor_tool=attractor_tool)
+            self._load_models_from_directory(directory=model_directory, attractor_tool=attractor_tool,
+                                             attractor_type=attractor_type)
         if not model_directory and not boolean_models:
             raise ValueError('Please provide Boolean Models from file or list.')
 
@@ -46,7 +45,7 @@ class ModelPredictions:
         perturbed_model = model.clone()
         perturbed_model.add_perturbations(perturbation)
         logging.debug(f"Added new perturbed model: {perturbed_model.model_name}")
-        perturbed_model.calculate_attractors(perturbed_model.attractor_tool)
+        perturbed_model.calculate_attractors(perturbed_model.attractor_tool, perturbed_model.attractor_type)
         global_output = perturbed_model.calculate_global_output(self._model_outputs, False)
         logging.debug(f"Adding predicted response for perturbation {perturbation}: {global_output}")
         return perturbed_model, global_output, perturbation
@@ -118,15 +117,16 @@ class ModelPredictions:
         self._predicted_synergy_scores.append((perturbation_name, synergy_score))
         logging.info(f"{perturbation_name}: {synergy_score}")
 
-    def _load_models_from_directory(self, directory, attractor_tool):
+    def _load_models_from_directory(self, directory, attractor_tool, attractor_type):
         """Loads all .bnet files from the given directory into Boolean Models with attractors and global outputs."""
         try:
             for filename in os.listdir(directory):
                 if filename.endswith('.bnet'):
                     file_path = os.path.join(directory, filename)
                     try:
-                        model = BooleanModel(file=file_path, attractor_tool=attractor_tool)
-                        model.calculate_attractors(attractor_tool)
+                        model = BooleanModel(file=file_path, attractor_tool=attractor_tool,
+                                             attractor_type=attractor_type)
+                        model.calculate_attractors(attractor_tool, attractor_type)
                         model.calculate_global_output(self._model_outputs, False)
                         self._boolean_models.append(model)
                         logging.info(f"Loaded model from {file_path}")
@@ -137,17 +137,18 @@ class ModelPredictions:
             logging.error(f"Error loading models from directory {directory}: {str(e)}")
             raise
 
-    def run_simulations(self, parallel=True):
+    def run_simulations(self, parallel=True, cores=4):
         """
         Runs the model simulations in parallel or serially.
         :param parallel: Whether to run simulations in parallel.
+        :param cores:
         """
         self._model_predictions = []
         self._prediction_matrix = {}
 
         if parallel:
             logging.debug('Running simulations in parallel.')
-            results = Parallel(n_jobs=-1)(
+            results = Parallel(n_jobs=cores, backend='loky')(
                 delayed(self._simulate_model_responses)(model, perturbation)
                 for model in self._boolean_models
                 for perturbation in self._perturbations.perturbations
@@ -176,50 +177,6 @@ class ModelPredictions:
         pd.set_option('display.max_colwidth', None)
         logging.info("Response Matrix:")
         logging.info(response_matrix_df)
-
-    def plot_roc_and_pr_curve(self):
-        """
-        Plot the ROC and PR Curves using the predicted synergy scores and the observed synergy combinations.
-        """
-        df = pd.DataFrame(self._predicted_synergy_scores, columns=['perturbation', 'synergy_score'])
-        df['observed'] = df['perturbation'].apply(lambda x: 1 if x in self._observed_synergy_scores else 0)
-        df['synergy_score'] = df['synergy_score'] * -1
-        df = df.sort_values(by='synergy_score', ascending=False).reset_index(drop=True)
-        logging.info("\nPredicted Data with Observed Synergies:")
-        logging.info(df)
-
-        # ROC Curve
-        fpr, tpr, thresholds = roc_curve(df['observed'], df['synergy_score'])
-        roc_auc = auc(fpr, tpr)
-
-        plt.figure()
-        plt.plot(fpr, tpr, color='blue', lw=2, label=f"AUC: {roc_auc:.2f} Calibrated")
-        plt.plot([0, 1], [0, 1], color='lightgrey', lw=1.2, linestyle='--')
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate (FPR)')
-        plt.ylabel('True Positive Rate (TPR)')
-        plt.title(f"ROC Curve, Ensemble-wise synergies ({self._synergy_method})")
-        plt.legend(loc="lower right")
-        plt.grid(lw=0.5, color='lightgrey')
-        plt.show()
-        logging.debug(f"ROC AUC: {roc_auc:.2f}")
-
-        # PR Curve
-        precision, recall, thresholds = precision_recall_curve(df['observed'], df['synergy_score'])
-        pr_auc = auc(recall, precision)
-
-        plt.figure()
-        plt.plot(recall, precision, color='blue', lw=2, label=f"AUC: {pr_auc:.2f} Calibrated")
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title(f"PR Curve, Ensemble-wise synergies ({self._synergy_method})")
-        plt.legend(loc="upper right")
-        plt.grid(lw=0.5, color='lightgrey')
-        plt.plot([0, 1], [sum(df['observed']) / len(df['observed'])] * 2, linestyle='--', color='grey',)
-        plt.legend(loc="upper right")
-        plt.show()
-        logging.debug(f"PR AUC: {pr_auc:.2f}")
 
     def save_to_file_predictions(self, base_folder='./predictions'):
         try:

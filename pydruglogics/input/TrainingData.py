@@ -1,5 +1,5 @@
 from typing import List, Dict, Union, Tuple
-from pydruglogics.utils.Util import Util
+from pydruglogics.utils.BNetworkUtil import BNetworkUtil
 import logging
 
 
@@ -15,7 +15,7 @@ class TrainingData:
 
     def _load_from_file(self, file: str) -> None:
         try:
-            lines = Util.read_lines_from_file(file)
+            lines = BNetworkUtil.read_lines_from_file(file)
             line_index = 0
             condition, response = None, None
 
@@ -31,7 +31,7 @@ class TrainingData:
                     if 'globaloutput' in response[0]:
                         value = response[0].split(":")[1]
 
-                        if not Util.is_numeric_string(value):
+                        if not BNetworkUtil.is_numeric_string(value):
                             raise ValueError(f"Response: {response} has a non-numeric value: {value}")
                         if not (-1.0 <= float(value) <= 1.0):
                             raise ValueError(f"Response has globaloutput outside the [-1,1] range: {value}")
@@ -63,7 +63,7 @@ class TrainingData:
                 response, weight = observation
                 self._add_observation(['-'], response, weight)
 
-            logging.info('Training data initialized from list.')
+            logging.info('Training data is initialized from list.')
 
         except Exception as e:
             logging.error(f"Error while loading observations list: {str(e)}")
@@ -72,7 +72,7 @@ class TrainingData:
     def _add_observation(self, condition: List[str], response: List[str], weight: float) -> None:
         if 'globaloutput' in response[0]:
             value = response[0].split(":")[1]
-            if not Util.is_numeric_string(value):
+            if not BNetworkUtil.is_numeric_string(value):
                 raise ValueError(f"Response: {response} has a non-numeric value: {value}")
             if not (-1.0 <= float(value) <= 1.0):
                 raise ValueError(f"Response has globaloutput outside the [-1,1] range: {value}")

@@ -11,7 +11,8 @@ from pydruglogics.utils.Logger import Logger
 
 if __name__ == '__main__':
     # Interaction
-    interaction = InteractionModel(interactions_file='../ags_cascade_1.0/network.sif', self_regulated_interactions=True, remove_inputs=True, remove_outputs=False)
+    interaction = InteractionModel(interactions_file='../ags_cascade_1.0/network.sif', self_regulated_interactions=True,
+                                   remove_inputs=True, remove_outputs=False)
     interaction.print()
 
     # ModelOutputs
@@ -83,21 +84,21 @@ if __name__ == '__main__':
 
     # BooleanModel init from .bnet file
     boolean_model_bnet = BooleanModel(file='../ags_cascade_1.0/network.bnet', model_name='test',
-                                      mutation_type='balanced', attractor_tool='biolqm_fixpoints')
-    # boolean_model_bnet.print()
+                                      mutation_type='topology', attractor_tool='mpbn', attractor_type='stable_states')
+
 
     # BooleanModel init from .sif file
     boolean_model_sif = BooleanModel(model=interaction, model_name='test2',
-                                     mutation_type='balanced', attractor_tool='biolqm_fixpoints')
-    boolean_model_sif.print()
+                                     mutation_type='balanced', attractor_tool='mpbn', attractor_type='trapspaces')
 
     # init pygad.GA
     ga_args = {
         'num_generations': 20,
         'num_parents_mating': 3,
-        'mutation_num_genes': 3,
+        'mutation_num_genes': 2,
         'fitness_batch_size': 20,
         'gene_type': int,
+        'keep_elitism': 3
     }
 
     # init evolution params
@@ -115,7 +116,7 @@ if __name__ == '__main__':
     executor = Executor()
 
     # Running evolution
-    # executor.run_evolution(
+    # executor.train(
     #     boolean_model=boolean_model_bnet,
     #     model_outputs=model_outputs,
     #     training_data=training_data,
@@ -124,44 +125,46 @@ if __name__ == '__main__':
     #     save_best_models=True,
     #     save_path='./models'
     # )
-
-    # Running predictions
-    # executor.run_predictions(
+    #
+    # # Running predictions
+    # executor.predict(
     #     perturbations=perturbations,
     #     model_outputs=model_outputs,
     #     observed_synergy_scores=observed_synergy_scores,
-    #     synergy_method='hsa'
+    #     synergy_method='hsa',
     #     best_boolean_models=None,
-    #     model_directory = './models/models_2024_10_07_0010',
-    #     attractor_tool='biolqm_fixpoints'
+    #     model_directory = './models/models_java',
+    #     # 'attractor_tool':'mpbn'
+    #     # 'attractor_type':'trapspaces'
     # )
 
     # Running evolution and predictions
     executor.execute(
-        run_evolution=True,
-        run_predictions=True,
-        evolution_params={
+        train=True,
+        predict=True,
+        train_params={
             'boolean_model': boolean_model_bnet,
             'model_outputs': model_outputs,
             'training_data': training_data,
             'ga_args': ga_args,
             'ev_args': ev_args,
-            'save_best_models': True,
-            'save_path': './models'
+            'save_best_models': False,
+            # 'save_path': './models'
         },
-        prediction_params={
+        predict_params={
             'best_boolean_models': None,
             'perturbations': perturbations,
             'model_outputs':model_outputs,
             'observed_synergy_scores': observed_synergy_scores,
-            'synergy_method': 'hsa',
-            # 'attractor_tool': 'biolqm'
+            'synergy_method': 'bliss',
+            # 'attractor_tool': 'mpbn'
+            # 'attractor_type':  'trapspaces'
         }
     )
 
     # Statistics
     # evolution_calibrated = Evolution(
-    #     boolean_model=boolean_model_sif,
+    #     boolean_model=boolean_model_bnet,
     #     model_outputs=model_outputs,
     #     training_data=training_data,
     #     ga_args=ga_args,
@@ -170,13 +173,15 @@ if __name__ == '__main__':
     # best_boolean_models_calibrated = evolution_calibrated.run()
     #
     # evolution_random = Evolution(
-    #         boolean_model=boolean_model_sif,
+    #         boolean_model=boolean_model_bnet,
     #         model_outputs=model_outputs,
     #         ga_args=ga_args,
     #         ev_args=ev_args
     #     )
     # best_boolean_models_random = evolution_random.run()
     #
-    # statistics = Statistics(best_boolean_models_calibrated, observed_synergy_scores, model_outputs, perturbations, 'hsa')
-    # statistics.sampling(5, 0.8)
-    # statistics.compare_calibrate_vs_random(best_boolean_models_calibrated, best_boolean_models_random)
+    # statistics = Statistics(best_boolean_models_calibrated, observed_synergy_scores,
+    #                         model_outputs, perturbations, 'bliss')
+    # statistics.compare_two_simulations(best_boolean_models_calibrated, best_boolean_models_random,
+    #                                    'Calibrated (Non-Normalized)', 'Random')
+    # statistics.sampling_with_ci(repeat_time=15, plot_discrete=False)

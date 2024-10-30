@@ -1,5 +1,5 @@
 from typing import List, Dict
-from pydruglogics.utils.Util import Util
+from pydruglogics.utils.BNetworkUtil import BNetworkUtil
 import logging
 
 
@@ -29,34 +29,34 @@ class InteractionModel:
         :param interactions_file:
         :return None
         """
-        file_extension = Util.get_file_extension(interactions_file)
+        file_extension = BNetworkUtil.get_file_extension(interactions_file)
         if file_extension != 'sif':
             print('New file extension used to load general model, currently not supported')
             raise IOError('ERROR: The extension needs to be .sif (other formats not yet supported)')
 
-        self._model_name = Util.remove_extension(interactions_file)
-        interaction_lines = Util.read_lines_from_file(interactions_file)
+        self._model_name = BNetworkUtil.remove_extension(interactions_file)
+        interaction_lines = BNetworkUtil.read_lines_from_file(interactions_file)
 
         for interaction in interaction_lines:
             if interaction:
                 if '<->' in interaction:
                     line1 = interaction.replace('<->', '<-')
                     line2 = interaction.replace('<->', '->')
-                    self._interactions.extend([Util.parse_interaction(line1), Util.parse_interaction(line2)])
+                    self._interactions.extend([BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
                 elif '|-|' in interaction:
                     line1 = interaction.replace('|-|', '|-')
                     line2 = interaction.replace('|-|', '-|')
-                    self._interactions.extend([Util.parse_interaction(line1), Util.parse_interaction(line2)])
+                    self._interactions.extend([BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
                 elif '|->' in interaction:
                     line1 = interaction.replace('|->', '->')
                     line2 = interaction.replace('|->', '|-')
-                    self._interactions.extend([Util.parse_interaction(line1), Util.parse_interaction(line2)])
+                    self._interactions.extend([BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
                 elif '<-|' in interaction:
                     line1 = interaction.replace('<-|', '<-')
                     line2 = interaction.replace('<-|', '-|')
-                    self._interactions.extend([Util.parse_interaction(line1), Util.parse_interaction(line2)])
+                    self._interactions.extend([BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
                 else:
-                    self._interactions.append(Util.parse_interaction(interaction))
+                    self._interactions.append(BNetworkUtil.parse_interaction(interaction))
         logging.info('Interactions loaded successfully')
 
     def _remove_interactions(self, is_input: bool = False, is_output: bool = False) -> None:
@@ -127,7 +127,7 @@ class InteractionModel:
                     raise RuntimeError('ERROR: Interaction effect malformed')
 
         for target, regulators in checked_targets.items():
-            new_interaction = Util.create_interaction(target=target)
+            new_interaction = BNetworkUtil.create_interaction(target=target)
             for activating_regulator in regulators["activating_regulators"]:
                 new_interaction['activating_regulators'].append(activating_regulator)
             for inhibitory_regulator in regulators["inhibitory_regulators"]:
@@ -137,7 +137,7 @@ class InteractionModel:
         sources = {interaction['source'] for interaction in self._interactions}
         for source in sources:
             if source not in checked_targets and self._is_not_a_target(source):
-                interaction = Util.create_interaction(target=source)
+                interaction = BNetworkUtil.create_interaction(target=source)
                 interaction['activating_regulators'].append(source)
                 multiple_interaction.append(interaction)
 

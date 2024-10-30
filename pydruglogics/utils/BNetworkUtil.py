@@ -1,22 +1,18 @@
 import os
 import re
 from typing import List
-
-import numpy as np
-from numba import jit, njit
+import logging
 
 
-class Util:
+class BNetworkUtil:
+
     @staticmethod
     def get_file_extension(file_name: str) -> str:
-        try:
-            if file_name:
-                extension = file_name[file_name.rfind('.') + 1:]
-            else:
-                extension = ''
-        except Exception as ex:
-            raise ex
-        return extension
+        if not file_name or '.' not in file_name:
+            logging.warning("No extension found in the provided file.")
+            return ''
+
+        return file_name.rsplit('.', 1)[-1]
 
     @staticmethod
     def remove_extension(file_ext: str) -> str:
@@ -40,32 +36,38 @@ class Util:
         return lines
 
     @staticmethod
-    def is_numeric_string(value):
-        try:
-            float(value)
+    def is_numeric_string(value: str) -> bool:
+        if isinstance(value, (int, float)):
             return True
-        except ValueError:
-            return False
+        if isinstance(value, str):
+            try:
+                float(value)
+                return True
+            except ValueError:
+                return False
+        return False
 
     @staticmethod
     def parse_interaction(interaction: str) -> dict:
-        tmp = interaction.split()
-        if len(tmp) != 3:
-            raise ValueError(f"ERROR: Wrongly formatted interaction: {interaction}")
-        source = tmp[0]
-        interaction_type = tmp[1]
-        target = tmp[2]
+        components = interaction.split()
 
-        if interaction_type in ['activate', 'activates', '->']:
-            arc = 1
-        elif interaction_type in ['inhibit', 'inhibits', '-|']:
-            arc = -1
-        elif interaction_type in ['<-', '|-']:
-            arc = 1 if interaction_type == '<-' else -1
-        else:
-            print('ERROR: Wrongly formatted interaction type:')
-            print(f"Source: {source} Interaction type: {interaction_type} Target: {target}")
-            raise SystemExit(1)
+        if len(components) != 3:
+            logging.error(f"Invalid interaction format: '{interaction}'. Expected format: "
+                          f"'source interaction_type target'")
+            raise ValueError(f"ERROR: Wrongly formatted interaction: {interaction}")
+
+
+        source, interaction_type, target = components
+        interaction_map = {
+            'activate': 1, 'activates': 1, '->': 1,
+            'inhibit': -1, 'inhibits': -1, '-|': -1,
+            '<-': 1, '|-': -1
+        }
+
+        arc = interaction_map.get(interaction_type)
+        if arc is None:
+            logging.error(f"Invalid interaction type '{interaction_type}' in interaction '{interaction}'")
+            raise ValueError(f"ERROR: Unrecognized interaction type: {interaction_type}")
 
         return {
             'source': source,
@@ -179,9 +181,4 @@ class Util:
                 if node:
                     activating_regulators[node] = 1
 
-        return (target, activating_regulators, inhibitory_regulators, link,)
-
-    @staticmethod
-    @jit
-    def calculate_match_score(observed_state, predicted_state):
-        return 1.0 - np.abs(predicted_state - observed_state)
+        return target, activating_regulators, inhibitory_regulators, link,
