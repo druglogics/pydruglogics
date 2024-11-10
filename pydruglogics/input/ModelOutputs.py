@@ -39,12 +39,14 @@ class ModelOutputs:
             raise
 
     def _load_model_outputs_dict(self, model_outputs_dict: Dict[str, float]):
-        try:
-            self._model_outputs = model_outputs_dict
-            logging.info('Model outputs are initialized from dictionary')
-        except Exception as e:
-            logging.error(f"Error loading model outputs from dictionary: {str(e)}")
-            raise
+        if not isinstance(model_outputs_dict, dict):
+            raise TypeError("model_outputs_dict must be a dictionary [text, number].")
+
+        if not model_outputs_dict:
+            logging.warning("model_outputs_dict is empty. No model outputs loaded.")
+
+        self._model_outputs = model_outputs_dict
+        logging.info("Model outputs are initialized from dictionary.")
 
     def get_model_output(self, node_name: str) -> float:
         return self._model_outputs.get(node_name, 0.0)

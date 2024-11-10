@@ -12,6 +12,7 @@ from pydruglogics.input.TrainingData import TrainingData
 from pydruglogics.model.BooleanModelOptimizer import BooleanModelOptimizer
 from pydruglogics.utils.BNetworkUtil import BNetworkUtil
 
+
 class Evolution(BooleanModelOptimizer):
     def __init__(self, boolean_model=None, training_data=None, model_outputs=None, ga_args=None, ev_args=None):
         """
@@ -20,7 +21,7 @@ class Evolution(BooleanModelOptimizer):
         :param training_data: Training data for the model.
         :param model_outputs: Model outputs for evaluation.
         :param ga_args: Dictionary containing all necessary arguments for pygad.
-        :param ev_args: Dictionary containing all necessary arguments for runnning the evolution.
+        :param ev_args: Dictionary containing all necessary arguments for running the evolution.
         """
         self._boolean_model = boolean_model
         self._mutation_type = boolean_model.mutation_type
@@ -47,6 +48,7 @@ class Evolution(BooleanModelOptimizer):
         Runs a single GA and returns the best models for this run.
         :param evolution_number: The index of the current GA run.
         :param initial_population: The initial population for the GA.
+        :return: The best models for the GA.
         """
         logging.debug(f"Running GA simulation {evolution_number}...")
         ga_seed = self._global_seed + evolution_number
@@ -57,7 +59,7 @@ class Evolution(BooleanModelOptimizer):
             fitness_func=self.calculate_fitness,
             mutation_num_genes=self._ga_args.get('mutation_num_genes', 3),
             gene_space=[0, 1],
-            gene_type= int,
+            gene_type=int,
             keep_elitism=self._ga_args.get('keep_elitism', 0),
             initial_population=initial_population,
             random_seed=ga_seed,
@@ -66,15 +68,19 @@ class Evolution(BooleanModelOptimizer):
             crossover_type=self._ga_args.get('crossover_type', 'single_point'),
             mutation_type=self._ga_args.get('mutation_type', 'random'),
             parent_selection_type=self._ga_args.get('parent_selection_type', 'sss'),
+            stop_criteria=self._ga_args.get('stop_criteria', 'reach_99'),
             suppress_warnings=True
         )
 
         ga_instance.run()
 
-        sorted_population = sorted(
-            [(ga_instance.population[idx], ga_instance.last_generation_fitness[idx])
-             for idx in range(len(ga_instance.population))], key=lambda x: x[1],
-            reverse=True)[:self._ev_args.get('num_best_solutions')]
+        last_gen_fitness_values = np.array(ga_instance.last_generation_fitness)
+        population = np.array(ga_instance.population)
+        best_solutions = np.argpartition(-last_gen_fitness_values, self._ev_args.get('num_best_solutions'))[
+                         :self._ev_args.get('num_best_solutions')]
+
+        sorted_population = [(population[i], last_gen_fitness_values[i]) for i in
+                             best_solutions[np.argsort(-last_gen_fitness_values[best_solutions])]]
 
         logging.debug(f"Best fitness in Simulation {evolution_number}: Fitness = {sorted_population[0][1]}")
         return sorted_population
@@ -92,7 +98,8 @@ class Evolution(BooleanModelOptimizer):
         fitness_values = Parallel(n_jobs=cores, backend='loky',  max_nbytes=None)(
             delayed(self._calculate_fitness_for_solution)(solution) for solution in solutions
         )
-        return fitness_values
+
+        return [fitness * 100 for fitness in fitness_values]
 
     def _calculate_fitness_for_solution(self, solution):
         fitness = 0.0
@@ -216,7 +223,7 @@ class Evolution(BooleanModelOptimizer):
 
                 boolean_model_bnet = f"# {current_date}, {current_time}\n"
                 boolean_model_bnet += f"# Evolution: {evolution_number} Solution: {solution_index}\n"
-                boolean_model_bnet += f"# Fitness Score: {model.fitness:.3f}\n"
+                boolean_model_bnet += f"# Fitness Score: {model.fitness / 100.0:.3f}\n"
 
                 boolean_equation = BNetworkUtil.to_bnet_format(model.updated_boolean_equations)
                 boolean_model_bnet += boolean_equation
@@ -228,9 +235,6 @@ class Evolution(BooleanModelOptimizer):
 
         except IOError as e:
             logging.error(f"File I/O error while saving models: {str(e)}")
-            raise
-        except Exception as e:
-            logging.error(f"Error saving models to file: {str(e)}")
             raise
 
     @property

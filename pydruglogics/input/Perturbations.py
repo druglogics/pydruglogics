@@ -20,75 +20,50 @@ class Perturbation:
             self._init_perturbations_from_drugpanel()
 
     def _load_drug_panel_from_data(self, drug_data: List[List[Union[str, None]]]) -> None:
-        try:
-            for drug in drug_data:
-                if len(drug) < 2:
-                    raise ValueError("Each drug entry must contain at least 'name' and 'targets'.")
+        for drug in drug_data:
+            if len(drug) < 2:
+                raise ValueError("Each drug entry must contain at least 'name' and 'targets'.")
 
-                name, targets, effect = drug[0], drug[1], drug[2] if len(drug) > 2 else 'inhibits'
-
-                if not name or not targets:
-                    raise ValueError("Each drug entry must contain 'name' and 'targets'.")
-
-                self._drug_panel.append({
-                    'name': name,
-                    'targets': targets.split(',') if isinstance(targets, str) else targets,
-                    'effect': effect
-                })
-
-            logging.info(f"Drug panel data initialized from list.")
-
-        except Exception as e:
-            logging.error(f"Error while loading drug panel data: {str(e)}")
-            raise
+            name, targets, effect = drug[0], drug[1], drug[2] if len(drug) > 2 else 'inhibits'
+            self._drug_panel.append({
+                'name': name,
+                'targets': targets.split(',') if isinstance(targets, str) else targets,
+                'effect': effect
+            })
+        logging.info("Drug panel data initialized from list.")
 
     def _load_perturbations_from_data(self, perturbation_data: List[List[str]]) -> None:
-        try:
-            if not all(perturbation_data):
-                raise ValueError('Each perturbation entry must contain at least one perturbation.')
+        if not perturbation_data:
+            logging.warning("Perturbation data is empty. Generating perturbations from the drug panel.")
+            return
 
-            self._drug_perturbations = perturbation_data
-            self._init_drug_perturbations()
-            logging.info(f"Perturbations initialized from list.")
+        self._drug_perturbations = [entry for entry in perturbation_data if entry]
+        if len(self._drug_perturbations) < len(perturbation_data):
+            logging.warning("Some perturbation entries were empty and have been ignored.")
 
-        except ValueError as ve:
-            logging.error(f"Error loading perturbation data: {str(ve)}")
-            raise
-        except Exception as e:
-            logging.error(f"Error while loading perturbation data: {str(e)}")
-            raise
+        self._init_drug_perturbations()
 
     def _init_drug_perturbations(self) -> None:
-        try:
-            name_to_drug = {drug['name']: drug for drug in self._drug_panel}
-            perturbed_drugs = []
+        drug_name_in_panel = {drug['name']: drug for drug in self._drug_panel}
+        perturbed_drugs = []
 
-            for combination in self._drug_perturbations:
-                combo = [name_to_drug.get(name) for name in combination if name in name_to_drug]
-                if combo:
-                    perturbed_drugs.append(combo)
-                else:
-                    logging.warning('Some drugs in the perturbation were not found in the drug panel.')
+        for combination_in_perturbations in self._drug_perturbations:
+            combination_in_panel = [drug_name_in_panel.get(name) for name in combination_in_perturbations if name in drug_name_in_panel]
+            if len(combination_in_panel) == len(combination_in_perturbations):
+                perturbed_drugs.append(combination_in_panel)
+            else:
+                logging.warning('Some drugs in the perturbation were not found in the drug panel.')
 
-            self._perturbations = perturbed_drugs
-            logging.info(f"Drug perturbations loaded.")
-
-        except Exception as e:
-            logging.error(f"Error during drug perturbation initialization: {str(e)}")
-            raise
+        self._perturbations = perturbed_drugs
+        logging.info("Drug perturbations initialized.")
 
     def _init_perturbations_from_drugpanel(self):
-        try:
-            self._perturbations = [
-                list(combination)
-                for number_of_combination in range(1, 3)
-                for combination in itertools.combinations(self._drug_panel, number_of_combination)
-            ]
-            logging.info(f"Perturbations generated from drug panel.")
-
-        except Exception as e:
-            logging.error(f"Error initializing perturbations from drug panel: {str(e)}")
-            raise
+        self._perturbations = [
+            list(combination)
+            for number_of_combination in range(1, 3)
+            for combination in itertools.combinations(self._drug_panel, number_of_combination)
+        ]
+        logging.info("Perturbations generated from drug panel.")
 
     @property
     def drugs(self) -> List[Dict[str, str]]:

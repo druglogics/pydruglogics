@@ -4,66 +4,83 @@ import logging
 
 
 class InteractionModel:
-    def __init__(self, interactions_file=None, model_name='', self_regulated_interactions=True, remove_inputs=False,
-                 remove_outputs=False):
+    def __init__(self, interactions_file=None, model_name='', remove_self_regulated_interactions=False,
+                 remove_inputs=False,remove_outputs=False):
         """
         Initializes the InteractionModel from .sif file.
-        :param interactions_file: Path to the .sif file.
+        :param interactions_file: File path to the .sif file with network interactions.
+        :param model_name: Name for the model. An empty string by default.
+        :param remove_self_regulated_interactions: If True, removes self-regulating interactions
+        (source equals target).False by default.
+        :param remove_inputs: If True, removes nodes without incoming interactions. False by default.
+        :param remove_outputs: If True, removes nodes without outgoing interactions. False by default.
         """
         self._interactions: List[Dict] = []
         self._model_name = model_name
 
         if interactions_file is not None:
             self._load_sif_file(interactions_file)
-            if not self_regulated_interactions:
+            if remove_self_regulated_interactions:
                 self._remove_self_regulated_interactions()
             self._remove_interactions(remove_inputs, remove_outputs)
             self._build_multiple_interactions()
         else:
             raise ValueError("An 'interactions_file' must be provided for initialization.")
 
-
     def _load_sif_file(self, interactions_file: str) -> None:
         """
-        Loads all the lines of the .sif file and initializes the interactions
-        :param interactions_file:
+        Loads all the lines of the .sif file and initializes the interactions with
+        :param interactions_file: File path to the .sif file with network interactions.
         :return None
         """
-        file_extension = BNetworkUtil.get_file_extension(interactions_file)
-        if file_extension != 'sif':
-            print('New file extension used to load general model, currently not supported')
-            raise IOError('ERROR: The extension needs to be .sif (other formats not yet supported)')
+        try:
+            file_extension = BNetworkUtil.get_file_extension(interactions_file)
+            if file_extension != 'sif':
+                print('New file extension used to load general model, currently not supported')
+                raise IOError('ERROR: The extension needs to be .sif (other formats not yet supported)')
 
-        self._model_name = BNetworkUtil.remove_extension(interactions_file)
-        interaction_lines = BNetworkUtil.read_lines_from_file(interactions_file)
+            self._model_name = BNetworkUtil.remove_extension(interactions_file)
+            interaction_lines = BNetworkUtil.read_lines_from_file(interactions_file)
 
-        for interaction in interaction_lines:
-            if interaction:
-                if '<->' in interaction:
-                    line1 = interaction.replace('<->', '<-')
-                    line2 = interaction.replace('<->', '->')
-                    self._interactions.extend([BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
-                elif '|-|' in interaction:
-                    line1 = interaction.replace('|-|', '|-')
-                    line2 = interaction.replace('|-|', '-|')
-                    self._interactions.extend([BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
-                elif '|->' in interaction:
-                    line1 = interaction.replace('|->', '->')
-                    line2 = interaction.replace('|->', '|-')
-                    self._interactions.extend([BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
-                elif '<-|' in interaction:
-                    line1 = interaction.replace('<-|', '<-')
-                    line2 = interaction.replace('<-|', '-|')
-                    self._interactions.extend([BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
-                else:
-                    self._interactions.append(BNetworkUtil.parse_interaction(interaction))
-        logging.info('Interactions loaded successfully')
+            for interaction in interaction_lines:
+                if interaction:
+                    if '<->' in interaction:
+                        line1 = interaction.replace('<->', '<-')
+                        line2 = interaction.replace('<->', '->')
+                        self._interactions.extend(
+                            [BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
+                    elif '|-|' in interaction:
+                        line1 = interaction.replace('|-|', '|-')
+                        line2 = interaction.replace('|-|', '-|')
+                        self._interactions.extend(
+                            [BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
+                    elif '|->' in interaction:
+                        line1 = interaction.replace('|->', '->')
+                        line2 = interaction.replace('|->', '|-')
+                        self._interactions.extend(
+                            [BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
+                    elif '<-|' in interaction:
+                        line1 = interaction.replace('<-|', '<-')
+                        line2 = interaction.replace('<-|', '-|')
+                        self._interactions.extend(
+                            [BNetworkUtil.parse_interaction(line1), BNetworkUtil.parse_interaction(line2)])
+                    else:
+                        self._interactions.append(BNetworkUtil.parse_interaction(interaction))
+
+            logging.info('Interactions loaded successfully')
+
+        except IOError as e:
+            logging.error(f"Error reading the interactions file '{interactions_file}': {str(e)}")
+            raise
+        except Exception as e:
+            logging.error(f"An unexpected error occurred while loading the file '{interactions_file}': {str(e)}")
+            raise
 
     def _remove_interactions(self, is_input: bool = False, is_output: bool = False) -> None:
         """
         Removes interactions based on input and output criteria.
-        :param is_input:
-        :param is_output:
+        :param is_input: Removes interactions that are only inputs. By default,  False.
+        :param is_output: Removes interactions that are only outputs. By default,  False.
         :return None
         """
         interactions_size_before_trim = len(self._interactions)
@@ -124,7 +141,9 @@ class InteractionModel:
                 case -1:
                     checked_targets[target]['inhibitory_regulators'].add(interaction['source'])
                 case _:
-                    raise RuntimeError('ERROR: Interaction effect malformed')
+                    raise RuntimeError(f"ERROR: Invalid interaction detected. Source '{interaction['source']}', "
+                                       f"target '{interaction['target']}' with an unsupported value "
+                                       f"'{interaction['arc']}'.")
 
         for target, regulators in checked_targets.items():
             new_interaction = BNetworkUtil.create_interaction(target=target)

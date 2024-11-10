@@ -5,7 +5,7 @@ from pydruglogics.model import BooleanModel
 class BooleanModelOptimizer(ABC):
     @abstractmethod
     def run(self) -> [BooleanModel]:
-        pass
+        return []
 
     @abstractmethod
     def save_to_file_models(self, path):

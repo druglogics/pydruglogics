@@ -16,7 +16,7 @@ class ModelPredictions:
         :param perturbations: List of perturbations to apply.
         :param model_outputs: Model outputs for evaluating the predictions.
         :param observed_synergy_scores: List of observed synergy scores.
-        :param synergy_method: Method to check for synergy ('hsa' or 'bliss').
+        :param synergy_method: Method to check for synergy. Possible values: 'hsa' or 'bliss'.
         :param model_directory: Directory from which to load models. (Needed only when there is no Evolution result.)
         :param attractor_tool: Tool to calculate attractors in models. (Needed only when loads models from directory)
         :param attractor_type: Type to calculate attractors in models. (Needed only when loads models from directory)
@@ -118,7 +118,13 @@ class ModelPredictions:
         logging.info(f"{perturbation_name}: {synergy_score}")
 
     def _load_models_from_directory(self, directory, attractor_tool, attractor_type):
-        """Loads all .bnet files from the given directory into Boolean Models with attractors and global outputs."""
+        """
+        Loads all .bnet files from the given directory into Boolean Models with attractors and global outputs.
+        :param directory: The path to the directory containing '.bnet' files.
+        :param attractor_tool: The tool used for attractor calculation. Possible values : 'mpbn', 'pyboolnet'.
+        :param attractor_type: The type of attractor to be calculated. Possible values: 'stable_states', 'trapspaces'.
+        :return: None
+        """
         try:
             for filename in os.listdir(directory):
                 if filename.endswith('.bnet'):
@@ -139,9 +145,10 @@ class ModelPredictions:
 
     def run_simulations(self, parallel=True, cores=4):
         """
-        Runs the model simulations in parallel or serially.
-        :param parallel: Whether to run simulations in parallel.
-        :param cores:
+        Runs simulations on the Boolean Models with the perturbations, either in parallel or serially.
+        :param parallel: Whether to run the simulations in parallel By default, True.
+        :param cores: The number of CPU cores to use for parallel execution By default, 4.
+        :return: None
         """
         self._model_predictions = []
         self._prediction_matrix = {}
@@ -175,8 +182,8 @@ class ModelPredictions:
         pd.set_option('display.max_columns', None)
         pd.set_option('display.max_rows', None)
         pd.set_option('display.max_colwidth', None)
-        logging.info("Response Matrix:")
-        logging.info(response_matrix_df)
+        logging.debug("\nResponse Matrix:")
+        logging.debug(response_matrix_df)
 
     def save_to_file_predictions(self, base_folder='./predictions'):
         try:

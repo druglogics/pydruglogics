@@ -74,9 +74,7 @@ class BNetworkUtil:
             'target': target,
             'arc': arc,
             'activating_regulators': [],
-            'inhibitory_regulators': [],
-            'activating_regulator_complexes': [],
-            'inhibitory_regulator_complexes': []
+            'inhibitory_regulators': []
         }
 
     @staticmethod
@@ -84,9 +82,7 @@ class BNetworkUtil:
         return {
             'target': target,
             'activating_regulators': [],
-            'inhibitory_regulators': [],
-            'activating_regulator_complexes': [],
-            'inhibitory_regulator_complexes': []
+            'inhibitory_regulators': []
         }
 
     @staticmethod

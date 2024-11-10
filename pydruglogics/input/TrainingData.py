@@ -2,7 +2,6 @@ from typing import List, Dict, Union, Tuple
 from pydruglogics.utils.BNetworkUtil import BNetworkUtil
 import logging
 
-
 class TrainingData:
     def __init__(self, input_file: str = None, observations: List[Tuple[List[str], float]] = None):
         self._observations = []
@@ -16,58 +15,51 @@ class TrainingData:
     def _load_from_file(self, file: str) -> None:
         try:
             lines = BNetworkUtil.read_lines_from_file(file)
-            line_index = 0
-            condition, response = None, None
-
-            while line_index < len(lines):
-                line = lines[line_index].strip().lower()
-
-                if line.startswith('condition'):
-                    condition = lines[line_index + 1].split("\t")
-                    line_index += 1
-                elif line.startswith('response'):
-                    response = lines[line_index + 1].split("\t")
-
-                    if 'globaloutput' in response[0]:
-                        value = response[0].split(":")[1]
-
-                        if not BNetworkUtil.is_numeric_string(value):
-                            raise ValueError(f"Response: {response} has a non-numeric value: {value}")
-                        if not (-1.0 <= float(value) <= 1.0):
-                            raise ValueError(f"Response has globaloutput outside the [-1,1] range: {value}")
-
-                    line_index += 1
-
-                elif line.startswith('weight'):
-                    weight = float(line.split(':')[1])
-
-                    if condition is None or response is None:
-                        raise ValueError("Missing condition or response data before the weight entry.")
-
-                    self._add_observation(condition, response, weight)
-
-                line_index += 1
-
-            logging.info(f"Training data loaded from file: {file}.")
-
         except IOError as e:
             logging.error(f"File read error: {str(e)}")
             raise
-        except Exception as e:
-            logging.error(f"Error while loading training data from file {file}: {str(e)}")
-            raise
+
+        line_index = 0
+        condition, response = None, None
+
+        while line_index < len(lines):
+            line = lines[line_index].strip().lower()
+
+            if line.startswith('condition'):
+                condition = lines[line_index + 1].split("\t")
+                line_index += 1
+            elif line.startswith('response'):
+                response = lines[line_index + 1].split("\t")
+                value = response[0].split(":")[1] if 'globaloutput' in response[0] else None
+
+                if 'globaloutput' in response[0]:
+                    value = response[0].split(":")[1]
+
+                    if not BNetworkUtil.is_numeric_string(value):
+                        raise ValueError(f"Response: {response} has a non-numeric value: {value}")
+                    if not (-1.0 <= float(value) <= 1.0):
+                        raise ValueError(f"Response has globaloutput outside the [-1,1] range: {value}")
+
+                line_index += 1
+
+            elif line.startswith('weight'):
+                weight = float(line.split(':')[1])
+
+                if condition is None or response is None:
+                    raise ValueError("Missing condition or response data before the weight entry.")
+
+                self._add_observation(condition, response, weight)
+
+            line_index += 1
+
+        logging.info(f"Training data loaded from file: {file}.")
 
     def _load_from_observations_list(self, observations: List[Tuple[List[str], float]]) -> None:
-        try:
-            for observation in observations:
-                response, weight = observation
-                self._add_observation(['-'], response, weight)
+        for observation in observations:
+            response, weight = observation
+            self._add_observation(['-'], response, weight)
 
-            logging.info('Training data is initialized from list.')
-
-        except Exception as e:
-            logging.error(f"Error while loading observations list: {str(e)}")
-            raise
+        logging.info('Training data initialized from list.')
 
     def _add_observation(self, condition: List[str], response: List[str], weight: float) -> None:
         if 'globaloutput' in response[0]:
