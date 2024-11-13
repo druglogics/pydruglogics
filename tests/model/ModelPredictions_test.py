@@ -146,18 +146,25 @@ class TestModelPredictions:
                 mock_model_predictions.save_to_file_predictions(base_folder='/test/predictions')
 
     def test_get_prediction_matrix(self, mock_model_predictions):
-        mock_model_predictions._prediction_matrix = {'drug1-drug2': {'model1': 0.6}, 'drug1': {'model1': 0.8},
-                                                     'drug3': {'model1': 0.9}}
+        # Arrange: Set up the mock data for the prediction matrix
+        mock_model_predictions._prediction_matrix = {
+            'drug1-drug2': {'model1': 0.6},
+            'drug1': {'model1': 0.8},
+            'drug3': {'model1': 0.9}
+        }
 
-        with patch('pandas.DataFrame.from_dict') as mock_from_dict, patch('logging.info') as mock_logging_info:
-            mock_df = Mock()
-            mock_filled_df = Mock()
-            mock_df.fillna.return_value = mock_filled_df
-            mock_from_dict.return_value = mock_df
+        # Mock the pandas DataFrame and the logging
+        with patch('pandas.DataFrame.from_dict', return_value=Mock()) as mock_from_dict, \
+                patch('logging.debug') as mock_logging_debug:
+            # Act: Call the method to test
             mock_model_predictions.get_prediction_matrix()
+
+            # Assert: Check that the DataFrame creation was called with the correct filtered data
             mock_from_dict.assert_called_once_with({'drug1-drug2': {'model1': 0.6}}, orient='index')
-            mock_logging_info.assert_any_call("Response Matrix:")
-            mock_logging_info.assert_any_call(mock_filled_df)
+
+            # Assert: Check that the appropriate logging calls were made
+            mock_logging_debug.assert_any_call("\nResponse Matrix:")
+            mock_logging_debug.assert_any_call(mock_from_dict.return_value.fillna())
 
     def test_run_simulations_serial(self, mock_model_predictions):
         mock_model_predictions._boolean_models = [Mock(model_name='model1')]

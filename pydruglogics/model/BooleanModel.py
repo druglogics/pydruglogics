@@ -63,10 +63,7 @@ class BooleanModel:
         """
         self._model_name = model.model_name
 
-        self._boolean_equations.extend(
-            self._create_equation_from_interaction(model, i) for i in range(model.size())
-        )
-
+        self._boolean_equations.extend(self._create_equation_from_interaction(model, i) for i in range(model.size()))
 
         logging.info('Boolean Model from Interaction Model is created.')
 
