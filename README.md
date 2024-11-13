@@ -7,7 +7,7 @@
 [![Build Status](https://github.com/druglogics/pydruglogics/actions/workflows/ci.yml/badge.svg)](https://github.com/druglogics/pydruglogics/actions)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/druglogics/pydruglogics/blob/main/LICENSE)
 [![Documentation Status](https://readthedocs.org/projects/pydruglogics/badge/?version=latest)](https://pydruglogics.readthedocs.io/en/latest/)
-[![Coverage Status](https://codecov.io/gh/druglogics/pydruglogics/branch/main/graph/badge.svg)](https://codecov.io/gh/druglogics/pydruglogics)
+
 
 ## Overview
 
@@ -25,7 +25,7 @@ pip install pydruglogics
 ### Install PyDrugLogics via conda
 
 ```bash
-conda install -c conda-forge pydruglogics
+conda install pydruglogics
 ```
 
 This will install the PyDrugLogics package and handle all dependencies automatically.
@@ -43,15 +43,15 @@ pip install -r requirements.txt
 
 ## Documentation
 
-For full documentation, visit the [GitHub Documentation](https://pydruglogics.readthedocs.io/en/latest/).
+For full documentation, visit the [GitHub Documentation](https://druglogics.github.io/pydruglogics/).
 
 ## Quick Start Guide
 
 Here's a simple example to get you started:
 
 ```python
-from pydruglogics import BooleanModel, Evolution, ModelPredictions, ModelOutputs, TrainingData, Perturbation
-from pydruglogics.execution.Executor import execute, train, predict
+from pydruglogics import BooleanModel, ModelOutputs, TrainingData, Perturbation
+from pydruglogics.execution.Executor import execute
 
 # Initialize train and predict
 model_outputs_dict = {
@@ -110,24 +110,24 @@ predict_params = {
 execute(train_params=train_params, predict_params=predict_params)
 ```
 
-For a more detailed tutorial, please visit the [documentation](https://pydruglogics.readthedocs.io/en/latest/).
+For a more detailed tutorial, please visit the [documentation](https://druglogics.github.io/pydruglogics/).
 
 ## CoLoMoTo Docker Integration
 
-*Note: This section will be updated when Colomoto Docker integration is complete.*
+*Note: This section will be updated when Colomoto Docker integration is completed.*
 
 ## Citing PyDrugLogics
 
 If you use PyDrugLogics, please cite the paper:
 
-*Flobak, Å., Zobolas, J. et al. (2023). Fine tuning a logical model of cancer cells to predict drug synergies: combining manual curation and automated parameterization. [DOI: 10.3389/fsysb.2023.1252961](https://www.frontiersin.org/journals/systems-biology/articles/10.3389/fsysb.2023.1252961/full)*
+*Flobak, Å., Zobolas, J. et al. (2023): Fine tuning a logical model of cancer cells to predict drug synergies: combining manual curation and automated parameterization. [DOI: 10.3389/fsysb.2023.1252961](https://www.frontiersin.org/journals/systems-biology/articles/10.3389/fsysb.2023.1252961/full)*
 
 ```bibtex
-@Article{pydruglogics2024,
+@Article{druglogics2023,
   title = {Fine tuning a logical model of cancer cells to predict drug synergies: combining manual curation and automated parameterization},
   author = {Flobak, Å., Zobolas, J. and Other Authors},
   journal = {Frontiers},
-  year = {2024},
+  year = {2023},
   month = {nov},
   doi = {10.3389/fsysb.2023.1252961},
   url = {https://www.frontiersin.org/journals/systems-biology/articles/10.3389/fsysb.2023.1252961/full},
