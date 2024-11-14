@@ -1,25 +1,35 @@
 
 # PyDrugLogics
 
-![PyDrugLogics Logo](TODO)
+![PyDrugLogics Logo](https://github.com/druglogics/pydruglogics/blob/main/logo.png)
 
-[![PyPI version](https://badge.fury.io/py/pydruglogics.svg)](https://badge.fury.io/py/pydruglogics)
-[![Build Status](https://github.com/druglogics/pydruglogics/actions/workflows/ci.yml/badge.svg)](https://github.com/druglogics/pydruglogics/actions)
+[![PyPI version](https://img.shields.io/pypi/v/pydruglogics)](https://badge.fury.io/py/pydruglogics)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen
+)](https://github.com/druglogics/pydruglogics/actions)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/druglogics/pydruglogics/blob/main/LICENSE)
-[![Documentation Status](https://readthedocs.org/projects/pydruglogics/badge/?version=latest)](https://pydruglogics.readthedocs.io/en/latest/)
+[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://druglogics.github.io/pydruglogics/)
 
 
 ## Overview
 
-PyDrugLogics is a Python package designed for constructing, optimizing Boolean models and performs in-silico perturbations of the models.
+PyDrugLogics is a Python package designed for constructing, optimizing Boolean Models and performs in-silico perturbations of the models.
 
 ## Installation
 
-**PyDrugLogics** can be installed via **pip**, **conda**, or **directly from the source**.
+**PyDrugLogics** can be installed via **PyPi**, **Conda**, or **directly from the source**.
 ### Install PyDrugLogics from PyPI
+
+The process involves two steps to install the PyDrugLogics core package and its necessary external dependencies.
+
+#### 1. Install PyDrugLogics via pip
 
 ```bash
 pip install pydruglogics
+```
+#### 2. Install External Dependency (PyBoolNet)
+
+```bash
+pip install -r https://raw.githubusercontent.com/druglogics/pydruglogics/main/requirements.txt
 ```
 
 ### Install PyDrugLogics via conda
@@ -41,6 +51,10 @@ pip install .
 pip install -r requirements.txt
 ```
 
+## CoLoMoTo Notebook envionment
+See more [here](https://colomoto.github.io/colomoto-docker/README.html) about CoLoMoTo Docker and Notebook<br/>
+*Note*: This section will be updated when Colomoto Docker integration is completed.*
+
 ## Documentation
 
 For full documentation, visit the [GitHub Documentation](https://druglogics.github.io/pydruglogics/).
@@ -50,7 +64,10 @@ For full documentation, visit the [GitHub Documentation](https://druglogics.gith
 Here's a simple example to get you started:
 
 ```python
-from pydruglogics import BooleanModel, ModelOutputs, TrainingData, Perturbation
+from pydruglogics.model.BooleanModel import BooleanModel
+from pydruglogics.input.TrainingData import TrainingData
+from pydruglogics.input.Perturbations import Perturbation
+from pydruglogics.input.ModelOutputs import ModelOutputs
 from pydruglogics.execution.Executor import execute
 
 # Initialize train and predict
@@ -111,10 +128,6 @@ execute(train_params=train_params, predict_params=predict_params)
 ```
 
 For a more detailed tutorial, please visit the [documentation](https://druglogics.github.io/pydruglogics/).
-
-## CoLoMoTo Docker Integration
-
-*Note: This section will be updated when Colomoto Docker integration is completed.*
 
 ## Citing PyDrugLogics
 

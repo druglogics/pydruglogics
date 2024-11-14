@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pydruglogics",
-    version="0.1.0",
+    version="0.1.1",
     author="Laura Szekeres",
     author_email="szekereslaura98@gmail.com",
     description="PyDrugLogics: a Python package designed for constructing, optimizing Boolean models and performs in-silico perturbations of the models.",
@@ -12,7 +12,7 @@ setup(
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: Unix",
     ],
     python_requires=">=3.10",
@@ -23,7 +23,7 @@ setup(
         "mpbn",
         "numpy",
         "pandas",
-        "pyboolnet",
         "scipy",
-        "scikit-learn"]
+        "scikit-learn"
+    ]
 )
