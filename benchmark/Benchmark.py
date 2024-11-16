@@ -16,6 +16,9 @@ from pydruglogics.input.ModelOutputs import ModelOutputs
 from pydruglogics.execution.Executor import execute
 
 def run_project():
+    """
+    Runs the main project execution pipeline.
+    """
     interaction = InteractionModel(
         interactions_file='../ags_cascade_1.0/network.sif',
         remove_self_regulated_interactions=False,
@@ -89,8 +92,7 @@ def run_project():
         'model_outputs': model_outputs,
         'observed_synergy_scores': observed_synergy_scores,
         'synergy_method': 'bliss',
-        'save_predictions': True,
-        'save_path': './predictions'
+        'save_predictions': True
     }
 
     execute(train_params=train_params, predict_params=predict_params)
@@ -114,6 +116,14 @@ def create_results_folder(base_folder="benchmark_results"):
     return run_folder
 
 def benchmark(runs=5, results_folder=None):
+    """
+    Benchmarks the project by running it multiple times and recording runtime and CPU usage.
+
+    :param runs (int, optional): Number of times to run the benchmark. Defaults to 5.
+    :param results_folder (str, optional): Folder to store benchmark results.
+
+    :return:A tuple containing a list of runtime results and CPU usage data.
+    """
     if results_folder is None:
         results_folder = create_results_folder()
 
