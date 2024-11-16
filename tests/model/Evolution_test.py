@@ -93,12 +93,29 @@ class TestEvolution:
 
     def test_save_to_file_models_success(self, evolution):
         with patch('os.makedirs'), patch('builtins.open', mock_open()) as mocked_open:
-            evolution._best_boolean_models = [Mock(model_name='e1_s1', fitness=0.95)]
-            BNetworkUtil.to_bnet_format = Mock(return_value='A, B | C\n')
+            mock_model = Mock(model_name='e1_s1', fitness=0.95)
+            mock_model.updated_boolean_equations = [
+                ("A", {"B": 1}, {}, ""),
+                ("B", {"D": 1}, {"E": 1}, "&"),
+                ("K", {"D": 1, "H": 1}, {"E": 1}, "|"),
+                ("C", {}, {"G": 1}, ""),
+                ("D", {"A": 1}, {"B": 1, "C": 1}, "&"),
+                ("E", {"A": 1, "F": 1}, {"B": 1}, "&"),
+                ("F", {}, {}, ""),
+                ("G", {}, {"B": 1, "F": 1}, ""),
+                ("H", {"A": 1, "F": 1}, {}, ""),
+                ("I", {"A": 1, "B": 1, "C": 1}, {}, ""),
+                ("J", {}, {"D": 1, "E": 1, "F": 1}, ""),
+                ("L", {}, {}, ""),
+                ("M", {"X": 1}, {}, "")
+            ]
+            evolution._best_boolean_models = [mock_model]
             evolution.save_to_file_models(base_folder='/test/models')
+            file_path, mode = mocked_open.call_args[0]
 
-            mocked_open.assert_called_once()
-            BNetworkUtil.to_bnet_format.assert_called()
+            assert file_path.startswith('/test/models/models_'), "Unexpected folder structure in file path."
+            assert file_path.endswith('e1_s1.bnet'), "File name does not match expected output."
+            assert mode == 'w', "File was not opened in write mode."
 
     def test_save_to_file_models_io_error(self, evolution):
         mock_model = Mock()

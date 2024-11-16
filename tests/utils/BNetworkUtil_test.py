@@ -74,11 +74,37 @@ class TestBNetworkUtil:
     def test_to_bnet_format(self):
         boolean_equations = [
             ("A", {"B": 1}, {}, ""),
-            ("C", {"D": 1}, {"E": 1}, "&"),
-            ("F", {}, {"G": 1}, "")
+            ("B", {"D": 1}, {"E": 1}, "&"),
+            ("K", {"D": 1, "H": 1}, {"E": 1}, "|"),
+            ("C", {}, {"G": 1}, ""),
+            ("D", {"A": 1}, {"B": 1, "C": 1}, "&"),
+            ("E", {"A": 1, "F": 1}, {"B": 1}, "&"),
+            ("F", {}, {}, ""),
+            ("G", {}, {"B": 1, "F": 1}, ""),
+            ("H", {"A": 1, "F": 1}, {}, ""),
+            ("I", {"A": 1, "B": 1, "C": 1}, {}, ""),
+            ("J", {}, {"D": 1, "E": 1, "F": 1}, ""),
+            ("L", {}, {}, ""),
+            ("M", {"X": 1}, {}, ""),
         ]
+
         result = BNetworkUtil.to_bnet_format(boolean_equations)
-        expected = "A, (B)\nC, (D) & !(E)\nF, !(G)"
+        expected = (
+            "A, (B)\n"
+            "B, (D) & !(E)\n"
+            "K, ((D) | H) | !(E)\n"
+            "C, !(G)\n"
+            "D, (A) & !((B) | C)\n"
+            "E, ((A) | F) & !(B)\n"
+            "F, 0\n"
+            "G, !((B) | F)\n"
+            "H, ((A) | F)\n"
+            "I, (((A) | B) | C)\n"
+            "J, !(((D) | E) | F)\n"
+            "L, 0\n"
+            "M, (X)"
+        )
+
         assert result == expected
 
     def test_create_equation_from_bnet_with_activation_only(self):
@@ -95,27 +121,10 @@ class TestBNetworkUtil:
     def test_is_numeric_string_edge_cases(self, value, expected):
         assert BNetworkUtil.is_numeric_string(value) == expected
 
-    def test_to_bnet_format_with_no_activators_or_inhibitors(self):
-        boolean_equations = [("X", {}, {}, "")]
-        result = BNetworkUtil.to_bnet_format(boolean_equations)
-        assert result == "X, 0"
-
     def test_create_equation_from_bnet_with_pipe_in_regulators(self):
         equation_str = "Z, A | !B"
         result = BNetworkUtil.create_equation_from_bnet(equation_str)
         assert result == ("Z", {"A": 1}, {"B": 1}, "|")
-
-    def test_activation_expression_multiple_activators(self):
-        boolean_equations = [("A", {"B": 1, "C": 1}, {}, "")]
-        result = BNetworkUtil.to_bnet_format(boolean_equations)
-        expected = "A, ((B) | C)"
-        assert result == expected
-
-    def test_inhibition_expression_multiple_inhibitors(self):
-        boolean_equations = [("D", {}, {"E": 1, "F": 1}, "")]
-        result = BNetworkUtil.to_bnet_format(boolean_equations)
-        expected = "D, !((E) | F)"
-        assert result == expected
 
     @pytest.mark.parametrize("file_ext,expected", [(".hiddenfile", ".hiddenfile"),
                                                    ("path/to/.hiddenfile", ".hiddenfile"),
