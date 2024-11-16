@@ -205,7 +205,7 @@ class Evolution(BooleanModelOptimizer):
         logging.info("Training finished.")
         return self._best_boolean_models
 
-    def save_to_file_models(self, base_folder= './models'):
+    def save_to_file_models(self, base_folder= './results/models'):
         try:
             now = datetime.datetime.now()
             current_date = now.strftime('%Y_%m_%d')

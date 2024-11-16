@@ -26,7 +26,7 @@ def timed_execution(func):
 @timed_execution
 def train(boolean_model: BooleanModel, model_outputs: ModelOutputs,
           ga_args: Dict[str, Any], ev_args: Dict[str, Any], training_data: Optional[TrainingData] = None,
-          save_best_models: bool = False, save_path: str = './models') -> List[BooleanModel]:
+          save_best_models: bool = False, save_path: str = './results/models') -> List[BooleanModel]:
     """
     Train a Boolean Model using genetic algorithm and evolution strategy.
     Finds the models with the best fitness score.
@@ -42,8 +42,8 @@ def train(boolean_model: BooleanModel, model_outputs: ModelOutputs,
 @timed_execution
 def predict(best_boolean_models: Optional[List[BooleanModel]], model_outputs: ModelOutputs,
             perturbations: Perturbation, observed_synergy_scores: List[str],
-            synergy_method: str = 'hsa', run_parallel: bool = True,
-            save_predictions: bool = False, save_path: str = './predictions',
+            synergy_method: str = 'bliss', run_parallel: bool = True, plot_roc_pr_curves: bool = True,
+            save_predictions: bool = False, save_path: str = './results/predictions',
             model_directory: str = '', attractor_tool: str = '',
             attractor_type: str = '', cores: int = 4) -> None:
     """
@@ -69,7 +69,10 @@ def predict(best_boolean_models: Optional[List[BooleanModel]], model_outputs: Mo
         )
 
     model_predictions.run_simulations(run_parallel, cores)
-    PlotUtil.plot_roc_and_pr_curve(model_predictions.predicted_synergy_scores, observed_synergy_scores, synergy_method)
+
+    if plot_roc_pr_curves:
+        PlotUtil.plot_roc_and_pr_curve(model_predictions.predicted_synergy_scores,
+                                       observed_synergy_scores, synergy_method)
     if save_predictions:
         model_predictions.save_to_file_predictions(save_path)
 

@@ -7,7 +7,7 @@ from pydruglogics.model.BooleanModel import BooleanModel
 from pydruglogics.model.Evolution import Evolution
 from pydruglogics.model.InteractionModel import InteractionModel
 from pydruglogics.model.ModelPredictions import ModelPredictions
-from pydruglogics.model.Statistics import compare_two_simulations, sampling_with_ci
+from pydruglogics.statistics.Statistics import compare_two_simulations, sampling_with_ci
 from pydruglogics.execution.Executor import execute, train
 from pydruglogics.utils.Logger import Logger
 from pydruglogics.utils.PlotUtil import PlotUtil

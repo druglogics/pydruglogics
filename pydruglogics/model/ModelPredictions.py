@@ -9,7 +9,7 @@ import logging
 
 class ModelPredictions:
     def __init__(self, boolean_models=None, perturbations=None, model_outputs=None,
-                 synergy_method='hsa', model_directory=None, attractor_tool=None, attractor_type=None):
+                 synergy_method='bliss', model_directory=None, attractor_tool=None, attractor_type=None):
         """
         Initializes the ModelPredictions class.
         :param boolean_models: List of BooleanModel instances.
@@ -135,7 +135,7 @@ class ModelPredictions:
                         model.calculate_attractors(attractor_tool, attractor_type)
                         model.calculate_global_output(self._model_outputs, False)
                         self._boolean_models.append(model)
-                        logging.info(f"Loaded model from {file_path}")
+                        logging.debug(f"Model loaded from {file_path}")
                     except Exception as e:
                         print(f"Failed to load model from {file_path}: {str(e)}")
                         raise
@@ -185,7 +185,7 @@ class ModelPredictions:
         logging.debug("\nResponse Matrix:")
         logging.debug(response_matrix_df)
 
-    def save_to_file_predictions(self, base_folder='./predictions'):
+    def save_to_file_predictions(self, base_folder='./results/predictions'):
         try:
             time_now = datetime.datetime.now()
             current_date = time_now.strftime('%Y_%m_%d')

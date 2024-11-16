@@ -145,17 +145,16 @@ def benchmark(runs=5, results_folder=None):
         results.append(elapsed_time)
         cpu_results.append(cpu_usage)
 
-        logging.INFO(f"Run {run + 1} completed in {elapsed_time:.2f} seconds.")
+        logging.info(f"Run {run + 1} completed in {elapsed_time:.2f} seconds.")
 
     plot_results(results, cpu_results, results_folder)
 
     return results, cpu_results
 
 def plot_results(runtime_results, cpu_results, results_folder):
-    # Runtime
     plt.figure(figsize=(10, 5))
     plt.title('Runtime per Simulation')
-    plt.plot(range(1, len(runtime_results)+ 1), runtime_results, marker='o', linestyle='-', label='Runtime (sec)')
+    plt.plot(range(1, len(runtime_results) + 1), runtime_results, marker='o', linestyle='-', label='Runtime (sec)')
     plt.xlabel('Run')
     plt.ylabel('Time (sec)')
     plt.grid(True, which='both', linestyle='--', color='lightgrey')
@@ -163,19 +162,7 @@ def plot_results(runtime_results, cpu_results, results_folder):
     runtime_plot_path = os.path.join(results_folder, "runtime_per_simulation.png")
     plt.savefig(runtime_plot_path)
     plt.show()
-
-    # CPU usage
-    for idx, cpu_run in enumerate(cpu_results):
-        plt.figure(figsize=(10, 5))
-        plt.plot(cpu_run, label=f'Run {idx + 1} CPU Usage (%)')
-        plt.title(f'CPU Usage During Run {idx + 1}')
-        plt.xlabel('Time (sec)')
-        plt.ylabel('CPU Usage (%)')
-        plt.grid(True)
-        plt.legend()
-        cpu_usage_path = os.path.join(results_folder, f"cpu_usage_run_{idx + 1}.png")
-        plt.savefig(cpu_usage_path)
-        plt.show()
+    plot_cpu_usage(cpu_results, 'All Runs Combined', results_folder)
 
 def plot_single_run(runtime_results, setup_label, results_folder):
     plt.figure(figsize=(10, 5))
@@ -183,7 +170,7 @@ def plot_single_run(runtime_results, setup_label, results_folder):
     bars = plt.bar(x_labels, runtime_results, color='skyblue')
 
     for bar, runtime in zip(bars, runtime_results):
-        plt.text(bar.get_x() + bar.get_width()/2, bar.get_height(),f'{runtime:.2f} s',
+        plt.text(bar.get_x() + bar.get_width()/2, bar.get_height(), f'{runtime:.2f} s',
                  ha='center', va='bottom', fontsize=10)
 
     plt.title(f'Runtime per Simulation for {setup_label}')
@@ -197,18 +184,21 @@ def plot_single_run(runtime_results, setup_label, results_folder):
     plt.show()
 
 def plot_cpu_usage(cpu_results, setup_label, results_folder):
+    plt.figure(figsize=(12, 6))
+    colors = plt.colormaps['tab10'].colors
+
     for idx, cpu_run in enumerate(cpu_results):
-        plt.figure(figsize=(10, 5))
-        plt.plot(cpu_run, label=f'Run {idx+ 1} CPU Usage (%)')
-        plt.title(f'CPU Usage During Run {idx+ 1} for {setup_label}')
-        plt.xlabel('Time (sec)')
-        plt.ylabel('CPU Usage (%)')
-        plt.grid(True)
-        plt.legend()
-        cpu_usage_path = os.path.join(results_folder,
-                                      f"cpu_usage_{setup_label.replace(' ', '_').lower()}_run_{idx + 1}.png")
-        plt.savefig(cpu_usage_path)
-        plt.show()
+        color = colors[idx % len(colors)]
+        plt.plot(cpu_run, label=f'Run {idx + 1}', color=color)
+
+    plt.title(f'CPU Usage During All Runs for {setup_label}')
+    plt.xlabel('Time (sec)')
+    plt.ylabel('CPU Usage (%)')
+    plt.grid(True)
+    plt.legend()
+    cpu_usage_path = os.path.join(results_folder, f"cpu_usage_combined_{setup_label.replace(' ', '_').lower()}.png")
+    plt.savefig(cpu_usage_path)
+    plt.show()
 
 def benchmark_multiple_setups(run_param_configs, setup_labels=None, runs=5):
     all_results = {}
@@ -218,7 +208,7 @@ def benchmark_multiple_setups(run_param_configs, setup_labels=None, runs=5):
         setup_labels = [f'Setup {i + 1}' for i in range(len(run_param_configs))]
 
     for idx, (setup, label) in enumerate(zip(run_param_configs, setup_labels)):
-        logging.INFO(f"\nBenchmarking {label}...")
+        logging.info(f"\nBenchmarking {label}...")
 
         runtime_results, cpu_results = benchmark(runs=runs, results_folder=results_folder)
         all_results[label] = runtime_results
@@ -279,5 +269,5 @@ setup_configs = [
 ]
 
 # Run the benchmark
-# runtime_results, cpu_results = benchmark(runs=2)
-all_runtime_results = benchmark_multiple_setups(setup_configs, runs=2)
+runtime_results, cpu_results = benchmark(runs=3)
+# all_runtime_results = benchmark_multiple_setups(setup_configs, runs=2)

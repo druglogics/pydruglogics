@@ -1,11 +1,16 @@
+import logging
 import math
+import os
+from datetime import datetime
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
+from scipy.stats import norm
 from sklearn.metrics import precision_recall_curve, auc
 from pydruglogics.model.ModelPredictions import ModelPredictions
 from pydruglogics.utils.PlotUtil import PlotUtil
-from typing import List, Tuple, Optional, Any
+from typing import List, Tuple, Any
 
 def _normalize_synergy_scores(calibrated_synergy_scores: List[Tuple[str, float]],
                               prolif_synergy_scores: List[Tuple[str, float]]) -> List[Tuple[str, float]]:
@@ -39,7 +44,7 @@ def _bootstrap_resample(labels: np.ndarray, predictions: np.ndarray, boot_n: int
     return resampled_model_preds
 
 def _calculate_pr_with_ci(observed: np.ndarray, preds: np.ndarray, boot_n: int,
-                         confidence_level: float, with_seeds: bool, seeds: int) -> Tuple[pd.DataFrame, float]:
+                          confidence_level: float, with_seeds: bool, seeds: int) -> Tuple[pd.DataFrame, float, dict]:
     """
     Calculate Precision-Recall curve with confidence intervals.
     :param observed: Array of observed binary labels.
@@ -77,14 +82,87 @@ def _calculate_pr_with_ci(observed: np.ndarray, preds: np.ndarray, boot_n: int,
     pr_df['low_precision'] = low_precision
     pr_df['high_precision'] = high_precision
 
-    return pr_df, auc_pr
+    sample_mean = np.mean(precision_orig)
+    standard_deviation = np.std(precision_orig)
+    standard_err = standard_deviation/np.sqrt(len(precision_orig))
+    critical_value = norm.ppf(1-alpha/ 2)
+    margin_of_err = critical_value * standard_err
+    ci_lower = float(sample_mean - margin_of_err)
+    ci_upper = float(sample_mean + margin_of_err)
+
+    sampl_with_ci_results= {
+        "Point Estimate (Mean)": sample_mean,
+        "Standard Deviation": standard_deviation,
+        "Standard Error": standard_err,
+        "Confidence Interval": (ci_lower, ci_upper),
+        "Confidence Level": f"{confidence_level * 100}%",
+        "Critical Value": critical_value,
+        "Margin of Error": margin_of_err,
+        "Sample Size": len(precision_orig)
+    }
+
+    return pr_df, auc_pr, sampl_with_ci_results
+
+
+def _create_result_base_folder(main_folder: str, category_folder: str, prefix: str) -> str:
+
+    base_path = os.path.join(main_folder, category_folder)
+    os.makedirs(base_path, exist_ok=True)
+    timestamp = datetime.now().strftime('%Y_%m_%d_%H%M')
+    result_folder = os.path.join(base_path, f"{prefix}_{timestamp}")
+    os.makedirs(result_folder, exist_ok=True)
+
+    return result_folder
+
+
+def _save_sampling_results(synergy_scores: List[List[Tuple[str, float]]], base_folder: str, synergy_method: str,
+                           summary_metrics: dict):
+    current_time = datetime.now().strftime('%Y/%m/%d %H:%M')
+    summary_path = os.path.join(base_folder, "sampling_with_ci.tab")
+
+    with open(summary_path, 'w') as file:
+        file.write(f"Date: {current_time.split()[0]}, Time: {current_time.split()[1]}\n")
+        file.write("Sampling Results\n")
+        for key, value in summary_metrics.items():
+            formatted_value = f"({value[0]:.6f}, {value[1]:.6f})" if isinstance(value, tuple) else f"{value:.6f}" if isinstance(value, float) else str(value)
+            file.write(f"{key}: {formatted_value}\n")
+
+    for idx, sample in enumerate(synergy_scores, start=1):
+        file_path = os.path.join(base_folder, f"synergy_scores_sample_{idx}.tab")
+        with open(file_path, 'w') as file:
+            file.write(f"# Date: {current_time.split()[0]}, Time: {current_time.split()[1]}\n")
+            file.write(f"# Synergies ({synergy_method})\n")
+            file.write("perturbation_name\tsynergy_score\n")
+            for perturbation, score in sample:
+                file.write(f"{perturbation}\t{score}\n")
+
+    logging.info(f"Sampling results saved to {base_folder}")
+
+
+def _save_compare_results(predicted_synergy_scores_list: List[List[Tuple[str, float]]], labels: List[str],
+                          base_folder: str, synergy_method: str):
+    current_time = datetime.now().strftime('%Y/%m/%d %H:%M')
+
+    for scores, label in zip(predicted_synergy_scores_list, labels):
+        underscore_label = label.replace(" ", "_").lower()
+        file_path = os.path.join(base_folder, f"predicted_synergy_scores_{underscore_label}.tab")
+
+        with open(file_path, 'w') as file:
+            file.write(f"# Date: {current_time.split()[0]}, Time: {current_time.split()[1]}\n")
+            file.write(f"# Synergies ({synergy_method})\n")
+            file.write("perturbation_name\tsynergy_score\n")
+            for perturbation, score in scores:
+                file.write(f"{perturbation}\t{score}\n")
+
+    logging.info(f"Comparison results saved to {base_folder}")
 
 def sampling_with_ci(boolean_models: List, observed_synergy_scores: List[str], model_outputs: Any,
-                     perturbations: Any, synergy_method: str = 'hsa', repeat_time: int = 10, sub_ratio: float = 0.8,
-                     boot_n: int = 1000, confidence_level: float = 0.9, plot_discrete: bool = False,
-                     with_seeds: bool = True, seeds: int = 42) -> None:
+                     perturbations: Any, synergy_method: str = 'bliss', repeat_time: int = 10, sub_ratio: float = 0.8,
+                     boot_n: int = 1000, confidence_level: float = 0.9, plot: bool = True, plot_discrete: bool = False,
+                     save_result: bool = True, with_seeds: bool = True, seeds: int = 42) -> None:
     """
-    Perform sampling with confidence interval calculation and plot PR curve.
+    Perform sampling with confidence interval calculation and plot the PR curve.
+
     :param boolean_models: List of BooleanModel instances.
     :param observed_synergy_scores: List of observed synergy scores.
     :param model_outputs: Model outputs for evaluation.
@@ -94,11 +172,15 @@ def sampling_with_ci(boolean_models: List, observed_synergy_scores: List[str], m
     :param sub_ratio: Proportion of models to sample in each iteration.
     :param boot_n: Number of bootstrap resampling iterations for confidence intervals.
     :param confidence_level: Confidence level for confidence interval calculations.
+    :param plot: Whether to display the PR curve.
     :param plot_discrete: Whether to plot discrete points on the PR curve.
+    :param save_result: Whether to save the results to a .tab file.
     :param with_seeds: Whether to use a fixed seed for reproducibility.
-    :param seeds: Seed value for random number generation.
-    :return: None. The function plots the PR curve with confidence intervals.
+    :param seeds: Seed value for random number generation to ensure reproducibility.
+    :return: None
     """
+
+    base_folder = _create_result_base_folder('results', 'sampling', 'sampling')
     num_models = len(boolean_models)
     sample_size = int(sub_ratio * num_models)
     predicted_synergy_scores_list = []
@@ -120,37 +202,46 @@ def sampling_with_ci(boolean_models: List, observed_synergy_scores: List[str], m
     all_predictions = []
     all_observed = []
 
-    for predicted_synergy_scores in predicted_synergy_scores_list:
-        df = pd.DataFrame(predicted_synergy_scores, columns=['perturbation', 'synergy_score'])
-        df['observed'] = df['perturbation'].apply(lambda x: 1 if x in observed_synergy_scores else 0)
+    for pred_synergy_scores in predicted_synergy_scores_list:
+        df = pd.DataFrame(pred_synergy_scores, columns=['perturbation', 'synergy_score'])
+        df['observed'] = df['perturbation'].apply(lambda pert: 1 if pert in observed_synergy_scores else 0)
         df['synergy_score'] *= -1
         all_predictions.extend(df['synergy_score'].values)
         all_observed.extend(df['observed'].values)
 
-    pr_df, auc_pr = _calculate_pr_with_ci(
-        np.array(all_observed), np.array(all_predictions),
-        boot_n, confidence_level, with_seeds, seeds
-    )
-    PlotUtil.plot_pr_curve_with_ci(pr_df, auc_pr, boot_n=boot_n, plot_discrete=plot_discrete)
+    pr_df, auc_pr, summary_metrics = _calculate_pr_with_ci(np.array(all_observed), np.array(all_predictions),
+                                                           boot_n, confidence_level, with_seeds, seeds)
+
+    if save_result:
+        _save_sampling_results(synergy_scores=predicted_synergy_scores_list, base_folder=base_folder,
+                               synergy_method=synergy_method, summary_metrics=summary_metrics)
+
+    if plot:
+        PlotUtil.plot_pr_curve_with_ci(pr_df, auc_pr, boot_n=boot_n, plot_discrete=plot_discrete)
+
 
 def compare_two_simulations(boolean_models1: List, boolean_models2: List, observed_synergy_scores: List[str],
-                            model_outputs: Any, perturbations: Any, synergy_method: str = 'hsa',
-                            label1: str = 'Models 1', label2: str = 'Models 1',
-                            normalized: bool = True) -> None:
+                            model_outputs: Any, perturbations: Any, synergy_method: str = 'bliss',
+                            label1: str = 'Models 1', label2: str = 'Models 2', normalized: bool = True,
+                            plot: bool = True, save_result: bool = True) -> None:
     """
     Compares ROC and PR curves for two sets of evolution results.
-     By default, normalization of the first result is applied.
-    :param boolean_models1: List of the best Boolean Models.
-    :param boolean_models2: List of the best Boolean Models.
+    By default, normalization of the first result is applied.
+    :param boolean_models1: List of the best Boolean Models for the first simulation set.
+    :param boolean_models2: List of the best Boolean Models for the second simulation set.
     :param observed_synergy_scores: List of observed synergy scores for comparison.
     :param model_outputs: Model outputs for evaluation.
     :param perturbations: List of perturbations to apply to the models.
     :param synergy_method: Method to check for synergy ('hsa' or 'bliss').
-    :param label1: Label for the evolution_result1.
-    :param label2: Label for the evolution_result2.
-    :param normalized: Normalize the evolution_result1, True by default.
-    :return: None. The function plots the ROC and PR curves.
+    :param label1: Label for the first simulation result.
+    :param label2: Label for the second simulation result.
+    :param normalized: Whether to normalize the first result.
+    :param plot: Whether to display the ROC and PR curves.
+    :param save_result: Whether to save the results.
+    :return: None
     """
+    base_folder = _create_result_base_folder('results', 'comparison', 'comparison')
+
     predicted_synergy_scores_list = []
     labels = [label1, label2]
 
@@ -179,4 +270,8 @@ def compare_two_simulations(boolean_models1: List, boolean_models2: List, observ
         predicted_synergy_scores_list.append(normalized_synergy_scores)
         labels.append('Calibrated (Normalized)')
 
-    PlotUtil.plot_roc_and_pr_curve(predicted_synergy_scores_list, observed_synergy_scores, synergy_method, labels)
+    if save_result:
+        _save_compare_results(predicted_synergy_scores_list, labels, base_folder=base_folder, synergy_method=synergy_method)
+
+    if plot:
+        PlotUtil.plot_roc_and_pr_curve(predicted_synergy_scores_list, observed_synergy_scores, synergy_method, labels)
