@@ -1,7 +1,7 @@
 
 # PyDrugLogics
 
-![PyDrugLogics Logo](https://github.com/druglogics/pydruglogics/blob/main/logo.png)
+![PyDrugLogics Logo](https://raw.githubusercontent.com/druglogics/pydruglogics/main/logo.png)
 
 [![PyPI version](https://img.shields.io/pypi/v/pydruglogics)](https://badge.fury.io/py/pydruglogics)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/druglogics/pydruglogics/actions)
@@ -30,19 +30,19 @@ The process involves two steps to install the PyDrugLogics core package and its 
 ```bash
 pip install pydruglogics
 ```
-#### 2. Install External Dependency (PyBoolNet)
+#### 2. Install External Dependency
 
 ```bash
 pip install -r https://raw.githubusercontent.com/druglogics/pydruglogics/main/requirements.txt
 ```
+This will install the PyDrugLogics package and handle all dependencies automatically.
+
 
 ### Install PyDrugLogics via conda
 *Note*: CoLoMoTo conda integration is ongoing.
 ```bash
 
 ```
-
-This will install the PyDrugLogics package and handle all dependencies automatically.
 
 ### Install from Source
 

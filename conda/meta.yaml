@@ -2,11 +2,11 @@
 {% set version = "0.1.1" %}
 
 package:
-  name: '{{ name|lower }}'
-  version: '{{ version }}'
+  name: {{ name|lower }}
+  version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/p/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  url: https://pypi.org/packages/source/p/{{ name }}/pydruglogics-{{ version }}.tar.gz
 
 build:
   number: 0
@@ -43,7 +43,3 @@ about:
     PyDrugLogics is a Python package designed for constructing and optimizing Boolean models, enabling in-silico perturbation analysis.
   doc_url: https://druglogics.github.io/pydruglogics/
   dev_url: https://github.com/druglogics/pydruglogics
-
-extra:
-  recipe-maintainers:
-    - szlaura
