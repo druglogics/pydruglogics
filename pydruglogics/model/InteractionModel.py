@@ -29,7 +29,12 @@ class InteractionModel:
 
     def _load_sif_file(self, interactions_file: str) -> None:
         """
-        Loads all the lines of the .sif file and initializes the interactions with
+        Loads all the lines of the .sif file and initializes the interactions.
+        Each line is parsed to identify interaction types, which can include:
+        - '<->' split into '<-' and '->'
+        - '|-|' split into '|-' and '-|'
+        - '|->' split into '->' and '|-'
+        - '<-|' split into '<-' and '-|'
         :param interactions_file: File path to the .sif file with network interactions.
         :return None
         """
@@ -124,7 +129,7 @@ class InteractionModel:
 
     def _build_multiple_interactions(self) -> None:
         """
-        Creates interactions with multiple regulators for every single target
+        Creates interactions with multiple regulators for every single target.
         :return None
         """
         checked_targets = {}

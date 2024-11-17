@@ -18,8 +18,8 @@ class ModelPredictions:
         :param observed_synergy_scores: List of observed synergy scores.
         :param synergy_method: Method to check for synergy. Possible values: 'hsa' or 'bliss'.
         :param model_directory: Directory from which to load models. (Needed only when there is no Evolution result.)
-        :param attractor_tool: Tool to calculate attractors in models. (Needed only when loads models from directory)
-        :param attractor_type: Type to calculate attractors in models. (Needed only when loads models from directory)
+        :param attractor_tool: Tool to calculate attractors in models. (Needed only when loads models from directory.)
+        :param attractor_type: Type to calculate attractors in models. (Needed only when loads models from directory.)
         """
         self._boolean_models = boolean_models or []
         self._perturbations = perturbations or []

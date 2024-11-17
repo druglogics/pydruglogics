@@ -161,8 +161,7 @@ def sampling_with_ci(boolean_models: List, observed_synergy_scores: List[str], m
                      boot_n: int = 1000, confidence_level: float = 0.9, plot: bool = True, plot_discrete: bool = False,
                      save_result: bool = True, with_seeds: bool = True, seeds: int = 42) -> None:
     """
-    Perform sampling with confidence interval calculation and plot the PR curve.
-
+    Performs sampling with confidence interval calculation and plot the PR curve.
     :param boolean_models: List of BooleanModel instances.
     :param observed_synergy_scores: List of observed synergy scores.
     :param model_outputs: Model outputs for evaluation.

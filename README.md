@@ -4,8 +4,7 @@
 ![PyDrugLogics Logo](https://github.com/druglogics/pydruglogics/blob/main/logo.png)
 
 [![PyPI version](https://img.shields.io/pypi/v/pydruglogics)](https://badge.fury.io/py/pydruglogics)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen
-)](https://github.com/druglogics/pydruglogics/actions)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/druglogics/pydruglogics/actions)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/druglogics/pydruglogics/blob/main/LICENSE)
 [![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://druglogics.github.io/pydruglogics/)
 
@@ -13,6 +12,11 @@
 ## Overview
 
 PyDrugLogics is a Python package designed for constructing, optimizing Boolean Models and performs in-silico perturbations of the models.
+### Core Features
+- Construct Boolean model from `.sif` file
+- Optimize Boolean model
+- Generate perturbed models
+- Evaluate drug synergies
 
 ## Installation
 
@@ -33,9 +37,9 @@ pip install -r https://raw.githubusercontent.com/druglogics/pydruglogics/main/re
 ```
 
 ### Install PyDrugLogics via conda
-
+*Note*: CoLoMoTo conda integration is ongoing.
 ```bash
-conda install pydruglogics
+
 ```
 
 This will install the PyDrugLogics package and handle all dependencies automatically.
@@ -53,7 +57,7 @@ pip install -r requirements.txt
 
 ## CoLoMoTo Notebook envionment
 See more [here](https://colomoto.github.io/colomoto-docker/README.html) about CoLoMoTo Docker and Notebook<br/>
-*Note*: This section will be updated when Colomoto Docker integration is completed.*
+*Note*: This section will be updated when Colomoto Docker integration is completed.
 
 ## Documentation
 
