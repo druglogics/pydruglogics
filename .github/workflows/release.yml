@@ -5,28 +5,29 @@ on:
     types: [published]
 
 jobs:
-  build-and-deploy:
+  pypi-publish:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
+    - name: Extract version from tag and update files
+      run: |
+        set -e  # Ensure the step fails if any command fails
+        sed -i "s:9999:${VERSION//*v/}:" setup.py conda/meta.yaml
+        echo "Version set successfully in setup.py and conda/meta.yaml"
+      env:
+        VERSION: ${{ github.ref }}
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
 
-    - name: Install dependencies
+    - name: Install PyPI dependencies
       run: |
+        set -e
         python -m pip install --upgrade pip setuptools wheel twine
-        pip install "anaconda-client>=1.7.2" conda-build
-
-    - name: Extract version from tag
-      id: get_version
-      run: |
-        echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-        echo "Version extracted: $VERSION"
 
     - name: Build and publish to PyPI
       env:
@@ -37,11 +38,43 @@ jobs:
         python setup.py sdist bdist_wheel
         twine upload dist/*
 
-    - name: Build and publish to Conda
+  conda-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Extract version from tag and update files
+      run: |
+        set -e  # Ensure the step fails if any command fails
+        sed -i "s:9999:${VERSION//*v/}:" setup.py conda/meta.yaml
+        echo "Version set successfully in setup.py and conda/meta.yaml"
       env:
-        ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+        VERSION: ${{ github.ref }}
+
+    - uses: s-weigand/setup-conda@v1
+      with:
+        python-version: '3.12'
+
+    - name: Install Conda dependencies
       run: |
         set -e
+        conda install -y anaconda-client conda-build conda-verify conda-libmamba-solver
+        conda config --set solver libmamba
+        conda config --set channel_priority flexible
         conda config --set anaconda_upload no
-        conda build conda/meta.yaml -c conda-forge -c colomoto -c defaults --output-folder output
-        anaconda upload output/noarch/*.tar.bz2 --user your-username
+
+    - name: Build Conda package
+      run: |
+        set -e
+        cd conda
+        conda build --user your-username --token $ANACONDA_API_TOKEN --override-channels -c defaults -c conda-forge -c colomoto .
+      env:
+        ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+
+    - name: Upload Conda package
+      run: |
+        set -e
+        anaconda upload conda/build_artifacts/*.tar.bz2 --user your-username
+      env:
+        ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
