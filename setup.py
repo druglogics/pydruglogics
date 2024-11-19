@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pydruglogics",
-    version="0.1.1",
+    version="0.1.2",
     author="Laura Szekeres",
     author_email="szekereslaura98@gmail.com",
     description="PyDrugLogics: a Python package designed for constructing, optimizing Boolean models and performs in-silico perturbations of the models.",
@@ -15,7 +15,7 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: Unix",
     ],
-    python_requires=">=3.10",
+    python_requires=">=3.12",
     install_requires=[
         "pygad",
         "joblib",
