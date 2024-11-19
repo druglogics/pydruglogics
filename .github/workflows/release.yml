@@ -5,38 +5,38 @@ on:
     types: [published]
 
 jobs:
-  pypi-publish:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Extract version from tag and update files
-      run: |
-        set -e  # Ensure the step fails if any command fails
-        sed -i "s:9999:${VERSION//*v/}:" setup.py conda/meta.yaml
-        echo "Version set successfully in setup.py and conda/meta.yaml"
-      env:
-        VERSION: ${{ github.ref }}
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-
-    - name: Install PyPI dependencies
-      run: |
-        set -e
-        python -m pip install --upgrade pip setuptools wheel twine
-
-    - name: Build and publish to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        set -e
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
+  # pypi-publish:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v3
+  #
+  #   - name: Extract version from tag and update files
+  #     run: |
+  #       set -e
+  #       sed -i "s:9999:${VERSION//*v/}:" setup.py conda/meta.yaml
+  #       echo "Version set successfully in setup.py and conda/meta.yaml"
+  #     env:
+  #       VERSION: ${{ github.ref }}
+  #
+  #   - name: Set up Python
+  #     uses: actions/setup-python@v4
+  #     with:
+  #       python-version: '3.12'
+  #
+  #   - name: Install PyPI dependencies
+  #     run: |
+  #       set -e
+  #       python -m pip install --upgrade pip setuptools wheel twine
+  #
+  #   - name: Build and publish to PyPI
+  #     env:
+  #       TWINE_USERNAME: __token__
+  #       TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+  #     run: |
+  #       set -e
+  #       python setup.py sdist bdist_wheel
+  #       twine upload dist/*
 
   conda-publish:
     runs-on: ubuntu-latest
@@ -46,7 +46,7 @@ jobs:
 
     - name: Extract version from tag and update files
       run: |
-        set -e  # Ensure the step fails if any command fails
+        set -e
         sed -i "s:9999:${VERSION//*v/}:" setup.py conda/meta.yaml
         echo "Version set successfully in setup.py and conda/meta.yaml"
       env:
@@ -68,13 +68,13 @@ jobs:
       run: |
         set -e
         cd conda
-        conda build --user your-username --token $ANACONDA_API_TOKEN --override-channels -c defaults -c conda-forge -c colomoto .
+        conda build --user szlaura --token $ANACONDA_API_TOKEN --override-channels -c defaults -c conda-forge -c colomoto .
       env:
         ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
 
     - name: Upload Conda package
       run: |
         set -e
-        anaconda upload conda/build_artifacts/*.tar.bz2 --user your-username
+        anaconda upload conda/build_artifacts/*.tar.bz2 --user szlaura
       env:
         ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
