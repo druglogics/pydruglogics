@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pydruglogics",
-    version="0.1.4",
+    version="0.1.5",
     author="Laura Szekeres",
     author_email="szekereslaura98@gmail.com",
     description="PyDrugLogics: a Python package designed for constructing, optimizing Boolean models and performs in-silico perturbations of the models.",
