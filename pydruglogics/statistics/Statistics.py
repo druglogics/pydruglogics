@@ -179,7 +179,6 @@ def sampling_with_ci(boolean_models: List, observed_synergy_scores: List[str], m
     :return: None
     """
 
-    base_folder = _create_result_base_folder('results', 'sampling', 'sampling')
     num_models = len(boolean_models)
     sample_size = int(sub_ratio * num_models)
     predicted_synergy_scores_list = []
@@ -212,6 +211,7 @@ def sampling_with_ci(boolean_models: List, observed_synergy_scores: List[str], m
                                                            boot_n, confidence_level, with_seeds, seeds)
 
     if save_result:
+        base_folder = _create_result_base_folder('results', 'sampling', 'sampling')
         _save_sampling_results(synergy_scores=predicted_synergy_scores_list, base_folder=base_folder,
                                synergy_method=synergy_method, summary_metrics=summary_metrics)
 
@@ -239,7 +239,6 @@ def compare_two_simulations(boolean_models1: List, boolean_models2: List, observ
     :param save_result: Whether to save the results.
     :return: None
     """
-    base_folder = _create_result_base_folder('results', 'comparison', 'comparison')
 
     predicted_synergy_scores_list = []
     labels = [label1, label2]
@@ -270,6 +269,7 @@ def compare_two_simulations(boolean_models1: List, boolean_models2: List, observ
         labels.append('Calibrated (Normalized)')
 
     if save_result:
+        base_folder = _create_result_base_folder('results', 'comparison', 'comparison')
         _save_compare_results(predicted_synergy_scores_list, labels, base_folder=base_folder, synergy_method=synergy_method)
 
     if plot:
