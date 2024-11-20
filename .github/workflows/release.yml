@@ -40,9 +40,13 @@ jobs:
 
   conda-publish:
     runs-on: ubuntu-latest
+    needs: pypi-publish
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
+    - name: Wait fir PyPi to sync
+      run: sleep 60
 
     - name: Extract version from tag and update files
       run: |
