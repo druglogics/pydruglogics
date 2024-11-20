@@ -41,7 +41,7 @@ This will install the PyDrugLogics package and handle all dependencies automatic
 ### Install PyDrugLogics via conda
 *Note*: CoLoMoTo conda integration is ongoing.
 ```bash
-conda install szlaura::pydruglogics
+conda install colomoto::pydruglogics
 ```
 
 ### Install from Source

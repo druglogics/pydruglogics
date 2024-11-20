@@ -62,12 +62,12 @@ jobs:
         conda install -y anaconda-client conda-build conda-verify conda-libmamba-solver
         conda config --set solver libmamba
         conda config --set channel_priority flexible
-        conda config --set anaconda_upload no
+        conda config --set anaconda_upload yes
 
     - name: Build Conda package
       run: |
         set -e
         cd conda
-        conda build --user szlaura --token $ANACONDA_API_TOKEN --override-channels -c defaults -c conda-forge -c colomoto .
+        conda build --user colomoto --token $ANACONDA_API_TOKEN --override-channels -c defaults -c conda-forge -c colomoto .
       env:
         ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
