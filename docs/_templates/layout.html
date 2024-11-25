@@ -1,0 +1,18 @@
+{% extends "!layout.html" %}
+
+{% block header %}
+<div class="version-badge">
+    <span class="version-link">Version: {{ version }}</span>
+</div>
+{{ super() }}
+{% endblock %}
+
+
+{% extends "!layout.html" %}
+
+{% block body %}
+<div class="version-badge">
+    <span class="version-link">Version: {{ version }}</span>
+</div>
+{{ super() }}
+{% endblock %}

@@ -1,4 +1,4 @@
-pydruglogics
+Full API
 ============
 
 .. toctree::

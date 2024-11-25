@@ -1,17 +1,35 @@
-.. PyDrugLogics documentation master file, created by
-   sphinx-quickstart on Wed Nov 13 13:07:30 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Getting Started
+===============
 
-PyDrugLogics documentation
-==========================
+.. raw:: html
 
-Welcome to the PyDrugLogics Documentation!
+    <div style="position: fixed; bottom: 10px; right: 10px; background-color: #f8f9fa; padding: 5px 10px; border-radius: 5px; box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1); z-index: 1000;">
+        <a href="#" style="font-size: 0.9rem; color: #007bff; text-decoration: none;">Version: 0.1.8</a>
+    </div>
 
+.. include:: getting_started.rst
+   :start-line: 1
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Getting Started
 
- modules
+   getting_started
 
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+   :caption: Usage
+
+   inputs
+   train_and_predict
+   statistics
+   troubleshooting
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+   :caption: Full API
+
+   api
