@@ -1,0 +1,23 @@
+Statistics
+==========
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   comparison
+   sampling
+
+.. _comparison:
+
+Comparison
+----------
+
+Methods for comparing models...
+
+.. _sampling:
+
+Sampling
+--------
+
+Details on sampling techniques...

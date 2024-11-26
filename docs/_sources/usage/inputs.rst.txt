@@ -1,0 +1,47 @@
+Inputs
+======
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   input_files
+   model_outputs
+   training_data
+   perturbations
+   observed_synergy_scores
+
+.. _input_files:
+
+Input Files
+-----------
+
+Details about input files...
+
+.. _model_outputs:
+
+Model Outputs
+-------------
+
+Expected outputs from the models...
+
+.. _training_data:
+
+Training Data
+-------------
+
+How to prepare training data...
+
+.. _perturbations:
+
+Perturbations
+-------------
+
+How to apply perturbations...
+
+.. _observed_synergy_scores:
+
+Observed Synergy Scores
+-----------------------
+
+Details about synergy scores...

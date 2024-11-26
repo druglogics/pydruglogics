@@ -1,0 +1,9 @@
+Full API
+========
+
+Comprehensive API documentation for PyDrugLogics.
+
+.. automodule:: pydruglogics
+    :members:
+    :undoc-members:
+    :show-inheritance:

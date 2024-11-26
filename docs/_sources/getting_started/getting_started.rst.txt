@@ -1,0 +1,39 @@
+Getting Started
+===============
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   overview
+   installation
+   colomoto_notebook_environment
+   acknowledgements
+
+.. _overview:
+
+Overview
+--------
+
+PyDrugLogics is a Python package...
+
+.. _installation:
+
+Installation
+------------
+
+Steps to install PyDrugLogics...
+
+.. _colomoto_notebook_environment:
+
+CoLoMoTo Notebook Environment
+-----------------------------
+
+Details on CoLoMoTo...
+
+.. _acknowledgements:
+
+Acknowledgements
+----------------
+
+Credits to the contributors...

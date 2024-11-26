@@ -1,0 +1,808 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Statistics" href="statistics.html" /><link rel="prev" title="Inputs" href="inputs.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>Train and Predict - PyDrugLogics documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=662aa8b4" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">PyDrugLogics  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">PyDrugLogics  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Inputs</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Train and Predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Full API</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">Full API</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Full API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pydruglogics.html">pydruglogics package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of pydruglogics package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="pydruglogics.execution.html">pydruglogics.execution package</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of pydruglogics.execution package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="pydruglogics.input.html">pydruglogics.input package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of pydruglogics.input package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="pydruglogics.model.html">pydruglogics.model package</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of pydruglogics.model package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.Evolution.html">pydruglogics.model.Evolution module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.InteractionModel.html">pydruglogics.model.InteractionModel module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.ModelPredictions.html">pydruglogics.model.ModelPredictions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="pydruglogics.utils.html">pydruglogics.utils package</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of pydruglogics.utils package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/train_and_predict.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="train-and-predict">
+<h1>Train and Predict<a class="headerlink" href="#train-and-predict" title="Link to this heading"></a></h1>
+<p>The PyDrugLogics package provides methods to train Boolean models and predict drug synergies.</p>
+<p>To see the full Jupyter Notebook tutorial click <a class="reference external" href="https://github.com/druglogics/pydruglogics/blob/main/tutorials/pydruglogics_tutorial.ipynb">here</a>.</p>
+<p>This page details the main functions for executing training and prediction tasks: <cite>train</cite>, <cite>predict</cite>, and <cite>execute</cite>.</p>
+<section id="train">
+<span id="id1"></span><h2>Train<a class="headerlink" href="#train" title="Link to this heading"></a></h2>
+<p>The <cite>train</cite> function optimizes a Boolean model using a Genetic Algorithm.</p>
+<p>Training involves optimizing Boolean models so that they best represent the observed biological system.
+The process uses a <strong>genetic algorithm</strong> to iteratively refine the models, ensuring alignment with observations such as steady states or global outputs.</p>
+<p>The pipeline uses the <strong>PyGAD</strong> Genetic Algoritm.
+For more information about the <strong>PyGAD.GA</strong> click <a class="reference external" href="https://pygad.readthedocs.io/en/latest/">here</a>.</p>
+<section id="the-genetic-algorithm">
+<h3>The Genetic Algorithm<a class="headerlink" href="#the-genetic-algorithm" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Initial Model Generation</strong>: Boolean models are generated from the initial Boolean model by applying mutations on it.</p></li>
+<li><p><strong>Fitness Calculation</strong>: Each model is evaluated and fitness score is calculated. Fitness scores reflect how well a model’s predictions match to the provided data.</p></li>
+<li><p><strong>Selection</strong>: Models with higher fitness scores are selected for further refinement. These models are combined (via crossover) to create a new generation of models.</p></li>
+<li><p><strong>Crossover and Mutation</strong>:</p></li>
+</ol>
+<p>There are 3 possible mutation types:</p>
+<ol class="loweralpha simple">
+<li><p><strong>balanced</strong>: Only the link operator is mutated.</p></li>
+</ol>
+<p>Example:</p>
+<blockquote>
+<div>A, ((B) | C) <b style="color: red;">|</b> !(D) => A, ((B) | C) <b style="color: red;">&</b> !(D)</div></blockquote>
+<ol class="loweralpha simple" start="2">
+<li><p><strong>topology</strong>: One or more nodes are removed or added. Minimum 1 regulator always stays in the equation. There can be no more regulator than was in the original equation.</p></li>
+</ol>
+<p>Example:</p>
+<blockquote>
+<div>A, ((B) | C) | <b style="color: green;">!(D)</b> => A, ((B) | C)</div></blockquote>
+<ol class="loweralpha simple" start="3">
+<li><p><strong>mixed</strong>: Combines the balanced and topology mutations.</p></li>
+</ol>
+<p>Example:</p>
+<blockquote>
+<div>A, ((B) |  <b style="color: green;">C</b>) <b style="color: red;">|</b> !(D) => A, (B) <b style="color: red;">&</b> !(D)</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p><strong>Stopping Conditions</strong>: The process continues until either a specified fitness threshold is reached or the maximum number of generations is completed.</p></li>
+</ol>
+</section>
+<section id="attractor-calculation">
+<h3>Attractor Calculation<a class="headerlink" href="#attractor-calculation" title="Link to this heading"></a></h3>
+<p>In Boolean networks, attractors represent the long-term behaviors of the system, including fixed points (stable states) or cyclic patterns.</p>
+<p>Stable states are fixed-point attractors where the system remains indefinitely, representing steady biological conditions.</p>
+<p>Trap spaces are subsets of states the system cannot leave, encompassing stable states and recurring cycles, and provide insight into invariant network behaviors.</p>
+<p>In the pipeline,  <a class="reference external" href="https://mpbn.readthedocs.io/">MPBN</a> and <a class="reference external" href="https://pyboolnet.readthedocs.io/en/master/">PyBoolNet</a> packages are used to compute stable states and trap spaces.</p>
+<p><strong>Example of adding the attractor calculation method:</strong></p>
+<div class="copybutton highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="c1"># MPBN, trapspaces</span>
+ <span class="n">model</span> <span class="o">=</span> <span class="n">BooleanModel</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s1">&#39;./path/to/network.bnet&#39;</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">mutation_type</span><span class="o">=</span><span class="s1">&#39;balanced&#39;</span><span class="p">,</span>
+ <span class="n">attractor_tool</span><span class="o">=</span><span class="s1">&#39;mpbn&#39;</span><span class="p">,</span> <span class="n">attractor_type</span><span class="o">=</span><span class="s1">&#39;trapspaces&#39;</span><span class="p">)</span>
+
+ <span class="c1"># PyBoolNet, stable_states</span>
+ <span class="n">model</span> <span class="o">=</span> <span class="n">BooleanModel</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s1">&#39;./path/to/network.bnet&#39;</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">mutation_type</span><span class="o">=</span><span class="s1">&#39;topology&#39;</span><span class="p">,</span>
+ <span class="n">attractor_tool</span><span class="o">=</span><span class="s1">&#39;pyboolnet&#39;</span><span class="p">,</span> <span class="n">attractor_type</span><span class="o">=</span><span class="s1">&#39;stable_states&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="ga-fitness-score-calculation">
+<h3>GA Fitness Score Calculation<a class="headerlink" href="#ga-fitness-score-calculation" title="Link to this heading"></a></h3>
+<p><strong>1. Steady State Responses</strong></p>
+<p>Fitness is calculated by comparing the model’s attractors to the observed steady states. The formula is:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{fitness} = \frac{\sum \text{matches}}{\#\text{responses}}\]</div>
+</div>
+<p>For example, an observed response:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>A: 0   B: 1   C: 0
+</pre></div>
+</div>
+<p>If the model predicts an attractor:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>A: 0   B: 1   C: *
+</pre></div>
+</div>
+<p>The fitness score is calculated as:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{fitness} = \frac{1 + 1 + (1 - |0 - 0.5|))}{3} = \frac{2.5}{3} \approx 0.8333\]</div>
+</div>
+<p><strong>2. Global Output Responses</strong></p>
+<p>When evaluating global outputs, the fitness measures the deviation between predicted and observed outputs. The formula is:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{fitness} = 1 - |\text{globaloutput}_{\text{obs}} - \text{globaloutput}_{\text{pred}}|\]</div>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\text{globaloutput}_{\text{obs}}\)</span>: Observed global output from the training data:</p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{globaloutput}_{\text{pred}}\)</span>: Predicted global output from the model:</p></li>
+</ul>
+<p>To calculate the predicted global output (<span class="math notranslate nohighlight">\(\text{globaloutput}_{\text{pred}}\)</span>), the following steps are needed:</p>
+<p>First, compute the weighted average score (<span class="math notranslate nohighlight">\(\text{globaloutput}_{\text{pred}}\)</span>) across all attractors:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{globaloutput}_{\text{pred}} = \sum_{k} \sum_{j=1}^{n} \text{ss}_{i}^{j} \times w_{i}^{k} \quad\]</div>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k\)</span>: Number of attractors of the model.</p></li>
+<li><p><span class="math notranslate nohighlight">\(n\)</span>: Number of nodes defined in the modeloutputs file.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{ss}_{i}^{j}\)</span>: The state of node <span class="math notranslate nohighlight">\(i\)</span> in the <span class="math notranslate nohighlight">\(j\)</span>-th attractor (values can be 0, 1, or 0.5).</p></li>
+<li><p><span class="math notranslate nohighlight">\(w_{i}\)</span>: The weight associated with each node.</p></li>
+</ul>
+<p>Next, normalize the global output (<span class="math notranslate nohighlight">\(\text{globaloutput}_{\text{norm}}\)</span>) to the <span class="math notranslate nohighlight">\([0, 1]\)</span> range using the following equation:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{globaloutput}_{\text{norm}} = \frac{\text{globaloutput}_{\text{pred}} - \text{min}(\text{gl})}{\text{max}(\text{gl}) - \text{min}(\text{gl})} \quad\]</div>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\text{max}(\text{gl}) = \sum_{w_i &gt; 0} w_i\)</span>: The sum of all positive weights.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{min}(\text{gl}) = \sum_{w_i &lt; 0} w_i\)</span>: The sum of all negative weights.</p></li>
+</ul>
+<p>For example, consider a Boolean model with one attractor where the modeloutput nodes have the following states:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>A: 0   B: 1   C:*
+</pre></div>
+</div>
+<p>Model Ouputs:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>A: 1   B: 1   C: -1
+</pre></div>
+</div>
+<p>The fitness score is calculated as:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{globaloutput}_{\text{pred}} = (0 \times 1) + (1 \times 1) + (0.5 \times -1) = 0.5\]</div>
+</div>
+<p>Next, normalize the predicted global output using the following values:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{min}(\text{gl}) = (-1) \quad \text{max}(\text{gl}) = (+1)\]</div>
+</div>
+<p>Normalize the global output:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{globaloutput}_{\text{norm}} = \frac{\text{globaloutput}_{\text{pred}} - \text{min}(\text{gl})}{\text{max}(\text{gl}) - \text{min}(\text{gl})}\]</div>
+</div>
+<p>Substitute the values:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{globaloutput}_{\text{norm}} = \frac{0.5 - (-1)}{1 - (-1)} = \frac{1.5}{2} = 0.75\]</div>
+</div>
+<p>Finally, calculate the fitness score using the observed global output (<span class="math notranslate nohighlight">\(\text{globaloutput}_{\text{obs}} = 1\)</span>):</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{fitness} = 1 - |\text{globaloutput}_{\text{obs}} - \text{globaloutput}_{\text{norm}}|\]</div>
+</div>
+<p>Substitute the values:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\text{fitness} = 1 - |1 - 0.75| = 1 - 0.25 = 0.75\]</div>
+</div>
+<p>Therefore, the fitness score is 0.75, reflecting the degree of alignment between the model’s predicted and observed global outputs.</p>
+</section>
+<section id="arguments">
+<h3>Arguments<a class="headerlink" href="#arguments" title="Link to this heading"></a></h3>
+<p><strong>1. Arguments for the Genetic Algorithm (`ga_args`)</strong></p>
+<p>The pipeline uses the <cite>PyGAD</cite> Genetic Algoritm.
+For more information about the <cite>PyGAD.GA</cite> initialization click <a class="reference external" href="https://pygad.readthedocs.io/en/latest/pygad.html#init">here</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ga_args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;num_generations&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s1">&#39;num_parents_mating&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s1">&#39;mutation_num_genes&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s1">&#39;fitness_batch_size&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="c1"># should be the same as the num_generations</span>
+    <span class="s1">&#39;crossover_type&#39;</span><span class="p">:</span> <span class="s1">&#39;single_point&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mutation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;keep_elitism&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="c1"># &#39;stop_criteria&#39;: &#39;reach_95&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>2. Arguments for the Evolution (`ev_args`)</strong></p>
+<ul class="simple">
+<li><p><cite>num_best_solutions</cite>: Number of the best solutions per Evolution run.</p></li>
+<li><p><cite>num_of_runs</cite>: Number of running the Evolution</p></li>
+<li><p><cite>num_of_cores</cite>: Maximum number of cores for calculations</p></li>
+<li><p><cite>num_of_init_mutation</cite>: Number of mutated genes in the initial population.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ev_args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;num_best_solutions&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s1">&#39;num_of_runs&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="s1">&#39;num_of_cores&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s1">&#39;num_of_init_mutation&#39;</span><span class="p">:</span> <span class="mi">12</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="code-example">
+<h3>Code Example<a class="headerlink" href="#code-example" title="Link to this heading"></a></h3>
+<p>There are 2 possible ways to initialize run train on a Boolean model:</p>
+<ol class="arabic simple">
+<li><p>Initialize the <strong>train</strong> function</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydruglogics.execution.Executor</span> <span class="kn">import</span> <span class="n">train</span>
+
+<span class="n">best_boolean_models</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">boolean_model</span><span class="o">=</span><span class="n">boolean_model_bnet</span><span class="p">,</span> <span class="n">model_outputs</span><span class="o">=</span><span class="n">model_outputs</span><span class="p">,</span>
+<span class="n">training_data</span><span class="o">=</span><span class="n">training_data</span><span class="p">,</span> <span class="n">ga_args</span><span class="o">=</span><span class="n">ga_args</span><span class="p">,</span> <span class="n">ev_args</span><span class="o">=</span><span class="n">ev_args</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Initialize the <strong>executor</strong> function</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydruglogics.execution.Executor</span> <span class="kn">import</span> <span class="n">execute</span>
+
+<span class="n">train_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;boolean_model&#39;</span><span class="p">:</span> <span class="n">boolean_model_bnet</span><span class="p">,</span>
+    <span class="s1">&#39;model_outputs&#39;</span><span class="p">:</span> <span class="n">model_outputs</span><span class="p">,</span>
+    <span class="s1">&#39;training_data&#39;</span><span class="p">:</span> <span class="n">training_data</span><span class="p">,</span>
+    <span class="s1">&#39;ga_args&#39;</span><span class="p">:</span> <span class="n">ga_args</span><span class="p">,</span>
+    <span class="s1">&#39;ev_args&#39;</span><span class="p">:</span> <span class="n">ev_args</span><span class="p">,</span>
+    <span class="s1">&#39;save_best_models&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;save_path&#39;</span><span class="p">:</span> <span class="s1">&#39;./models&#39;</span>
+<span class="p">}</span>
+<span class="n">execute</span><span class="p">(</span><span class="n">train_params</span><span class="o">=</span><span class="n">train_params</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the Training Data is not provided, the <strong>train</strong> function will calculate the fitness using the Global Output
+Response, assuming a default globaloutput value of 1.</p>
+</div>
+</section>
+<section id="example-results">
+<h3>Example Results<a class="headerlink" href="#example-results" title="Link to this heading"></a></h3>
+<p>Saved .bnet File:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># 2024_11_10, 2019
+# Evolution: 1 Solution: 1
+# Fitness Score: 0.998
+A, ((B) | C)
+B, !(D)
+C, (E) &amp; !(F)
+D, (A) | !(C)
+</pre></div>
+</div>
+</section>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Optimized Boolean model</strong>: The Boolean model fitted to the training data or left unperturbed.</p></li>
+</ul>
+</section>
+</section>
+<section id="predict">
+<span id="id4"></span><h2>Predict<a class="headerlink" href="#predict" title="Link to this heading"></a></h2>
+<p>The <cite>predict</cite> function evaluates the trained Boolean model against drug perturbations to predict synergy scores.</p>
+<p>The prediction process uses an ensemble of trained Boolean models and a list of drug perturbations to evaluate their
+effects on a biological network. For each perturbation, the Boolean models are modified to reflect the drug’s impact
+on target nodes (e.g., inhibiting or activating specific proteins). The perturbed models are then simulated to compute
+their responses.</p>
+<section id="steps-in-prediction">
+<h3>Steps in Prediction<a class="headerlink" href="#steps-in-prediction" title="Link to this heading"></a></h3>
+<p>1. <strong>Apply Perturbations</strong>: Perturbations (from the drug panel) are applied to each Boolean model. This modifies the
+Boolean equations of target nodes to simulate the effects of the drugs.</p>
+<ul class="simple">
+<li><p>If the drug inhibits the target node, the equation will be set to: A, 0.</p></li>
+<li><p>If the drug activates the target node, the equation will be B, 1.</p></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><p><strong>Simulate Responses</strong>: Attractors are calculated for the perturbed models, and global output response values are computed using the model outputs.</p></li>
+<li><p><strong>Evaluate Synergies</strong>:</p>
+<ul class="simple">
+<li><p>The global output responses are used to assess whether drug combinations are synergistic or antagonistic.</p></li>
+<li><p>The pipeline uses <strong>Bliss Independence</strong> or <strong>Highest Single Agent (HSA)</strong></p></li>
+<li><p>The predicted synergy scores are compared with the observed synergy scores. This determines how accurate the predicted synergy scores are.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="id5">
+<h3>Code Example<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>There are 2 possible ways to initialize run predict:</p>
+<ol class="arabic simple">
+<li><p>Initialize the <strong>predict</strong> function:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydruglogics.execution.Executor</span> <span class="kn">import</span> <span class="n">predict</span>
+
+<span class="n">predict</span><span class="p">(</span><span class="n">best_boolean_models</span><span class="o">=</span><span class="n">best_boolean_models</span><span class="p">,</span> <span class="n">model_outputs</span><span class="o">=</span><span class="n">model_outputs</span><span class="p">,</span> <span class="n">perturbations</span><span class="o">=</span><span class="n">perturbations</span><span class="p">,</span>
+             <span class="n">observed_synergy_scores</span><span class="o">=</span><span class="n">observed_synergy_scores</span><span class="p">,</span> <span class="n">synergy_method</span><span class="o">=</span><span class="s1">&#39;bliss&#39;</span><span class="p">,</span> <span class="n">run_parallel</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+             <span class="n">plot_roc_pr_curves</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_predictions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Initialize the <strong>executor</strong> function:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predict_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;perturbations&#39;</span><span class="p">:</span> <span class="n">perturbations</span><span class="p">,</span>
+    <span class="s1">&#39;model_outputs&#39;</span><span class="p">:</span> <span class="n">model_outputs</span><span class="p">,</span>
+    <span class="s1">&#39;observed_synergy_scores&#39;</span><span class="p">:</span> <span class="n">observed_synergy_scores</span><span class="p">,</span>
+    <span class="s1">&#39;synergy_method&#39;</span><span class="p">:</span> <span class="s1">&#39;hsa&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;plot_roc_pr_curves&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;save_predictions&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="c1"># &#39;save_path&#39;: &#39;./predictions&#39;,</span>
+    <span class="c1"># &#39;model_directory&#39;: &#39;./models/example_models&#39;,</span>
+    <span class="c1"># &#39;attractor_tool&#39;: &#39;mpbn&#39;,</span>
+    <span class="c1"># &#39;attractor_type&#39;:  &#39;stable_states&#39;</span>
+<span class="p">}</span>
+
+<span class="kn">from</span> <span class="nn">pydruglogics.execution.Executor</span> <span class="kn">import</span> <span class="n">execute</span>
+
+<span class="n">execute</span><span class="p">(</span><span class="n">predict_params</span><span class="o">=</span><span class="n">predict_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>Example Results<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>Response Matrix</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>        e1_s1   e1_s2   e1_s3   e2_s1
+PI-PD    NA   -1.0   NA    3.0
+PI-CT    3.0   2.0   NA    3.0
+</pre></div>
+</div>
+<p>Predicted Synergies</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>perturbation_name   synergy_score
+PI-PD              -0.158
+PI-CT              0.003
+</pre></div>
+</div>
+<p><strong>ROC an PR Curves</strong></p>
+<a class="reference internal image-reference" href="_images/predict_roc_pr.png"><img alt="Results After Execution" class="align-center" src="_images/predict_roc_pr.png" style="width: 100%;" />
+</a>
+</section>
+<section id="id7">
+<h3>Output<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Predicted synergy scores</strong>: A list of synergy scores for each perturbation.</p></li>
+<li><p><strong>Response Matrix:</strong> A matrix containing the resonses for each perturben Boolean model and the prerturbation.</p></li>
+</ul>
+</section>
+</section>
+<section id="execute">
+<span id="id8"></span><h2>Execute<a class="headerlink" href="#execute" title="Link to this heading"></a></h2>
+<p>The <cite>execute</cite> method is a streamlined function that combines training and prediction in one step. It takes <cite>train_params</cite> and <cite>predict_params</cite> as arguments to define the configuration for training and prediction.</p>
+<section id="id9">
+<h3>Arguments<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>train_params</strong>: A dictionary specifying the parameters for training.</p></li>
+<li><p><strong>predict_params</strong>: A dictionary specifying the parameters for prediction.</p></li>
+</ol>
+</section>
+<section id="id10">
+<h3>Code Example<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ga_args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;num_generations&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s1">&#39;num_parents_mating&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s1">&#39;mutation_num_genes&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s1">&#39;fitness_batch_size&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="c1"># should be the same as the num_generations</span>
+    <span class="s1">&#39;crossover_type&#39;</span><span class="p">:</span> <span class="s1">&#39;single_point&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mutation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;keep_elitism&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="c1"># &#39;stop_criteria&#39;: &#39;reach_95&#39;</span>
+<span class="p">}</span>
+
+<span class="n">ev_args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;num_best_solutions&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s1">&#39;num_of_runs&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="s1">&#39;num_of_cores&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s1">&#39;num_of_init_mutation&#39;</span><span class="p">:</span> <span class="mi">12</span>
+<span class="p">}</span>
+
+<span class="n">train_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;boolean_model&#39;</span><span class="p">:</span> <span class="n">boolean_model_bnet</span><span class="p">,</span>
+    <span class="s1">&#39;model_outputs&#39;</span><span class="p">:</span> <span class="n">model_outputs</span><span class="p">,</span>
+    <span class="s1">&#39;training_data&#39;</span><span class="p">:</span> <span class="n">training_data</span><span class="p">,</span>
+    <span class="s1">&#39;ga_args&#39;</span><span class="p">:</span> <span class="n">ga_args</span><span class="p">,</span>
+    <span class="s1">&#39;ev_args&#39;</span><span class="p">:</span> <span class="n">ev_args</span><span class="p">,</span>
+    <span class="s1">&#39;save_best_models&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="c1"># &#39;save_path&#39;: &#39;./models&#39;</span>
+<span class="p">}</span>
+<span class="n">predict_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;perturbations&#39;</span><span class="p">:</span> <span class="n">perturbations</span><span class="p">,</span>
+    <span class="s1">&#39;model_outputs&#39;</span><span class="p">:</span> <span class="n">model_outputs</span><span class="p">,</span>
+    <span class="s1">&#39;observed_synergy_scores&#39;</span><span class="p">:</span> <span class="n">observed_synergy_scores</span><span class="p">,</span>
+    <span class="s1">&#39;synergy_method&#39;</span><span class="p">:</span> <span class="s1">&#39;bliss&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;plot_roc_pr_curves&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;save_predictions&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="c1"># &#39;save_path&#39;: &#39;./predictions&#39;,</span>
+    <span class="c1"># &#39;model_directory&#39;: &#39;./models/example_models&#39;,</span>
+    <span class="c1"># &#39;attractor_tool&#39;: &#39;mpbn&#39;,</span>
+    <span class="c1"># &#39;attractor_type&#39;:  &#39;stable_states&#39;</span>
+  <span class="p">}</span>
+
+<span class="kn">from</span> <span class="nn">pydruglogics.execution.Executor</span> <span class="kn">import</span> <span class="n">execute</span>
+<span class="n">execute</span><span class="p">(</span><span class="n">train_params</span><span class="o">=</span><span class="n">train_params</span><span class="p">,</span> <span class="n">predict_params</span><span class="o">=</span><span class="n">predict_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>Example Results<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>The <cite>execute</cite> method produces both the outputs of the <cite>train</cite> and <cite>predict</cite> functions.</p>
+<p><strong>Example Outputs from Train</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># 2024_11_10, 2019
+# Evolution: 1 Solution: 1
+# Fitness Score: 0.998
+A, ((B) | C)
+B, !(D)
+C, (E) &amp; !(F)
+D, (A) | !(C)
+</pre></div>
+</div>
+<p><strong>Example Outputs from Predict</strong></p>
+<p>Response Matrix</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>        e1_s1   e1_s2   e1_s3   e2_s1
+PI-PD    NA   -1.0   NA    3.0
+PI-CT    3.0   2.0   NA    3.0
+</pre></div>
+</div>
+<p>Predicted Synergies</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>perturbation_name   synergy_score
+PI-PD              -0.158
+PI-CT              0.003
+</pre></div>
+</div>
+<p><strong>ROC an PR Curves</strong></p>
+<a class="reference internal image-reference" href="_images/predict_roc_pr.png"><img alt="Results After Execution" class="align-center" src="_images/predict_roc_pr.png" style="width: 100%;" />
+</a>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="statistics.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Statistics</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="inputs.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Inputs</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Laura Szekeres
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Train and Predict</a><ul>
+<li><a class="reference internal" href="#train">Train</a><ul>
+<li><a class="reference internal" href="#the-genetic-algorithm">The Genetic Algorithm</a></li>
+<li><a class="reference internal" href="#attractor-calculation">Attractor Calculation</a></li>
+<li><a class="reference internal" href="#ga-fitness-score-calculation">GA Fitness Score Calculation</a></li>
+<li><a class="reference internal" href="#arguments">Arguments</a></li>
+<li><a class="reference internal" href="#code-example">Code Example</a></li>
+<li><a class="reference internal" href="#example-results">Example Results</a></li>
+<li><a class="reference internal" href="#output">Output</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#predict">Predict</a><ul>
+<li><a class="reference internal" href="#steps-in-prediction">Steps in Prediction</a></li>
+<li><a class="reference internal" href="#id5">Code Example</a></li>
+<li><a class="reference internal" href="#id6">Example Results</a></li>
+<li><a class="reference internal" href="#id7">Output</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#execute">Execute</a><ul>
+<li><a class="reference internal" href="#id9">Arguments</a></li>
+<li><a class="reference internal" href="#id10">Code Example</a></li>
+<li><a class="reference internal" href="#id11">Example Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>

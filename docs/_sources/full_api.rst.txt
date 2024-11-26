@@ -1,0 +1,41 @@
+Full API Reference
+==================
+
+This documentation lists all the API reference for the implemented features in our package, including the algorithms, the synthetic functions, and the hierarchical partitions. Click on each of the classes to see the methods implemented.
+
+Algorithms
+----------
+
+.. autosummary::
+   :toctree: generated/
+   :caption: X-Armed Bandit Algorithms
+
+   your_package.algorithms.ZoomingAlgorithm
+   your_package.algorithms.TruncatedHOOAlgorithm
+   your_package.algorithms.DOOAlgorithm
+   your_package.algorithms.SOOAlgorithm
+   your_package.algorithms.StoSOOAlgorithm
+   your_package.algorithms.HCTAlgorithm
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: generated/
+   :caption: Synthetic Objective Functions
+
+   your_package.functions.Garland
+   your_package.functions.DoubleSine
+   your_package.functions.HimmelBlau
+   your_package.functions.Ackley
+   your_package.functions.Rastrigin
+
+Partitions
+----------
+
+.. autosummary::
+   :toctree: generated/
+   :caption: Hierarchical Partitions
+
+   your_package.partitions.BinaryPartition
+   your_package.partitions.KaryPartition
