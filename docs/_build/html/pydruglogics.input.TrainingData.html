@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pydruglogics.model package" href="pydruglogics.model.html" /><link rel="prev" title="pydruglogics.input.Perturbations module" href="pydruglogics.input.Perturbations.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pydruglogics.model.BooleanModel module" href="pydruglogics.model.BooleanModel.html" /><link rel="prev" title="pydruglogics.input.ModelOutputs module" href="pydruglogics.input.ModelOutputs.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>pydruglogics.input.TrainingData module - PyDrugLogics documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a02c27a8" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
@@ -181,7 +181,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -215,34 +215,16 @@
 <p class="caption" role="heading"><span class="caption-text">Full API</span></p>
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="api.html">Full API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Full API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current has-children"><a class="reference internal" href="pydruglogics.html">pydruglogics package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of pydruglogics package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l3 has-children"><a class="reference internal" href="pydruglogics.execution.html">pydruglogics.execution package</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of pydruglogics.execution package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor module</a></li>
-</ul>
-</li>
-<li class="toctree-l3 current has-children"><a class="reference internal" href="pydruglogics.input.html">pydruglogics.input package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of pydruglogics.input package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations module</a></li>
-<li class="toctree-l4 current current-page"><a class="current reference internal" href="#">pydruglogics.input.TrainingData module</a></li>
-</ul>
-</li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="pydruglogics.model.html">pydruglogics.model package</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of pydruglogics.model package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.Evolution.html">pydruglogics.model.Evolution module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.InteractionModel.html">pydruglogics.model.InteractionModel module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.ModelPredictions.html">pydruglogics.model.ModelPredictions module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics module</a></li>
-</ul>
-</li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="pydruglogics.utils.html">pydruglogics.utils package</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of pydruglogics.utils package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil module</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs module</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pydruglogics.input.TrainingData module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.InteractionModel.html">pydruglogics.model.InteractionModel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.ModelPredictions.html">pydruglogics.model.ModelPredictions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil module</a></li>
 </ul>
 </li>
 </ul>
@@ -279,14 +261,55 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="pydruglogics-input-trainingdata-module">
-<h1>pydruglogics.input.TrainingData module<a class="headerlink" href="#pydruglogics-input-trainingdata-module" title="Link to this heading"></a></h1>
+          <section id="module-pydruglogics.input.TrainingData">
+<span id="pydruglogics-input-trainingdata-module"></span><h1>pydruglogics.input.TrainingData module<a class="headerlink" href="#module-pydruglogics.input.TrainingData" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pydruglogics.input.TrainingData.TrainingData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydruglogics.input.TrainingData.</span></span><span class="sig-name descname"><span class="pre">TrainingData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.input.TrainingData.TrainingData" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pydruglogics.input.TrainingData.TrainingData.observations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pydruglogics.input.TrainingData.TrainingData.observations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydruglogics.input.TrainingData.TrainingData.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pydruglogics.input.TrainingData.TrainingData.print" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pydruglogics.input.TrainingData.TrainingData.response">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">response</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pydruglogics.input.TrainingData.TrainingData.response" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pydruglogics.input.TrainingData.TrainingData.responses">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">responses</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pydruglogics.input.TrainingData.TrainingData.responses" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydruglogics.input.TrainingData.TrainingData.size">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#pydruglogics.input.TrainingData.TrainingData.size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pydruglogics.input.TrainingData.TrainingData.weight_sum">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weight_sum</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pydruglogics.input.TrainingData.TrainingData.weight_sum" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pydruglogics.input.TrainingData.TrainingData.weights">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pydruglogics.input.TrainingData.TrainingData.weights" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -294,23 +317,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pydruglogics.model.html">
+          <a class="next-page" href="pydruglogics.model.BooleanModel.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pydruglogics.model package</div>
+                <div class="title">pydruglogics.model.BooleanModel module</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pydruglogics.input.Perturbations.html">
+          <a class="prev-page" href="pydruglogics.input.ModelOutputs.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pydruglogics.input.Perturbations module</div>
+                <div class="title">pydruglogics.input.ModelOutputs module</div>
                 
               </div>
             </a>
@@ -332,8 +355,36 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">pydruglogics.input.TrainingData module</a><ul>
+<li><a class="reference internal" href="#pydruglogics.input.TrainingData.TrainingData"><code class="docutils literal notranslate"><span class="pre">TrainingData</span></code></a><ul>
+<li><a class="reference internal" href="#pydruglogics.input.TrainingData.TrainingData.observations"><code class="docutils literal notranslate"><span class="pre">TrainingData.observations</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.input.TrainingData.TrainingData.print"><code class="docutils literal notranslate"><span class="pre">TrainingData.print()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.input.TrainingData.TrainingData.response"><code class="docutils literal notranslate"><span class="pre">TrainingData.response</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.input.TrainingData.TrainingData.responses"><code class="docutils literal notranslate"><span class="pre">TrainingData.responses</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.input.TrainingData.TrainingData.size"><code class="docutils literal notranslate"><span class="pre">TrainingData.size()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.input.TrainingData.TrainingData.weight_sum"><code class="docutils literal notranslate"><span class="pre">TrainingData.weight_sum</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.input.TrainingData.TrainingData.weights"><code class="docutils literal notranslate"><span class="pre">TrainingData.weights</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

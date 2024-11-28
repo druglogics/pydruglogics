@@ -18,8 +18,8 @@ Overview
     <a href="https://badge.fury.io/py/pydruglogics">
         <img src="https://img.shields.io/pypi/v/pydruglogics" alt="PyPI version">
     </a>
-    <a href="https://github.com/druglogics/pydruglogics/actions">
-        <img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build Status">
+    <a href="https://github.com/druglogics/pydruglogics/actions/workflows/run-tests.yml">
+        <img src="https://github.com/druglogics/pydruglogics/actions/workflows/run-tests.yml/badge.svg" alt="Test Status">
     </a>
     <a href="https://github.com/druglogics/pydruglogics/blob/main/LICENSE">
         <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
