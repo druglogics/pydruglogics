@@ -6,7 +6,7 @@ Full API
 
    pydruglogics.execution.Executor
    pydruglogics.input.ModelOutputs
-   pydruglogics.input.Predictions
+   pydruglogics.input.Perturbations
    pydruglogics.input.TrainingData
    pydruglogics.model.BooleanModel
    pydruglogics.model.BooleanModelOptimizer
@@ -15,4 +15,4 @@ Full API
    pydruglogics.model.Statistics
    pydruglogics.utils.Logger
    pydruglogics.utils.PlotUtil
-   pydruglogics.model.BNetworkUtil
+   pydruglogics.utils.BNetworkUtil
