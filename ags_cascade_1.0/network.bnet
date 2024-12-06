@@ -1,3 +1,4 @@
+targets, factors
 Antisurvival, ((CASP3) | FOXO_f)
 CASP3, ((CASP8) | CASP9)
 FOXO_f, !(AKT_f) | (NLK)
