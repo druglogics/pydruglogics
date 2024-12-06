@@ -217,6 +217,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">Full API</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Full API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer module</a></li>
@@ -225,6 +226,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil module</a></li>
 </ul>
 </li>
 </ul>
@@ -343,23 +345,25 @@ C, (B)
 </section>
 <section id="training-data">
 <span id="id2"></span><h2>Training Data<a class="headerlink" href="#training-data" title="Link to this heading"></a></h2>
-<p>The training data file contains condition-response pairs, referred to as observations, which are essential for
+<p>The training data file contains condition-response pairs, and a weight that are essential for
 evaluating the performance of Boolean models during the genetic algorithm’s evolutionary process.
-A fitness score is calculated for each observation, reflecting how well (0-worst, 1-best) the model aligns with the data.</p>
+A fitness score is calculated for the condition(s)-response(s), reflecting how well (0-worst, 1-best) the model aligns with the training data.</p>
 <section id="format">
 <h3>Format<a class="headerlink" href="#format" title="Link to this heading"></a></h3>
 <p>Each observation consists of:</p>
 <ol class="arabic simple">
 <li><p><strong>Condition</strong>: -</p></li>
 <li><p><strong>Response</strong>: Specifies the node activity levels as a tab-separated list.</p></li>
-<li><p><strong>Weight</strong>: Single value used to weight the fitness score.</p></li>
 </ol>
+<p>3. <strong>Weight</strong>: Once the fitness values have been calculated, this value is used to weight each condition-response pair
+and calculate the overall weighted average fitness score of the model fitted to the training data</p>
 </section>
 <section id="types-of-training-data">
 <h3>Types of Training Data<a class="headerlink" href="#types-of-training-data" title="Link to this heading"></a></h3>
-<ol class="arabic">
-<li><p><strong>Unperturbed Condition - Steady State Response</strong>
-This training type describes the system’s steady state, where activity values are assigned to nodes in the range [0, 1].
+<ol class="arabic simple">
+<li><p><strong>Unperturbed Condition - Steady State Response</strong></p></li>
+</ol>
+<p>This training type describes the system’s steady state, where activity values are assigned to nodes in the range [0, 1].
 These values represent the observed state of the system and are compared against the model’s attractors to calculate fitness.</p>
 <p>Example:</p>
 <div class="copybutton highlight-text notranslate"><div class="highlight"><pre><span></span>Condition
@@ -369,9 +373,10 @@ A:0 B:1 C:0 D:0.453
 Weight:1
 </pre></div>
 </div>
-</li>
-<li><p><strong>Unperturbed Condition - Global Output Response</strong>
-This training type specifies the system’s behavior under no perturbation, typically used for studying proliferation in the networks.
+<ol class="arabic simple" start="2">
+<li><p><strong>Unperturbed Condition - Global Output Response</strong></p></li>
+</ol>
+<p>This training type specifies the system’s behavior under no perturbation, typically used for studying proliferation in the networks.
 The response is defined as <cite>globaloutput:&lt;value&gt;</cite> in the range [0, 1], with fitness calculated based on how close
 the predicted global output is to the observed value.</p>
 <p>Example:</p>
@@ -382,12 +387,21 @@ globaloutput:1
 Weight:1
 </pre></div>
 </div>
-</li>
-</ol>
 </section>
 <section id="initialization-options">
 <h3>Initialization Options<a class="headerlink" href="#initialization-options" title="Link to this heading"></a></h3>
 <p><strong>1. Load Training Data from File</strong></p>
+<p>This method allows loading training data directly from a file. The file can be in a format such as <cite>training_data.tab</cite>
+or <cite>training_data</cite>, containing input in a format like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># training data
+Condition
+-
+Response
+A:0 B:0     C:0
+Weight:1
+</pre></div>
+</div>
+<p>Where the responses are tab-separated.</p>
 <p>Example:</p>
 <div class="copybutton highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydruglogics.input.TrainingData</span> <span class="kn">import</span> <span class="n">TrainingData</span>
 
@@ -395,6 +409,8 @@ Weight:1
 </pre></div>
 </div>
 <p><strong>2. Direct Initialization</strong></p>
+<p>This method initializes the training data using Python data structures. The responses and weights are provided as
+a list of tuples.</p>
 <p>Example:</p>
 <div class="copybutton highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydruglogics.input.TrainingData</span> <span class="kn">import</span> <span class="n">TrainingData</span>
 
@@ -406,26 +422,28 @@ Weight:1
 </section>
 <section id="model-outputs">
 <span id="id3"></span><h2>Model Outputs<a class="headerlink" href="#model-outputs" title="Link to this heading"></a></h2>
-<p>The <cite>modeloutputs</cite> defines network nodes and their integer weights, determining their contribution to global
-signaling outputs (e.g. cell proliferation or death).</p>
+<p>The <cite>model outputs</cite> defines network nodes and their integer weights, determining their contribution to global
+signaling outputs (e.g., cell proliferation or death).</p>
 <section id="id4">
 <h3>Format<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
-<p>Each line contains:</p>
+<p>Each model output contains:</p>
 <ol class="arabic simple">
-<li><p><strong>Node name</strong></p></li>
-<li><p><strong>Weight</strong> (positive for proliferation, negative for death)</p></li>
+<li><p><strong>Node name</strong>: string value.</p></li>
+<li><p><strong>Weight</strong> (positive for proliferation, negative for death): continuous numeric value.</p></li>
 </ol>
-<p>Example:</p>
+</section>
+<section id="id5">
+<h3>Initialization Options<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p><strong>1. Load Model Outputs from File</strong></p>
+<p>This method allows loading model outputs directly from a file. The file can be in a format such as <cite>modeloutputs.tab</cite>
+or <cite>modeloutputs</cite>, containing input in a format like this:</p>
 <div class="copybutton highlight-text notranslate"><div class="highlight"><pre><span></span># Name   Weight
 A  1.0
 B  -1.0
 C  -2.0
 </pre></div>
 </div>
-</section>
-<section id="id5">
-<h3>Initialization Options<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
-<p><strong>1. Load Model Outputs from File</strong></p>
+<p>Where the names and weights are tab-separated.</p>
 <p>Example:</p>
 <div class="copybutton highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydruglogics.input.ModelOutputs</span> <span class="kn">import</span> <span class="n">ModelOutputs</span>
 
@@ -433,6 +451,7 @@ C  -2.0
 </pre></div>
 </div>
 <p><strong>2. Direct Initialization</strong></p>
+<p>This method initializes the model outputs using Python data structures. Outputs are provided as a dictionary, with keys representing node names and values representing their corresponding output values.</p>
 <p>Example:</p>
 <div class="copybutton highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydruglogics.input.ModelOutputs</span> <span class="kn">import</span> <span class="n">ModelOutputs</span>
 
@@ -448,8 +467,8 @@ C  -2.0
 </section>
 <section id="perturbations">
 <span id="id6"></span><h2>Perturbations<a class="headerlink" href="#perturbations" title="Link to this heading"></a></h2>
-<p>Perturbations combine drugs applied to the system. The perturbations list contains all drug combinations to be tested,
-with each line representing one perturbation.</p>
+<p>Perturbations combine drugs applied to the system. The perturbations list contains all drug combinations to be tested.
+The drug data contains the effect of each drug on the nodes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Only 1- and 2-drug perturbations are allowed. Perturbations with more than two drugs are not supported.</p>
@@ -533,7 +552,7 @@ two-drug combinations from the <cite>drug_data</cite>.</p>
 <li><p>If <cite>perturbation_data</cite> is not provided, it will be automatically calculated to include all drug combinations from the <cite>drug_data</cite>.</p></li>
 <li><p>The <cite>effect</cite> field in <cite>drug_data</cite> is optional. If omitted, the pipeline assumes the effect is <cite>inhibits</cite>.</p></li>
 <li><p>Multiple targets can be specified for a single drug by listing them in the <cite>Target(s)</cite> field, separated by commas.</p></li>
-<li><p>Valid options for the <cite>effect</cite> field are: <cite>activates</cite> and <cite>inhibits</cite></p></li>
+<li><p>Valid options for the <cite>effect</cite> field are: <cite>activates</cite> and <cite>inhibits</cite>.</p></li>
 </ul>
 </div>
 </section>

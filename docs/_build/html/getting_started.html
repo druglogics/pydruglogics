@@ -217,6 +217,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">Full API</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Full API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer module</a></li>
@@ -225,6 +226,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil module</a></li>
 </ul>
 </li>
 </ul>
@@ -340,8 +342,26 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
 </section>
 <section id="colomoto-notebook-environment">
 <span id="id3"></span><h2>CoLoMoTo Notebook Environment<a class="headerlink" href="#colomoto-notebook-environment" title="Link to this heading"></a></h2>
-<p>Learn more about CoLoMoTo Docker and Notebook from the official documentation:</p>
-<p><em>Note</em>: This section will be updated when CoLoMoTo Docker integration is completed.</p>
+<p>PyDrugLogics is available in the CoLoMoTo Docker and Notebook starting from version <strong>2025-01-01</strong>.</p>
+<section id="setup-colomoto-docker-and-notebook">
+<h3>Setup CoLoMoTo Docker and Notebook<a class="headerlink" href="#setup-colomoto-docker-and-notebook" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Install the helper script in a terminal:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>colomoto-docker
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Start the CoLoMoTo Notebook (a specific tag can also be given):</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>colomoto-docker<span class="w">    </span><span class="c1"># or colomoto-docker -V 2025-01-01</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Open the Jupiter Notebook and navigate to the <strong>tutorials</strong> folder to find the <strong>PyDrugLogics</strong> folder hosting the pydruglogics tutorial notebook.</p></li>
+</ol>
+<p>See more about the CoLoMoTo Docker and Notebook in the <a class="reference external" href="https://colomoto.github.io/colomoto-docker/README.html">documentation</a>.</p>
+</section>
 </section>
 </section>
 
@@ -408,7 +428,10 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
 <li><a class="reference internal" href="#install-from-source">Install from Source</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#colomoto-notebook-environment">CoLoMoTo Notebook Environment</a></li>
+<li><a class="reference internal" href="#colomoto-notebook-environment">CoLoMoTo Notebook Environment</a><ul>
+<li><a class="reference internal" href="#setup-colomoto-docker-and-notebook">Setup CoLoMoTo Docker and Notebook</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

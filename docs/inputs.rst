@@ -102,9 +102,9 @@ Logical operators are used to specify relationships:
 Training Data
 -------------
 
-The training data file contains condition-response pairs, referred to as observations, which are essential for
+The training data file contains condition-response pairs, and a weight that are essential for
 evaluating the performance of Boolean models during the genetic algorithm's evolutionary process.
-A fitness score is calculated for each observation, reflecting how well (0-worst, 1-best) the model aligns with the data.
+A fitness score is calculated for the condition(s)-response(s), reflecting how well (0-worst, 1-best) the model aligns with the training data.
 
 Format
 ~~~~~~~
@@ -113,48 +113,65 @@ Each observation consists of:
 
 1. **Condition**: -
 2. **Response**: Specifies the node activity levels as a tab-separated list.
-3. **Weight**: Single value used to weight the fitness score.
+3. **Weight**: Once the fitness values have been calculated, this value is used to weight each condition-response pair
+and calculate the overall weighted average fitness score of the model fitted to the training data
 
 Types of Training Data
 ~~~~~~~~~~~~~~~~~~~~~~
 
 
 1. **Unperturbed Condition - Steady State Response**
-   This training type describes the system's steady state, where activity values are assigned to nodes in the range [0, 1].
-   These values represent the observed state of the system and are compared against the model's attractors to calculate fitness.
 
-   Example:
+This training type describes the system's steady state, where activity values are assigned to nodes in the range [0, 1].
+These values represent the observed state of the system and are compared against the model's attractors to calculate fitness.
 
-   .. code-block:: text
-      :class: copybutton
+Example:
 
-      Condition
-      -
-      Response
-      A:0 B:1 C:0 D:0.453
-      Weight:1
+.. code-block:: text
+  :class: copybutton
+
+  Condition
+  -
+  Response
+  A:0 B:1 C:0 D:0.453
+  Weight:1
 
 2. **Unperturbed Condition - Global Output Response**
-   This training type specifies the system's behavior under no perturbation, typically used for studying proliferation in the networks.
-   The response is defined as `globaloutput:<value>` in the range [0, 1], with fitness calculated based on how close
-   the predicted global output is to the observed value.
 
-   Example:
+This training type specifies the system's behavior under no perturbation, typically used for studying proliferation in the networks.
+The response is defined as `globaloutput:<value>` in the range [0, 1], with fitness calculated based on how close
+the predicted global output is to the observed value.
 
-   .. code-block:: text
-      :class: copybutton
+Example:
 
-      Condition
-      -
-      Response
-      globaloutput:1
-      Weight:1
+.. code-block:: text
+  :class: copybutton
+
+  Condition
+  -
+  Response
+  globaloutput:1
+  Weight:1
 
 
 Initialization Options
 ~~~~~~~~~~~~~~~~~~~~~~
 
 **1. Load Training Data from File**
+
+This method allows loading training data directly from a file. The file can be in a format such as `training_data.tab`
+or `training_data`, containing input in a format like this:
+
+.. code-block:: text
+
+    # training data
+    Condition
+    -
+    Response
+    A:0	B:0	C:0
+    Weight:1
+
+Where the responses are tab-separated.
 
 Example:
 
@@ -166,6 +183,9 @@ Example:
    training_data = TrainingData(input_file='./path/to/training')
 
 **2. Direct Initialization**
+
+This method initializes the training data using Python data structures. The responses and weights are provided as
+a list of tuples.
 
 Example:
 
@@ -182,18 +202,25 @@ Example:
 Model Outputs
 -------------
 
-The `modeloutputs` defines network nodes and their integer weights, determining their contribution to global
-signaling outputs (e.g. cell proliferation or death).
+The `model outputs` defines network nodes and their integer weights, determining their contribution to global
+signaling outputs (e.g., cell proliferation or death).
 
 Format
 ~~~~~~~
 
-Each line contains:
+Each model output contains:
 
-1. **Node name**
-2. **Weight** (positive for proliferation, negative for death)
+1. **Node name**: string value.
+2. **Weight** (positive for proliferation, negative for death): continuous numeric value.
 
-Example:
+
+Initialization Options
+~~~~~~~~~~~~~~~~~~~~~~
+
+**1. Load Model Outputs from File**
+
+This method allows loading model outputs directly from a file. The file can be in a format such as `modeloutputs.tab`
+or `modeloutputs`, containing input in a format like this:
 
 .. code-block:: text
    :class: copybutton
@@ -203,10 +230,7 @@ Example:
    B  -1.0
    C  -2.0
 
-Initialization Options
-~~~~~~~~~~~~~~~~~~~~~~
-
-**1. Load Model Outputs from File**
+Where the names and weights are tab-separated.
 
 Example:
 
@@ -218,6 +242,8 @@ Example:
    model_outputs = ModelOutputs(input_file='./path/to/modeloutputs')
 
 **2. Direct Initialization**
+
+This method initializes the model outputs using Python data structures. Outputs are provided as a dictionary, with keys representing node names and values representing their corresponding output values.
 
 Example:
 
@@ -238,8 +264,8 @@ Example:
 Perturbations
 -------------
 
-Perturbations combine drugs applied to the system. The perturbations list contains all drug combinations to be tested,
-with each line representing one perturbation.
+Perturbations combine drugs applied to the system. The perturbations list contains all drug combinations to be tested.
+The drug data contains the effect of each drug on the nodes.
 
 .. note::
 
@@ -322,11 +348,10 @@ Example:
 
 .. note::
 
-
     - If `perturbation_data` is not provided, it will be automatically calculated to include all drug combinations from the `drug_data`.
     - The `effect` field in `drug_data` is optional. If omitted, the pipeline assumes the effect is `inhibits`.
     - Multiple targets can be specified for a single drug by listing them in the `Target(s)` field, separated by commas.
-    - Valid options for the `effect` field are: `activates` and `inhibits`
+    - Valid options for the `effect` field are: `activates` and `inhibits`.
 
 
 .. _observed_synergy_scores:

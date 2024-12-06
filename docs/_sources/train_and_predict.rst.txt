@@ -14,7 +14,7 @@ Train
 
 The `train` function optimizes a Boolean model using a Genetic Algorithm.
 
-Training involves optimizing Boolean models so that they best represent the observed biological system.
+Training involves optimalization of the Boolean models
 The process uses a **genetic algorithm** to iteratively refine the models, ensuring alignment with observations such as steady states or global outputs.
 
 The pipeline uses the **PyGAD** Genetic Algoritm.
@@ -33,7 +33,7 @@ The Genetic Algorithm
 
 There are 3 possible mutation types:
 
-a. **balanced**: Only the link operator is mutated.
+a. **Balanced**: Only the link operator is mutated.
 
 Example:
 
@@ -43,7 +43,7 @@ Example:
 
 
 
-b. **topology**: One or more nodes are removed or added. Minimum 1 regulator always stays in the equation. There can be no more regulator than was in the original equation.
+b. **Topology**: One or more nodes are removed or added. Minimum 1 regulator always stays in the equation. There can be no more regulator than was in the original equation.
 
 Example:
 
@@ -51,7 +51,7 @@ Example:
 
         A, ((B) | C) | <b style="color: green;">!(D)</b> => A, ((B) | C)
 
-c. **mixed**: Combines the balanced and topology mutations.
+c. **Mixed**: Combines the balanced and topology mutations.
 
 Example:
 
@@ -68,11 +68,11 @@ In Boolean networks, attractors represent the long-term behaviors of the system,
 
 Stable states are fixed-point attractors where the system remains indefinitely, representing steady biological conditions.
 
-Trap spaces are subsets of states the system cannot leave, encompassing stable states and recurring cycles, and provide insight into invariant network behaviors.
+Trap spaces are subsets of states the system cannot leave, encompassing stable states and recurring cycles, and provide insight into network behaviors.
 
 In the pipeline,  `MPBN <https://mpbn.readthedocs.io/>`_ and `PyBoolNet <https://pyboolnet.readthedocs.io/en/master/>`_ packages are used to compute stable states and trap spaces.
 
-**Example of adding the attractor calculation method:**
+**Example of adding the attractor calculation methods:**
 
 .. code-block:: python
    :class: copybutton
@@ -136,13 +136,14 @@ First, compute the weighted average score (:math:`\text{globaloutput}_{\text{pre
 
 .. math::
 
-    \text{globaloutput}_{\text{pred}} = \sum_{k} \sum_{j=1}^{n} \text{ss}_{i}^{j} \times w_{i}^{k} \quad
+    \text{globaloutput}_{\text{pred}} = \frac{\sum_{j=1}^{k} \sum_{i=1}^{n} \text{ss}_{ij} \times w_{i}}{k}
+
 
 Where:
 
 - :math:`k`: Number of attractors of the model.
-- :math:`n`: Number of nodes defined in the modeloutputs file.
-- :math:`\text{ss}_{i}^{j}`: The state of node :math:`i` in the :math:`j`-th attractor (values can be 0, 1, or 0.5).
+- :math:`n`: Number of nodes defined in the model outputs.
+- :math:`\text{ss}_{ij}`: The state of node :math:`i` in the :math:`j`-th attractor (values can be 0, 1, or 0.5).
 - :math:`w_{i}`: The weight associated with each node.
 
 Next, normalize the global output (:math:`\text{globaloutput}_{\text{norm}}`) to the :math:`[0, 1]` range using the following equation:
@@ -299,7 +300,7 @@ Saved .bnet File:
 
 Output
 ~~~~~~
-- **Optimized Boolean model**: The Boolean model fitted to the training data or left unperturbed.
+- **Optimized Boolean model**: The Boolean model fitted to the training data.
 
 .. _predict:
 
@@ -324,7 +325,7 @@ Boolean equations of target nodes to simulate the effects of the drugs.
 
 2. **Simulate Responses**: Attractors are calculated for the perturbed models, and global output response values are computed using the model outputs.
 
-3. **Evaluate Synergies**:
+3. **Evaluate Synergy Scores**:
 
    - The global output responses are used to assess whether drug combinations are synergistic or antagonistic.
    - The pipeline uses **Bliss Independence** or **Highest Single Agent (HSA)**
@@ -358,6 +359,7 @@ There are 2 possible ways to initialize run predict:
         'synergy_method': 'hsa',
         'plot_roc_pr_curves': True,
         'save_predictions': False,
+        # 'cores': 4,
         # 'save_path': './predictions',
         # 'model_directory': './models/example_models',
         # 'attractor_tool': 'mpbn',
@@ -450,6 +452,7 @@ Code Example
         'synergy_method': 'bliss',
         'plot_roc_pr_curves': True,
         'save_predictions': False,
+        # 'cores': 4,
         # 'save_path': './predictions',
         # 'model_directory': './models/example_models',
         # 'attractor_tool': 'mpbn',

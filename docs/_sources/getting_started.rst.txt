@@ -93,8 +93,26 @@ For the latest development version, clone the repository and install it directly
 CoLoMoTo Notebook Environment
 -----------------------------
 
-Learn more about CoLoMoTo Docker and Notebook from the official documentation:
+PyDrugLogics is available in the CoLoMoTo Docker and Notebook starting from version **2025-01-01**.
 
-.. _CoLoMoTo Documentation: https://colomoto.github.io/colomoto-docker/README.html
+Setup CoLoMoTo Docker and Notebook
+~~~~~~~~~~~~~~~~~
 
-*Note*: This section will be updated when CoLoMoTo Docker integration is completed.
+1. Install the helper script in a terminal:
+
+.. code-block:: bash
+
+    pip install -U colomoto-docker
+
+2. Start the CoLoMoTo Notebook (a specific tag can also be given):
+
+.. code-block:: bash
+
+    colomoto-docker    # or colomoto-docker -V 2025-01-01
+
+
+3. Open the Jupiter Notebook and navigate to the **tutorials** folder to find the **PyDrugLogics** folder hosting the pydruglogics tutorial notebook.
+
+See more about the CoLoMoTo Docker and Notebook in the `documentation <https://colomoto.github.io/colomoto-docker/README.html>`_.
+
+

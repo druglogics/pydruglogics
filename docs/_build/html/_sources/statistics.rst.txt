@@ -61,7 +61,7 @@ Example Results
 .. image:: /images/pr_with_ci.png
    :alt: Precision-Recall Curve with Confidence Intervals
    :align: center
-   :width: 100%
+   :width: 75%
 
 **Saved File Example**
 

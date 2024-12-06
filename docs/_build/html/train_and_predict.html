@@ -217,6 +217,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">Full API</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Full API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer module</a></li>
@@ -225,6 +226,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil module</a></li>
 </ul>
 </li>
 </ul>
@@ -275,7 +277,7 @@
 <section id="train">
 <span id="id1"></span><h2>Train<a class="headerlink" href="#train" title="Link to this heading"></a></h2>
 <p>The <cite>train</cite> function optimizes a Boolean model using a Genetic Algorithm.</p>
-<p>Training involves optimizing Boolean models so that they best represent the observed biological system.
+<p>Training involves optimalization of the Boolean models
 The process uses a <strong>genetic algorithm</strong> to iteratively refine the models, ensuring alignment with observations such as steady states or global outputs.</p>
 <p>The pipeline uses the <strong>PyGAD</strong> Genetic Algoritm.
 For more information about the <strong>PyGAD.GA</strong> click <a class="reference external" href="https://pygad.readthedocs.io/en/latest/">here</a>.</p>
@@ -289,19 +291,19 @@ For more information about the <strong>PyGAD.GA</strong> click <a class="referen
 </ol>
 <p>There are 3 possible mutation types:</p>
 <ol class="loweralpha simple">
-<li><p><strong>balanced</strong>: Only the link operator is mutated.</p></li>
+<li><p><strong>Balanced</strong>: Only the link operator is mutated.</p></li>
 </ol>
 <p>Example:</p>
 <blockquote>
 <div>A, ((B) | C) <b style="color: red;">|</b> !(D) => A, ((B) | C) <b style="color: red;">&</b> !(D)</div></blockquote>
 <ol class="loweralpha simple" start="2">
-<li><p><strong>topology</strong>: One or more nodes are removed or added. Minimum 1 regulator always stays in the equation. There can be no more regulator than was in the original equation.</p></li>
+<li><p><strong>Topology</strong>: One or more nodes are removed or added. Minimum 1 regulator always stays in the equation. There can be no more regulator than was in the original equation.</p></li>
 </ol>
 <p>Example:</p>
 <blockquote>
 <div>A, ((B) | C) | <b style="color: green;">!(D)</b> => A, ((B) | C)</div></blockquote>
 <ol class="loweralpha simple" start="3">
-<li><p><strong>mixed</strong>: Combines the balanced and topology mutations.</p></li>
+<li><p><strong>Mixed</strong>: Combines the balanced and topology mutations.</p></li>
 </ol>
 <p>Example:</p>
 <blockquote>
@@ -314,9 +316,9 @@ For more information about the <strong>PyGAD.GA</strong> click <a class="referen
 <h3>Attractor Calculation<a class="headerlink" href="#attractor-calculation" title="Link to this heading"></a></h3>
 <p>In Boolean networks, attractors represent the long-term behaviors of the system, including fixed points (stable states) or cyclic patterns.</p>
 <p>Stable states are fixed-point attractors where the system remains indefinitely, representing steady biological conditions.</p>
-<p>Trap spaces are subsets of states the system cannot leave, encompassing stable states and recurring cycles, and provide insight into invariant network behaviors.</p>
+<p>Trap spaces are subsets of states the system cannot leave, encompassing stable states and recurring cycles, and provide insight into network behaviors.</p>
 <p>In the pipeline,  <a class="reference external" href="https://mpbn.readthedocs.io/">MPBN</a> and <a class="reference external" href="https://pyboolnet.readthedocs.io/en/master/">PyBoolNet</a> packages are used to compute stable states and trap spaces.</p>
-<p><strong>Example of adding the attractor calculation method:</strong></p>
+<p><strong>Example of adding the attractor calculation methods:</strong></p>
 <div class="copybutton highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="c1"># MPBN, trapspaces</span>
  <span class="n">model</span> <span class="o">=</span> <span class="n">BooleanModel</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s1">&#39;./path/to/network.bnet&#39;</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">mutation_type</span><span class="o">=</span><span class="s1">&#39;balanced&#39;</span><span class="p">,</span>
  <span class="n">attractor_tool</span><span class="o">=</span><span class="s1">&#39;mpbn&#39;</span><span class="p">,</span> <span class="n">attractor_type</span><span class="o">=</span><span class="s1">&#39;trapspaces&#39;</span><span class="p">)</span>
@@ -363,13 +365,13 @@ For more information about the <strong>PyGAD.GA</strong> click <a class="referen
 <p>First, compute the weighted average score (<span class="math notranslate nohighlight">\(\text{globaloutput}_{\text{pred}}\)</span>) across all attractors:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[\text{globaloutput}_{\text{pred}} = \sum_{k} \sum_{j=1}^{n} \text{ss}_{i}^{j} \times w_{i}^{k} \quad\]</div>
+\[\text{globaloutput}_{\text{pred}} = \frac{\sum_{j=1}^{k} \sum_{i=1}^{n} \text{ss}_{ij} \times w_{i}}{k}\]</div>
 </div>
 <p>Where:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(k\)</span>: Number of attractors of the model.</p></li>
-<li><p><span class="math notranslate nohighlight">\(n\)</span>: Number of nodes defined in the modeloutputs file.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\text{ss}_{i}^{j}\)</span>: The state of node <span class="math notranslate nohighlight">\(i\)</span> in the <span class="math notranslate nohighlight">\(j\)</span>-th attractor (values can be 0, 1, or 0.5).</p></li>
+<li><p><span class="math notranslate nohighlight">\(n\)</span>: Number of nodes defined in the model outputs.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{ss}_{ij}\)</span>: The state of node <span class="math notranslate nohighlight">\(i\)</span> in the <span class="math notranslate nohighlight">\(j\)</span>-th attractor (values can be 0, 1, or 0.5).</p></li>
 <li><p><span class="math notranslate nohighlight">\(w_{i}\)</span>: The weight associated with each node.</p></li>
 </ul>
 <p>Next, normalize the global output (<span class="math notranslate nohighlight">\(\text{globaloutput}_{\text{norm}}\)</span>) to the <span class="math notranslate nohighlight">\([0, 1]\)</span> range using the following equation:</p>
@@ -506,7 +508,7 @@ D, (A) | !(C)
 <section id="output">
 <h3>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Optimized Boolean model</strong>: The Boolean model fitted to the training data or left unperturbed.</p></li>
+<li><p><strong>Optimized Boolean model</strong>: The Boolean model fitted to the training data.</p></li>
 </ul>
 </section>
 </section>
@@ -527,7 +529,7 @@ Boolean equations of target nodes to simulate the effects of the drugs.</p>
 </ul>
 <ol class="arabic simple" start="2">
 <li><p><strong>Simulate Responses</strong>: Attractors are calculated for the perturbed models, and global output response values are computed using the model outputs.</p></li>
-<li><p><strong>Evaluate Synergies</strong>:</p>
+<li><p><strong>Evaluate Synergy Scores</strong>:</p>
 <ul class="simple">
 <li><p>The global output responses are used to assess whether drug combinations are synergistic or antagonistic.</p></li>
 <li><p>The pipeline uses <strong>Bliss Independence</strong> or <strong>Highest Single Agent (HSA)</strong></p></li>
@@ -559,6 +561,7 @@ Boolean equations of target nodes to simulate the effects of the drugs.</p>
     <span class="s1">&#39;synergy_method&#39;</span><span class="p">:</span> <span class="s1">&#39;hsa&#39;</span><span class="p">,</span>
     <span class="s1">&#39;plot_roc_pr_curves&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="s1">&#39;save_predictions&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="c1"># &#39;cores&#39;: 4,</span>
     <span class="c1"># &#39;save_path&#39;: &#39;./predictions&#39;,</span>
     <span class="c1"># &#39;model_directory&#39;: &#39;./models/example_models&#39;,</span>
     <span class="c1"># &#39;attractor_tool&#39;: &#39;mpbn&#39;,</span>
@@ -643,6 +646,7 @@ PI-CT              0.003
     <span class="s1">&#39;synergy_method&#39;</span><span class="p">:</span> <span class="s1">&#39;bliss&#39;</span><span class="p">,</span>
     <span class="s1">&#39;plot_roc_pr_curves&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="s1">&#39;save_predictions&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="c1"># &#39;cores&#39;: 4,</span>
     <span class="c1"># &#39;save_path&#39;: &#39;./predictions&#39;,</span>
     <span class="c1"># &#39;model_directory&#39;: &#39;./models/example_models&#39;,</span>
     <span class="c1"># &#39;attractor_tool&#39;: &#39;mpbn&#39;,</span>

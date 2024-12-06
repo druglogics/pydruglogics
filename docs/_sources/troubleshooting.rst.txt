@@ -62,7 +62,7 @@ If you encounter a bug or wish to request a feature, please report it on our Git
 When reporting an issue, include:
 
 - Your operating system and version (e.g, Ubuntu 22.04)
-- Python version (e.g. Python 3.8.10)
+- Python version (e.g. Python 3.11.10)
 - The error message and traceback (if applicable)
 - Steps to reproduce the issue
 
