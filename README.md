@@ -4,7 +4,7 @@
 ![PyDrugLogics Logo](https://raw.githubusercontent.com/druglogics/pydruglogics/main/logo.png)
 
 [![PyPI version](https://img.shields.io/pypi/v/pydruglogics)](https://badge.fury.io/py/pydruglogics)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/druglogics/pydruglogics/actions)
+[![Test Status](https://github.com/druglogics/pydruglogics/actions/workflows/run-tests.yml/badge.svg)](https://github.com/druglogics/pydruglogics/actions/workflows/run-tests.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/druglogics/pydruglogics/blob/main/LICENSE)
 [![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://druglogics.github.io/pydruglogics/)
 
@@ -14,6 +14,7 @@
 PyDrugLogics is a Python package designed for constructing, optimizing Boolean Models and performs in-silico perturbations of the models.
 ### Core Features
 - Construct Boolean model from `.sif` file
+- Load Boolean model from `.bnet` file
 - Optimize Boolean model
 - Generate perturbed models
 - Evaluate drug synergies
@@ -56,12 +57,31 @@ pip install -r requirements.txt
 ```
 
 ## CoLoMoTo Notebook envionment
-See more [here](https://colomoto.github.io/colomoto-docker/README.html) about CoLoMoTo Docker and Notebook<br/>
-*Note*: This section will be updated when Colomoto Docker integration is completed.
+PyDrugLogics is available in the CoLoMoTo Docker and Notebook starting from version `2025-01-01`.
+
+### Setup CoLoMoTo Docker and Notebook
+
+1. Install the helper script in a terminal:
+
+```bash
+    pip install -U colomoto-docker
+```
+2. Start the CoLoMoTo Notebook (a specific tag can also be given):
+
+
+```bash
+    colomoto-docker    # or colomoto-docker -V 2025-01-01
+```
+
+3. Open the Jupiter Notebook and navigate to the `tutorials` folder to find the `PyDrugLogics` folder hosting the pydruglogics tutorial notebook.
+
+
+See more about the CoLoMoTo Docker and Notebook in the [documentation](https://colomoto.github.io/colomoto-docker/README.html).<br/>
+
 
 ## Documentation
 
-For full documentation, visit the [GitHub Documentation](https://druglogics.github.io/pydruglogics/).
+For full **PyFrugLogics** documentation, visit the [GitHub Documentation](https://druglogics.github.io/pydruglogics/).
 
 ## Quick Start Guide
 
@@ -131,7 +151,7 @@ predict_params = {
 execute(train_params=train_params, predict_params=predict_params)
 ```
 
-For a more detailed tutorial, please visit the [documentation](https://druglogics.github.io/pydruglogics/).
+For a more detailed tutorial, please visit the [documentation](https://druglogics.github.io/pydruglogics/) or the [tutorial](https://github.com/druglogics/pydruglogics/blob/2400a153f15a884222f6fdabe705df1a5981ef54/tutorials/pydruglogics_tutorial.ipynb).
 
 ## Citing PyDrugLogics
 
