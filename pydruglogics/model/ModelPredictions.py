@@ -202,10 +202,6 @@ class ModelPredictions:
                 file.write("# Perturbed scores\n")
                 response_matrix_df.to_csv(file, sep='\t', mode='w')
 
-                file.write("\n# Unperturbed scores\n")
-                for model in self._boolean_models:
-                    file.write(f"{model.model_name}\t{model.global_output}\n")
-
             with open(os.path.join(subfolder, f"synergies_{self._synergy_method}.tab"), "w") as file:
                 file.write(f"# Synergies ({self._synergy_method})\n")
                 file.write("perturbation_name\tsynergy_score\n")
