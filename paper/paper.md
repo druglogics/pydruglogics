@@ -9,7 +9,6 @@ tags:
   - drug synergies
   - bliss
   - hsa
-  
 authors:
   - name: Laura Szekeres
     orcid: 0009-0002-4141-0500
@@ -18,9 +17,9 @@ authors:
     orcid: 0000-0002-3609-8674
     affiliation: 1
 affiliations:
- - name: Department of Cancer Genetics, Institute for Cancer Research, Oslo University Hospital, Oslo, Norway
-   index: 1
-   ror: 00j9c2840
+  - name: Department of Cancer Genetics, Institute for Cancer Research, Oslo University Hospital, Oslo, Norway
+    index: 1
+    ror: 00j9c2840
 date: 19 December 2024
 bibliography: paper.bib
 ---
