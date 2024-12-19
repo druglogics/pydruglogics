@@ -109,15 +109,8 @@ the predicted synergy scores distinguish between synergistic and non-synergistic
 
 JZ received funding from Astri og Birger Torsteds Legater for cancer research, which contributed to the completion of this work.
 
-The following people have contributed code to this package or provided help with technical and scientific questions (in alphabetical order): 
-
-- Åsmund Flobak
-
-- Daniel Nebdal
-
-- Eirini Tsirvouli
-
-- Marco Fariñas
+The following people have contributed code to this package or provided help with technical and scientific questions 
+(in alphabetical order): Åsmund Flobak, Daniel Nebdal, Eirini Tsirvouli, Marco Fariñas.
 
 Special thanks are due for their valuable support and contributions.
 
