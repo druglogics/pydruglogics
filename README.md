@@ -11,7 +11,8 @@
 
 ## Overview
 
-PyDrugLogics is a Python package designed for constructing, optimizing Boolean Models and performs in-silico perturbations of the models.
+PyDrugLogics is a Python package designed for constructing and optimizing Boolean models, and to perform in-silico perturbations of the models.
+
 ### Core Features
 - Construct Boolean model from `.sif` file
 - Load Boolean model from `.bnet` file
@@ -152,6 +153,14 @@ execute(train_params=train_params, predict_params=predict_params)
 ```
 
 For a more detailed tutorial, please visit the [documentation](https://druglogics.github.io/pydruglogics/) or the [tutorial](https://github.com/druglogics/pydruglogics/blob/2400a153f15a884222f6fdabe705df1a5981ef54/tutorials/pydruglogics_tutorial.ipynb).
+
+## Contributing
+
+We welcome contributions! If you're interested in contributing to PyDrugLogics, please read the [Contributing Guide](https://github.com/druglogics/pydruglogics/blob/main/CONTRIBUTING.md) for guidelines on how to contribute, report issues, or suggest enhancements.
+
+## Code of Conduct
+
+To ensure a welcoming and inclusive environment, we follow a strict [Code of Conduct](https://github.com/druglogics/pydruglogics/blob/main/CODE_OF_CONDUCT.md). Please make sure to read and adhere to it.
 
 ## Citing PyDrugLogics
 
