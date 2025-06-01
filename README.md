@@ -41,7 +41,6 @@ This will install the PyDrugLogics package and handle all dependencies automatic
 
 
 ### Install PyDrugLogics via conda
-*Note*: CoLoMoTo conda integration is ongoing.
 ```bash
 conda install szlaura::pydruglogics
 ```
@@ -54,7 +53,6 @@ For the latest development version, you can clone the repository and install dir
 git clone https://github.com/druglogics/pydruglogics.git
 cd pydruglogics
 pip install .
-pip install -r requirements.txt
 ```
 
 ## CoLoMoTo Notebook envionment
