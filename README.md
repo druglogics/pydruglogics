@@ -78,10 +78,24 @@ PyDrugLogics is available in the CoLoMoTo Docker and Notebook starting from vers
 
 See more about the CoLoMoTo Docker and Notebook in the [documentation](https://colomoto.github.io/colomoto-docker/README.html).<br/>
 
+## Testing
+1. To run all tests and check code coverage, you need to install test dependencies:
+```bash
+    pip install -r requirements.txt
+    pip install -e .[test]
+```
+
+2. Then, from the repository root, run:
+
+```bash
+    pytest tests
+```
+
+You should see a coverage report at the end.
 
 ## Documentation
 
-For full **PyFrugLogics** documentation, visit the [GitHub Documentation](https://druglogics.github.io/pydruglogics/).
+For full **PyDrugLogics** documentation, visit the [GitHub Documentation](https://druglogics.github.io/pydruglogics/).
 
 ## Quick Start Guide
 
