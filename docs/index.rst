@@ -4,7 +4,7 @@ Getting Started
 .. raw:: html
 
     <div style="position: fixed; bottom: 10px; right: 10px; background-color: #f8f9fa; padding: 5px 10px; border-radius: 5px; box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1); z-index: 1000;">
-        <a href="#" style="font-size: 0.9rem; color: #007bff; text-decoration: none;">Version: 0.1.8</a>
+        <a href="#" style="font-size: 0.9rem; color: #007bff; text-decoration: none;">Version: 0.1.9</a>
     </div>
 
 .. include:: getting_started.rst

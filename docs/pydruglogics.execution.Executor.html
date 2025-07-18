@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pydruglogics.input.ModelOutputs module" href="pydruglogics.input.ModelOutputs.html" /><link rel="prev" title="Full API" href="api.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pydruglogics.input.ModelOutputs" href="pydruglogics.input.ModelOutputs.html" /><link rel="prev" title="Full API" href="api.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>pydruglogics.execution.Executor module - PyDrugLogics documentation</title>
+        <title>pydruglogics.execution.Executor - PyDrugLogics documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a02c27a8" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -215,18 +215,19 @@
 <p class="caption" role="heading"><span class="caption-text">Full API</span></p>
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="api.html">Full API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Full API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pydruglogics.execution.Executor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.InteractionModel.html">pydruglogics.model.InteractionModel module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.ModelPredictions.html">pydruglogics.model.ModelPredictions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil module</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pydruglogics.execution.Executor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Evolution.html">pydruglogics.model.Evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.InteractionModel.html">pydruglogics.model.InteractionModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.ModelPredictions.html">pydruglogics.model.ModelPredictions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil</a></li>
 </ul>
 </li>
 </ul>
@@ -269,29 +270,51 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-pydruglogics.execution.Executor">
-<span id="pydruglogics-execution-executor-module"></span><h1>pydruglogics.execution.Executor module<a class="headerlink" href="#module-pydruglogics.execution.Executor" title="Link to this heading"></a></h1>
+          <section id="pydruglogics-execution-executor">
+<h1>pydruglogics.execution.Executor<a class="headerlink" href="#pydruglogics-execution-executor" title="Link to this heading"></a></h1>
+<p>Provides training and prediction functions for Boolean models.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="pydruglogics.execution.Executor.execute">
-<span class="sig-prename descclassname"><span class="pre">pydruglogics.execution.Executor.</span></span><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pydruglogics.execution.Executor.execute" title="Link to this definition"></a></dt>
-<dd><p>Execute training and/or prediction based on the provided parameters.</p>
+<dt class="sig sig-object py" id="pydruglogics.execution.Executor.train">
+<span class="sig-prename descclassname"><span class="pre">pydruglogics.execution.Executor.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.execution.Executor.train" title="Link to this definition"></a></dt>
+<dd><p>Train a Boolean Model using genetic algorithm and evolution strategy.
+Finds the models with the best fitness score.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">boolean_model</span> <span class="pre">(BooleanModel)</span></code>: The model to be trained.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_outputs</span> <span class="pre">(ModelOutputs)</span></code>: The outputs to be optimized.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ga_args</span> <span class="pre">(dict)</span></code>: Genetic algorithm parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ev_args</span> <span class="pre">(dict)</span></code>: Evolution strategy parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">training_data</span> <span class="pre">(TrainingData,</span> <span class="pre">optional)</span></code>: Training data for the model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_best_models</span> <span class="pre">(bool)</span></code>: Whether to save the best models.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_path</span> <span class="pre">(str)</span></code>: Path to save models.</p></li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">List[BooleanModel]</span></code>: List of models with the best fitness.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pydruglogics.execution.Executor.predict">
 <span class="sig-prename descclassname"><span class="pre">pydruglogics.execution.Executor.</span></span><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.execution.Executor.predict" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pydruglogics.execution.Executor.timed_execution">
-<span class="sig-prename descclassname"><span class="pre">pydruglogics.execution.Executor.</span></span><span class="sig-name descname"><span class="pre">timed_execution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.execution.Executor.timed_execution" title="Link to this definition"></a></dt>
-<dd><p>Decorator to log the time taken by a function and provide detailed logging.</p>
+<dd><p>Predict model outcomes and plot the results.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">best_boolean_models</span> <span class="pre">(list</span> <span class="pre">of</span> <span class="pre">BooleanModel,</span> <span class="pre">optional)</span></code>: Models to use for prediction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_outputs</span> <span class="pre">(ModelOutputs)</span></code>: The outputs to be predicted.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">perturbations</span> <span class="pre">(Perturbation)</span></code>: Perturbation scenarios.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">observed_synergy_scores</span> <span class="pre">(list</span> <span class="pre">of</span> <span class="pre">str)</span></code>: Observed synergy scores.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">synergy_method</span> <span class="pre">(str)</span></code>: Method for calculating synergy (‘bliss’, etc.).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_parallel</span> <span class="pre">(bool)</span></code>: Whether to run in parallel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_roc_pr_curves</span> <span class="pre">(bool)</span></code>: Whether to plot ROC and PR curves.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_predictions</span> <span class="pre">(bool)</span></code>: Whether to save predictions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_path</span> <span class="pre">(str)</span></code>: Path to save predictions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_directory</span> <span class="pre">(str)</span></code>: Directory to load models from if not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attractor_tool</span> <span class="pre">(str)</span></code>: Tool for attractor analysis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attractor_type</span> <span class="pre">(str)</span></code>: Type of attractor analysis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cores</span> <span class="pre">(int)</span></code>: Number of CPU cores to use.</p></li>
+</ul>
 </dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pydruglogics.execution.Executor.train">
-<span class="sig-prename descclassname"><span class="pre">pydruglogics.execution.Executor.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.execution.Executor.train" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 </section>
 
@@ -305,7 +328,7 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pydruglogics.input.ModelOutputs module</div>
+                <div class="title">pydruglogics.input.ModelOutputs</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -350,11 +373,9 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">pydruglogics.execution.Executor module</a><ul>
-<li><a class="reference internal" href="#pydruglogics.execution.Executor.execute"><code class="docutils literal notranslate"><span class="pre">execute()</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.execution.Executor.predict"><code class="docutils literal notranslate"><span class="pre">predict()</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.execution.Executor.timed_execution"><code class="docutils literal notranslate"><span class="pre">timed_execution()</span></code></a></li>
+<li><a class="reference internal" href="#">pydruglogics.execution.Executor</a><ul>
 <li><a class="reference internal" href="#pydruglogics.execution.Executor.train"><code class="docutils literal notranslate"><span class="pre">train()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.execution.Executor.predict"><code class="docutils literal notranslate"><span class="pre">predict()</span></code></a></li>
 </ul>
 </li>
 </ul>

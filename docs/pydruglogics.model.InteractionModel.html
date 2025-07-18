@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pydruglogics.model.ModelPredictions module" href="pydruglogics.model.ModelPredictions.html" /><link rel="prev" title="pydruglogics.model.BooleanModelOptimizer module" href="pydruglogics.model.BooleanModelOptimizer.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pydruglogics.model.ModelPredictions" href="pydruglogics.model.ModelPredictions.html" /><link rel="prev" title="pydruglogics.model.Evolution" href="pydruglogics.model.Evolution.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>pydruglogics.model.InteractionModel module - PyDrugLogics documentation</title>
+        <title>pydruglogics.model.InteractionModel - PyDrugLogics documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a02c27a8" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -215,18 +215,19 @@
 <p class="caption" role="heading"><span class="caption-text">Full API</span></p>
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="api.html">Full API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Full API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer module</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pydruglogics.model.InteractionModel module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.ModelPredictions.html">pydruglogics.model.ModelPredictions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Evolution.html">pydruglogics.model.Evolution</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pydruglogics.model.InteractionModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.ModelPredictions.html">pydruglogics.model.ModelPredictions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil</a></li>
 </ul>
 </li>
 </ul>
@@ -269,66 +270,52 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-pydruglogics.model.InteractionModel">
-<span id="pydruglogics-model-interactionmodel-module"></span><h1>pydruglogics.model.InteractionModel module<a class="headerlink" href="#module-pydruglogics.model.InteractionModel" title="Link to this heading"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydruglogics.model.InteractionModel.</span></span><span class="sig-name descname"><span class="pre">InteractionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interactions_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_self_regulated_interactions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Initializes the InteractionModel from .sif file.
-:param interactions_file: File path to the .sif file with network interactions.
-:param model_name: Name for the model. An empty string by default.
-:param remove_self_regulated_interactions: If True, removes self-regulating interactions
-(source equals target).False by default.
-:param remove_inputs: If True, removes nodes without incoming interactions. False by default.
-:param remove_outputs: If True, removes nodes without outgoing interactions. False by default.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.all_targets">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_targets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.all_targets" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.get_activating_regulators">
-<span class="sig-name descname"><span class="pre">get_activating_regulators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.get_activating_regulators" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.get_inhibitory_regulators">
-<span class="sig-name descname"><span class="pre">get_inhibitory_regulators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.get_inhibitory_regulators" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.get_interaction">
-<span class="sig-name descname"><span class="pre">get_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.get_interaction" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.get_target">
-<span class="sig-name descname"><span class="pre">get_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.get_target" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.interactions">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">interactions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.interactions" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.model_name">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.model_name" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.print">
-<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.print" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
+          <section id="pydruglogics-model-interactionmodel">
+<h1>pydruglogics.model.InteractionModel<a class="headerlink" href="#pydruglogics-model-interactionmodel" title="Link to this heading"></a></h1>
+<p>Loads, parses, and manages network interactions, allowing for construction of Boolean models from <cite>.sif</cite> files,
+with utilities for filtering and extracting regulators/targets.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.size">
-<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.size" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">InteractionModel.</span></span><span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.size" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
-</dd></dl>
+<p>Return the number of interactions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.print">
+<span class="sig-prename descclassname"><span class="pre">InteractionModel.</span></span><span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.print" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
+<p>Print the current interaction model in a human-readable form.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.get_interaction">
+<span class="sig-prename descclassname"><span class="pre">InteractionModel.</span></span><span class="sig-name descname"><span class="pre">get_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.get_interaction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Return the dictionary of the interaction at a given index.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.get_target">
+<span class="sig-prename descclassname"><span class="pre">InteractionModel.</span></span><span class="sig-name descname"><span class="pre">get_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.get_target" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Return the target node of the interaction at the given index.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.get_activating_regulators">
+<span class="sig-prename descclassname"><span class="pre">InteractionModel.</span></span><span class="sig-name descname"><span class="pre">get_activating_regulators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.get_activating_regulators" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Return the activating regulators for the interaction at the given index.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.get_inhibitory_regulators">
+<span class="sig-prename descclassname"><span class="pre">InteractionModel.</span></span><span class="sig-name descname"><span class="pre">get_inhibitory_regulators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.get_inhibitory_regulators" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Return the inhibitory regulators for the interaction at the given index.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydruglogics.model.InteractionModel.InteractionModel.model_name">
+<span class="sig-prename descclassname"><span class="pre">InteractionModel.</span></span><span class="sig-name descname"><span class="pre">model_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.InteractionModel.InteractionModel.model_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set the model name.</p>
 </section>
 
         </article>
@@ -341,18 +328,18 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pydruglogics.model.ModelPredictions module</div>
+                <div class="title">pydruglogics.model.ModelPredictions</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pydruglogics.model.BooleanModelOptimizer.html">
+          <a class="prev-page" href="pydruglogics.model.Evolution.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pydruglogics.model.BooleanModelOptimizer module</div>
+                <div class="title">pydruglogics.model.Evolution</div>
                 
               </div>
             </a>
@@ -386,19 +373,14 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">pydruglogics.model.InteractionModel module</a><ul>
-<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel"><code class="docutils literal notranslate"><span class="pre">InteractionModel</span></code></a><ul>
-<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.all_targets"><code class="docutils literal notranslate"><span class="pre">InteractionModel.all_targets</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.get_activating_regulators"><code class="docutils literal notranslate"><span class="pre">InteractionModel.get_activating_regulators()</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.get_inhibitory_regulators"><code class="docutils literal notranslate"><span class="pre">InteractionModel.get_inhibitory_regulators()</span></code></a></li>
+<li><a class="reference internal" href="#">pydruglogics.model.InteractionModel</a><ul>
+<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.size"><code class="docutils literal notranslate"><span class="pre">InteractionModel.size()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.print"><code class="docutils literal notranslate"><span class="pre">InteractionModel.print()</span></code></a></li>
 <li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.get_interaction"><code class="docutils literal notranslate"><span class="pre">InteractionModel.get_interaction()</span></code></a></li>
 <li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.get_target"><code class="docutils literal notranslate"><span class="pre">InteractionModel.get_target()</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.interactions"><code class="docutils literal notranslate"><span class="pre">InteractionModel.interactions</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.model_name"><code class="docutils literal notranslate"><span class="pre">InteractionModel.model_name</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.print"><code class="docutils literal notranslate"><span class="pre">InteractionModel.print()</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.size"><code class="docutils literal notranslate"><span class="pre">InteractionModel.size()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.get_activating_regulators"><code class="docutils literal notranslate"><span class="pre">InteractionModel.get_activating_regulators()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.get_inhibitory_regulators"><code class="docutils literal notranslate"><span class="pre">InteractionModel.get_inhibitory_regulators()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.model.InteractionModel.InteractionModel.model_name"><code class="docutils literal notranslate"><span class="pre">InteractionModel.model_name()</span></code></a></li>
 </ul>
 </li>
 </ul>

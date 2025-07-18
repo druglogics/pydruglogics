@@ -1,7 +1,9 @@
-pydruglogics.input.Perturbations module
-=======================================
+pydruglogics.input.Perturbations
+================================
 
-.. automodule:: pydruglogics.input.Perturbations
-   :members:
-   :undoc-members:
-   :show-inheritance:
+Manages drugs, their targets and effects, and generates or loads perturbation combinations for experiments.
+
+
+.. automethod:: pydruglogics.input.Perturbations.Perturbation.print
+
+    Print the string representation of the perturbations.

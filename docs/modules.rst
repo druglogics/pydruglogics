@@ -10,6 +10,7 @@ Full API
    pydruglogics.input.TrainingData
    pydruglogics.model.BooleanModel
    pydruglogics.model.BooleanModelOptimizer
+   pydruglogics.model.Evolution
    pydruglogics.model.InteractionModel
    pydruglogics.model.ModelPredictions
    pydruglogics.model.Statistics

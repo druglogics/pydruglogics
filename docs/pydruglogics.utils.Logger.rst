@@ -1,7 +1,8 @@
-pydruglogics.utils.Logger module
-================================
+pydruglogics.utils.Logger
+=========================
 
-.. automodule:: pydruglogics.utils.Logger
-   :members:
-   :undoc-members:
-   :show-inheritance:
+Provides a helper class to configure and control logging behavior.
+
+.. autofunction:: pydruglogics.utils.Logger.Logger.set_logger
+
+  Configures logging handlers, formats, and log levels.

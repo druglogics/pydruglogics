@@ -215,18 +215,19 @@
 <p class="caption" role="heading"><span class="caption-text">Full API</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">Full API</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Full API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.InteractionModel.html">pydruglogics.model.InteractionModel module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.ModelPredictions.html">pydruglogics.model.ModelPredictions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.execution.Executor.html">pydruglogics.execution.Executor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.ModelOutputs.html">pydruglogics.input.ModelOutputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.Perturbations.html">pydruglogics.input.Perturbations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.input.TrainingData.html">pydruglogics.input.TrainingData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModel.html">pydruglogics.model.BooleanModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.BooleanModelOptimizer.html">pydruglogics.model.BooleanModelOptimizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Evolution.html">pydruglogics.model.Evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.InteractionModel.html">pydruglogics.model.InteractionModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.ModelPredictions.html">pydruglogics.model.ModelPredictions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.Logger.html">pydruglogics.utils.Logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydruglogics.utils.BNetworkUtil.html">pydruglogics.utils.BNetworkUtil</a></li>
 </ul>
 </li>
 </ul>
@@ -272,7 +273,7 @@
           <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
 <div style="position: fixed; bottom: 10px; right: 10px; background-color: #f8f9fa; padding: 5px 10px; border-radius: 5px; box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1); z-index: 1000;">
-    <a href="#" style="font-size: 0.9rem; color: #007bff; text-decoration: none;">Version: 0.1.8</a>
+    <a href="#" style="font-size: 0.9rem; color: #007bff; text-decoration: none;">Version: 0.1.9</a>
 </div><hr class="docutils" />
 <section id="overview">
 <span id="id1"></span><h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
@@ -317,17 +318,10 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pydruglogics
 </pre></div>
 </div>
-<ol class="arabic simple" start="2">
-<li><p><strong>Install External Dependency</strong></p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>https://raw.githubusercontent.com/druglogics/pydruglogics/main/requirements.txt
-</pre></div>
-</div>
 <p>This will install the PyDrugLogics package and handle all dependencies automatically.</p>
 </section>
 <section id="install-pydruglogics-via-conda">
 <h3>Install PyDrugLogics via conda<a class="headerlink" href="#install-pydruglogics-via-conda" title="Link to this heading"></a></h3>
-<p><em>Note</em>: CoLoMoTo conda integration is ongoing.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>szlaura::pydruglogics
 </pre></div>
 </div>
@@ -338,7 +332,6 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/druglogics/pydruglogics.git
 <span class="nb">cd</span><span class="w"> </span>pydruglogics
 pip<span class="w"> </span>install<span class="w"> </span>.
-pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
 </pre></div>
 </div>
 </section>
