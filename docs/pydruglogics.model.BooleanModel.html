@@ -276,44 +276,66 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.BooleanModel.BooleanModel.calculate_attractors">
 <span class="sig-prename descclassname"><span class="pre">BooleanModel.</span></span><span class="sig-name descname"><span class="pre">calculate_attractors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attractor_tool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attractor_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.BooleanModel.BooleanModel.calculate_attractors" title="Link to this definition"></a></dt>
-<dd><p>Calculate attractors based on the chosen attractor_tool and attractor_type.
-:param attractor_tool: Tool for attractor calculation. Possible values: ‘mpbn’, ‘pyboolnet’.
-:param attractor_type: Type of attractor. Possible values: ‘stable_states’, ‘trapspaces’.
-:return: None</p>
+<dd><p>Calculate attractors based on the chosen attractor_tool and attractor_type.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">attractor_tool</span> <span class="pre">(str)</span></code>: Tool for attractor calculation. Possible values: <code class="docutils literal notranslate"><span class="pre">'mpbn'</span></code>, <code class="docutils literal notranslate"><span class="pre">'pyboolnet'</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attractor_type</span> <span class="pre">(str)</span></code>: Type of attractor. Possible values: <code class="docutils literal notranslate"><span class="pre">'stable_states'</span></code>, <code class="docutils literal notranslate"><span class="pre">'trapspaces'</span></code>.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.BooleanModel.BooleanModel.calculate_global_output">
 <span class="sig-prename descclassname"><span class="pre">BooleanModel.</span></span><span class="sig-name descname"><span class="pre">calculate_global_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.BooleanModel.BooleanModel.calculate_global_output" title="Link to this definition"></a></dt>
-<dd><p>Calculates the (normalized) global output of the model.
-:param model_outputs: An instance containing node weights defined in the ModelOutputs class.
-:param normalized: Whether to normalize the global output.
-:return: float</p>
+<dd><p>Calculates the (normalized) global output of the model.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">model_outputs</span> <span class="pre">(ModelOutputs)</span></code>: Node weights.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">normalized</span> <span class="pre">(bool,</span> <span class="pre">optional)</span></code>: Whether to normalize. Default: True.</p></li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul class="simple">
+<li><p>float: The (normalized) global output.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.BooleanModel.BooleanModel.from_binary">
 <span class="sig-prename descclassname"><span class="pre">BooleanModel.</span></span><span class="sig-name descname"><span class="pre">from_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_representation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.BooleanModel.BooleanModel.from_binary" title="Link to this definition"></a></dt>
-<dd><p>Updates the Boolean Equations from a binary representation based on the mutation type.
-:param binary_representation: The binary representation of the Boolean Equations as a list.
-:param mutation_type: The type of mutation can be: ‘topology’, ‘balanced’, ‘mixed’.
-:return: Updated Boolean Equations as a list.</p>
+<dd><p>Updates the Boolean Equations from a binary representation.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">binary_representation</span> <span class="pre">(list)</span></code>: The binary representation of the Boolean Equations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mutation_type</span> <span class="pre">(str)</span></code>: Mutation type: <code class="docutils literal notranslate"><span class="pre">'topology'</span></code>, <code class="docutils literal notranslate"><span class="pre">'balanced'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'mixed'</span></code>.</p></li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul class="simple">
+<li><p>list: Updated Boolean Equations.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.BooleanModel.BooleanModel.to_binary">
 <span class="sig-prename descclassname"><span class="pre">BooleanModel.</span></span><span class="sig-name descname"><span class="pre">to_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mutation_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.BooleanModel.BooleanModel.to_binary" title="Link to this definition"></a></dt>
-<dd><p>Converts the Boolean Equations to a binary representation. The representation is based on the mutation type.
-:param mutation_type: The type of mutation can be: ‘topology’, ‘balanced’, ‘mixed’
-:return: The binary representation of the Boolean Equations as a list.</p>
+<dd><p>Converts the Boolean Equations to a binary representation.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mutation_type</span> <span class="pre">(str)</span></code>: The type of mutation.</p></li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul class="simple">
+<li><p>list: Binary representation of Boolean Equations.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.BooleanModel.BooleanModel.add_perturbations">
 <span class="sig-prename descclassname"><span class="pre">BooleanModel.</span></span><span class="sig-name descname"><span class="pre">add_perturbations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perturbations</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.BooleanModel.BooleanModel.add_perturbations" title="Link to this definition"></a></dt>
-<dd><p>Adds perturbations to the Boolean Model.
-:param perturbations: A list of Perturbations.
-:return: None</p>
+<dd><p>Adds perturbations to the Boolean Model.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">perturbations</span> <span class="pre">(list)</span></code>: List of perturbations.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">

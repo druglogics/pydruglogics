@@ -273,24 +273,33 @@
           <section id="pydruglogics-utils-plotutil">
 <h1>pydruglogics.utils.PlotUtil<a class="headerlink" href="#pydruglogics-utils-plotutil" title="Link to this heading"></a></h1>
 <p>Plotting utilities for ROC and PR curves, including ensemble and confidence interval visualizations.</p>
-<dl class="py function">
+<dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.utils.PlotUtil.PlotUtil.plot_roc_and_pr_curve">
-<span class="sig-prename descclassname"><span class="pre">pydruglogics.utils.PlotUtil.PlotUtil.</span></span><span class="sig-name descname"><span class="pre">plot_roc_and_pr_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicted_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.utils.PlotUtil.PlotUtil.plot_roc_and_pr_curve" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PlotUtil.</span></span><span class="sig-name descname"><span class="pre">plot_roc_and_pr_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicted_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.utils.PlotUtil.PlotUtil.plot_roc_and_pr_curve" title="Link to this definition"></a></dt>
 <dd><p>Plot the ROC and PR Curves for one or multiple sets of predicted synergy scores.
-:param predicted_synergy_scores: Either a list of predictions for multiple models or a single set of predictions.
-:param observed_synergy_scores: List of observed synergy scores.
-:param synergy_method: Method used for synergy scoring (for plot titles).
-:param labels: Optional list of labels for each set of predictions. If None, default labels will be images.</p>
-<p>Plot the ROC and PR Curves for one or multiple sets of predicted synergy scores.
 Plots both ROC and PR for model predictions, with optional support for model ensembles.</p>
+<p><strong>Parameters</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">predicted_synergy_scores</span></code>: List of predictions or single set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">observed_synergy_scores</span></code>: Observed synergy scores.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">synergy_method</span> <span class="pre">(str)</span></code>: Method used for scoring (plot titles).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">labels</span> <span class="pre">(list,</span> <span class="pre">optional)</span></code>: Optional labels for each set.</p></li>
+</ul>
 </dd></dl>
 
-<dl class="py function">
+<dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.utils.PlotUtil.PlotUtil.plot_pr_curve_with_ci">
-<span class="sig-prename descclassname"><span class="pre">pydruglogics.utils.PlotUtil.PlotUtil.</span></span><span class="sig-name descname"><span class="pre">plot_pr_curve_with_ci</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pr_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auc_pr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boot_n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_discrete</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.utils.PlotUtil.PlotUtil.plot_pr_curve_with_ci" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PlotUtil.</span></span><span class="sig-name descname"><span class="pre">plot_pr_curve_with_ci</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pr_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auc_pr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boot_n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_discrete</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.utils.PlotUtil.PlotUtil.plot_pr_curve_with_ci" title="Link to this definition"></a></dt>
 <dd><p>Plot a Precision-Recall (PR) curve with confidence intervals computed from bootstrap sampling.
 Accepts a DataFrame of PR/confidence data and supports both continuous confidence bands
 or discrete error bars to visualize model uncertainty.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pr_df</span> <span class="pre">(DataFrame)</span></code>: PR/confidence data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">auc_pr</span> <span class="pre">(float)</span></code>: Area under PR.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">boot_n</span> <span class="pre">(int)</span></code>: Bootstrap samples.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_discrete</span> <span class="pre">(bool)</span></code>: Discrete error bars or band.</p></li>
+</ul>
 </dd></dl>
 
 </section>
@@ -351,8 +360,8 @@ or discrete error bars to visualize model uncertainty.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">pydruglogics.utils.PlotUtil</a><ul>
-<li><a class="reference internal" href="#pydruglogics.utils.PlotUtil.PlotUtil.plot_roc_and_pr_curve"><code class="docutils literal notranslate"><span class="pre">plot_roc_and_pr_curve()</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.utils.PlotUtil.PlotUtil.plot_pr_curve_with_ci"><code class="docutils literal notranslate"><span class="pre">plot_pr_curve_with_ci()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.utils.PlotUtil.PlotUtil.plot_roc_and_pr_curve"><code class="docutils literal notranslate"><span class="pre">PlotUtil.plot_roc_and_pr_curve()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.utils.PlotUtil.PlotUtil.plot_pr_curve_with_ci"><code class="docutils literal notranslate"><span class="pre">PlotUtil.plot_pr_curve_with_ci()</span></code></a></li>
 </ul>
 </li>
 </ul>

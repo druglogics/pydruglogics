@@ -276,16 +276,22 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.ModelPredictions.ModelPredictions.run_simulations">
 <span class="sig-prename descclassname"><span class="pre">ModelPredictions.</span></span><span class="sig-name descname"><span class="pre">run_simulations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.ModelPredictions.ModelPredictions.run_simulations" title="Link to this definition"></a></dt>
-<dd><p>Runs simulations on the Boolean Models with the perturbations, either in parallel or serially.
-:param parallel: Whether to run the simulations in parallel By default, True.
-:param cores: The number of CPU cores to use for parallel execution By default, 4.
-:return: None</p>
+<dd><p>Runs simulations on the Boolean Models with the perturbations, either in parallel or serially.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">parallel</span> <span class="pre">(bool,</span> <span class="pre">optional)</span></code>: Whether to run simulations in parallel. Default: True.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cores</span> <span class="pre">(int,</span> <span class="pre">optional)</span></code>: Number of CPU cores to use. Default: 4.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.ModelPredictions.ModelPredictions.save_to_file_predictions">
 <span class="sig-prename descclassname"><span class="pre">ModelPredictions.</span></span><span class="sig-name descname"><span class="pre">save_to_file_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./results/predictions'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.ModelPredictions.ModelPredictions.save_to_file_predictions" title="Link to this definition"></a></dt>
 <dd><p>Save the prediction matrix and synergy results to disk.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base_folder</span> <span class="pre">(str,</span> <span class="pre">optional)</span></code>: Directory to save results.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">

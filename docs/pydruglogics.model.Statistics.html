@@ -273,45 +273,48 @@
           <section id="pydruglogics-model-statistics">
 <h1>pydruglogics.model.Statistics<a class="headerlink" href="#pydruglogics-model-statistics" title="Link to this heading"></a></h1>
 <p>Provides statistical and evaluation functions for analyzing the performance of Boolean model predictions.
-It supports PR curve calculation, confidence intervals, bootstrapping, and comparison between model runs.</p>
-<dl class="py function">
+Supports PR curve calculation, confidence intervals, bootstrapping, and comparison between model runs.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.statistics.Statistics.sampling_with_ci">
-<span class="sig-prename descclassname"><span class="pre">pydruglogics.statistics.Statistics.</span></span><span class="sig-name descname"><span class="pre">sampling_with_ci</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boolean_models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bliss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boot_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_discrete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_seeds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seeds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.statistics.Statistics.sampling_with_ci" title="Link to this definition"></a></dt>
-<dd><p>Performs sampling with confidence interval calculation and plot the PR curve.
-:param boolean_models: List of BooleanModel instances.
-:param observed_synergy_scores: List of observed synergy scores.
-:param model_outputs: Model outputs for evaluation.
-:param perturbations: List of perturbations to apply to the models.
-:param synergy_method: Method to check for synergy (‘hsa’ or ‘bliss’).
-:param repeat_time: Number of times to repeat sampling.
-:param sub_ratio: Proportion of models to sample in each iteration.
-:param boot_n: Number of bootstrap resampling iterations for confidence intervals.
-:param confidence_level: Confidence level for confidence interval calculations.
-:param plot: Whether to display the PR curve.
-:param plot_discrete: Whether to plot discrete points on the PR curve.
-:param save_result: Whether to save the results to a .tab file.
-:param with_seeds: Whether to use a fixed seed for reproducibility.
-:param seeds: Seed value for random number generation to ensure reproducibility.
-:return: None</p>
+<span class="sig-prename descclassname"><span class="pre">Statistics.</span></span><span class="sig-name descname"><span class="pre">sampling_with_ci</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bliss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boot_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_discrete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_seeds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seeds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.statistics.Statistics.sampling_with_ci" title="Link to this definition"></a></dt>
+<dd><p>Performs sampling with confidence interval calculation and plots the PR curve.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">boolean_models</span> <span class="pre">(list)</span></code>: BooleanModel instances.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">observed_synergy_scores</span> <span class="pre">(list)</span></code>: Observed synergy scores.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_outputs</span></code>: Model outputs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">perturbations</span> <span class="pre">(list)</span></code>: Perturbations to apply.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">synergy_method</span> <span class="pre">(str,</span> <span class="pre">optional)</span></code>: ‘hsa’ or ‘bliss’.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">repeat_time</span> <span class="pre">(int,</span> <span class="pre">optional)</span></code>: Repeats. Default: 10.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sub_ratio</span> <span class="pre">(float,</span> <span class="pre">optional)</span></code>: Proportion to sample. Default: 0.8.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">boot_n</span> <span class="pre">(int,</span> <span class="pre">optional)</span></code>: Bootstrap samples. Default: 1000.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">confidence_level</span> <span class="pre">(float,</span> <span class="pre">optional)</span></code>: CI level. Default: 0.9.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot</span> <span class="pre">(bool,</span> <span class="pre">optional)</span></code>: Plot the PR curve. Default: True.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_discrete</span> <span class="pre">(bool,</span> <span class="pre">optional)</span></code>: Discrete points. Default: False.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_result</span> <span class="pre">(bool,</span> <span class="pre">optional)</span></code>: Save to .tab file. Default: True.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">with_seeds</span> <span class="pre">(bool,</span> <span class="pre">optional)</span></code>: Use fixed seed. Default: True.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seeds</span> <span class="pre">(int,</span> <span class="pre">optional)</span></code>: Random seed. Default: 42.</p></li>
+</ul>
 </dd></dl>
 
-<dl class="py function">
+<dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.statistics.Statistics.compare_two_simulations">
-<span class="sig-prename descclassname"><span class="pre">pydruglogics.statistics.Statistics.</span></span><span class="sig-name descname"><span class="pre">compare_two_simulations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boolean_models1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boolean_models2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bliss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Models</span> <span class="pre">1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Models</span> <span class="pre">2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.statistics.Statistics.compare_two_simulations" title="Link to this definition"></a></dt>
-<dd><p>Compares ROC and PR curves for two sets of evolution results.
-By default, normalization of the first result is applied.
-:param boolean_models1: List of the best Boolean Models for the first simulation set.
-:param boolean_models2: List of the best Boolean Models for the second simulation set.
-:param observed_synergy_scores: List of observed synergy scores for comparison.
-:param model_outputs: Model outputs for evaluation.
-:param perturbations: List of perturbations to apply to the models.
-:param synergy_method: Method to check for synergy (‘hsa’ or ‘bliss’).
-:param label1: Label for the first simulation result.
-:param label2: Label for the second simulation result.
-:param normalized: Whether to normalize the first result.
-:param plot: Whether to display the ROC and PR curves.
-:param save_result: Whether to save the results.
-:return: None</p>
+<span class="sig-prename descclassname"><span class="pre">Statistics.</span></span><span class="sig-name descname"><span class="pre">compare_two_simulations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boolean_models2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bliss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Models</span> <span class="pre">1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Models</span> <span class="pre">2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.statistics.Statistics.compare_two_simulations" title="Link to this definition"></a></dt>
+<dd><p>Compares ROC and PR curves for two sets of evolution results.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">boolean_models1</span> <span class="pre">(list)</span></code>: First set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">boolean_models2</span> <span class="pre">(list)</span></code>: Second set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">observed_synergy_scores</span> <span class="pre">(list)</span></code>: Observed scores.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_outputs</span></code>: Model outputs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">perturbations</span> <span class="pre">(list)</span></code>: Perturbations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">synergy_method</span> <span class="pre">(str,</span> <span class="pre">optional)</span></code>: ‘hsa’ or ‘bliss’.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label1</span> <span class="pre">(str,</span> <span class="pre">optional)</span></code>: Label for first.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label2</span> <span class="pre">(str,</span> <span class="pre">optional)</span></code>: Label for second.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">normalized</span> <span class="pre">(bool,</span> <span class="pre">optional)</span></code>: Normalize first. Default: True.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot</span> <span class="pre">(bool,</span> <span class="pre">optional)</span></code>: Show ROC/PR. Default: True.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_result</span> <span class="pre">(bool,</span> <span class="pre">optional)</span></code>: Save results. Default: True.</p></li>
+</ul>
 </dd></dl>
 
 </section>
@@ -372,8 +375,8 @@ By default, normalization of the first result is applied.
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">pydruglogics.model.Statistics</a><ul>
-<li><a class="reference internal" href="#pydruglogics.statistics.Statistics.sampling_with_ci"><code class="docutils literal notranslate"><span class="pre">sampling_with_ci()</span></code></a></li>
-<li><a class="reference internal" href="#pydruglogics.statistics.Statistics.compare_two_simulations"><code class="docutils literal notranslate"><span class="pre">compare_two_simulations()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.statistics.Statistics.sampling_with_ci"><code class="docutils literal notranslate"><span class="pre">Statistics.sampling_with_ci()</span></code></a></li>
+<li><a class="reference internal" href="#pydruglogics.statistics.Statistics.compare_two_simulations"><code class="docutils literal notranslate"><span class="pre">Statistics.compare_two_simulations()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -43,3 +43,9 @@ html_theme = 'furo'
 html_static_path = ['_static']
 html_css_files = ['custom.css']
 
+def autodoc_skip_docstring(app, what, name, obj, options, lines):
+    lines.clear()
+
+def setup(app):
+    app.connect("autodoc-process-docstring", autodoc_skip_docstring)
+

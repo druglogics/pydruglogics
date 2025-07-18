@@ -276,38 +276,53 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.Evolution.Evolution.calculate_fitness">
 <span class="sig-prename descclassname"><span class="pre">Evolution.</span></span><span class="sig-name descname"><span class="pre">calculate_fitness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ga_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.Evolution.Evolution.calculate_fitness" title="Link to this definition"></a></dt>
-<dd><p>Calculates fitness for a batch of solutions. Each solution is evaluated in a batch,
-and a fitness score is returned for each.
-:param ga_instance: Instance of the GA. It is required by PayGAD.
-:param solutions: A batch of solutions (list of binary vectors). It is required by PayGAD.
-:param solution_idx: The index of the current solution batch. It is required by PayGAD.
-:return: A list of fitness values, one for each solution in the batch.</p>
+<dd><p>Fitness function for GA, evaluates each candidate model using the provided training data.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ga_instance</span></code>: Instance of the GA.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solutions</span> <span class="pre">(list)</span></code>: Batch of solutions (binary vectors).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solution_idx</span> <span class="pre">(int)</span></code>: Current solution batch index.</p></li>
+</ul>
+<p><strong>Returns</strong>
+- list: Fitness values for each solution.</p>
 </dd></dl>
 
-<p>Fitness function for GA, evaluates each candidate model using the provided training data.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.Evolution.Evolution.create_initial_population">
 <span class="sig-prename descclassname"><span class="pre">Evolution.</span></span><span class="sig-name descname"><span class="pre">create_initial_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_mutations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.Evolution.Evolution.create_initial_population" title="Link to this definition"></a></dt>
-<dd><p>Creates an initial population for the GA.
-:param population_size: The number of individuals in the population.
-:param num_mutations: The number of mutations to perform on each individual.
-:param seed: Seed for reproducibility.
-:return: List of binary vectors representing the initial population.</p>
+<dd><p>Create an initial GA population by randomly mutating the reference Boolean model.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">population_size</span> <span class="pre">(int)</span></code>: Population size.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_mutations</span> <span class="pre">(int)</span></code>: Number of mutations per individual.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span> <span class="pre">(int,</span> <span class="pre">optional)</span></code>: Seed for reproducibility.</p></li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul class="simple">
+<li><p>list: Initial population (binary vectors).</p></li>
+</ul>
 </dd></dl>
 
-<p>Create an initial GA population by randomly mutating the reference Boolean model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.Evolution.Evolution.run">
 <span class="sig-prename descclassname"><span class="pre">Evolution.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.Evolution.Evolution.run" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Launch the evolutionary search, returning the best Boolean models found.</p>
+<p><strong>Returns</strong></p>
+<ul class="simple">
+<li><p>list: Best Boolean models.</p></li>
+</ul>
+</dd></dl>
 
-<p>Launch the evolutionary search, returning the best Boolean models found.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.model.Evolution.Evolution.save_to_file_models">
 <span class="sig-prename descclassname"><span class="pre">Evolution.</span></span><span class="sig-name descname"><span class="pre">save_to_file_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./results/models'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.model.Evolution.Evolution.save_to_file_models" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Save the best models of the evolution run as <cite>.bnet</cite> files to disk.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base_folder</span> <span class="pre">(str,</span> <span class="pre">optional)</span></code>: Output directory.</p></li>
+</ul>
+</dd></dl>
 
-<p>Save the best models of the evolution run as <cite>.bnet</cite> files to disk.</p>
 </section>
 
         </article>
