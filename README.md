@@ -1,4 +1,3 @@
-
 # PyDrugLogics
 
 ![PyDrugLogics Logo](https://raw.githubusercontent.com/druglogics/pydruglogics/main/logo.png)
@@ -31,7 +30,11 @@ The process involves two steps to install the PyDrugLogics core package and its 
 ```bash
 pip install pydruglogics
 ```
+#### 2. Install External Dependency
 
+```bash
+pip install -r https://raw.githubusercontent.com/druglogics/pydruglogics/main/requirements.txt
+```
 This will install the PyDrugLogics package and handle all dependencies automatically.
 
 
@@ -49,9 +52,10 @@ For the latest development version, you can clone the repository and install dir
 git clone https://github.com/druglogics/pydruglogics.git
 cd pydruglogics
 pip install .
+pip install -r requirements.txt
 ```
 
-## CoLoMoTo Notebook envionment
+## CoLoMoTo Notebook environment
 PyDrugLogics is available in the CoLoMoTo Docker and Notebook starting from version `2025-01-01`.
 
 ### Setup CoLoMoTo Docker and Notebook
@@ -76,6 +80,7 @@ See more about the CoLoMoTo Docker and Notebook in the [documentation](https://c
 ## Testing
 1. To run all tests and check code coverage, you need to install test dependencies:
 ```bash
+    pip install -r requirements.txt
     pip install -e .[test]
 ```
 

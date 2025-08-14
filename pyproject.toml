@@ -28,8 +28,7 @@ dependencies = [
     "pandas~=2.2.3",
     "pygad~=3.3.1",
     "scikit-learn~=1.5.2",
-    "scipy~=1.14.1",
-    "pyboolnet@git+https://github.com/hklarner/pyboolnet@3.0.16#egg=pyboolnet"
+    "scipy~=1.14.1"
 ]
 
 [project.optional-dependencies]

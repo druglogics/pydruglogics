@@ -1,0 +1,2 @@
+pyboolnet @ git+https://github.com/hklarner/pyboolnet@3.0.16#egg=pyboolnet
+
