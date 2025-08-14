@@ -61,6 +61,14 @@ The process involves two steps to install the PyDrugLogics core package and its 
 
    pip install pydruglogics
 
+
+2. **Install External Dependency**
+
+.. code-block:: bash
+
+   pip install -r https://raw.githubusercontent.com/druglogics/pydruglogics/main/requirements.txt
+
+
 This will install the PyDrugLogics package and handle all dependencies automatically.
 
 Install PyDrugLogics via conda
@@ -79,6 +87,7 @@ For the latest development version, clone the repository and install it directly
     git clone https://github.com/druglogics/pydruglogics.git
     cd pydruglogics
     pip install .
+    pip install -r requirements.txt
 
 .. _colomoto_notebook_environment:
 

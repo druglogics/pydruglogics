@@ -363,8 +363,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pydruglogics.model.Statistics.html">pydruglogics.model.Statistics</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.Statistics.html#pydruglogics.statistics.Statistics.sampling_with_ci"><code class="docutils literal notranslate"><span class="pre">sampling_with_ci()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.Statistics.html#pydruglogics.statistics.Statistics.compare_two_simulations"><code class="docutils literal notranslate"><span class="pre">compare_two_simulations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.Statistics.html#pydruglogics.statistics.Statistics.sampling_with_ci"><code class="docutils literal notranslate"><span class="pre">Statistics.sampling_with_ci()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.model.Statistics.html#pydruglogics.statistics.Statistics.compare_two_simulations"><code class="docutils literal notranslate"><span class="pre">Statistics.compare_two_simulations()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -387,8 +387,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html">pydruglogics.utils.PlotUtil</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html#pydruglogics.utils.PlotUtil.PlotUtil.plot_roc_and_pr_curve"><code class="docutils literal notranslate"><span class="pre">plot_roc_and_pr_curve()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html#pydruglogics.utils.PlotUtil.PlotUtil.plot_pr_curve_with_ci"><code class="docutils literal notranslate"><span class="pre">plot_pr_curve_with_ci()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html#pydruglogics.utils.PlotUtil.PlotUtil.plot_roc_and_pr_curve"><code class="docutils literal notranslate"><span class="pre">PlotUtil.plot_roc_and_pr_curve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydruglogics.utils.PlotUtil.html#pydruglogics.utils.PlotUtil.PlotUtil.plot_pr_curve_with_ci"><code class="docutils literal notranslate"><span class="pre">PlotUtil.plot_pr_curve_with_ci()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -405,23 +405,10 @@
 <dt class="sig sig-object py" id="pydruglogics.BooleanModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydruglogics.</span></span><span class="sig-name descname"><span class="pre">BooleanModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attractor_tool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mpbn'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attractor_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'stable_states'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'topology'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloned_equations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloned_binary_equations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.BooleanModel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Initializes the BooleanModel instance.
-:param model: An InteractionModel instance.
-:param file: The path to the file containing Boolean Equations in ‘.bnet’ format.
-:param attractor_tool: The tool to be used for attractor calculation. Possible values: ‘mpbn’, ‘pyboolnet’.
-:param attractor_type: The type of the attractor calculation. Possible values: ‘stable_states’, ‘trapspaces’.
-:param mutation_type: The type of mutation to be performed. Possible values: ‘topology’, ‘binary’, ‘balanced’.
-:param model_name: Name for the model.
-:param cloned_equations: Boolean Equations representing the model’s interactions. (only for cloning)
-:param cloned_binary_equations: A list representing the Mutate Boolean Model in binary representation.
-(only for cloning)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.BooleanModel.add_perturbations">
 <span class="sig-name descname"><span class="pre">add_perturbations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perturbations</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.BooleanModel.add_perturbations" title="Link to this definition"></a></dt>
-<dd><p>Adds perturbations to the Boolean Model.
-:param perturbations: A list of Perturbations.
-:return: None</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pydruglogics.BooleanModel.attractor_tool">
@@ -451,20 +438,12 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.BooleanModel.calculate_attractors">
 <span class="sig-name descname"><span class="pre">calculate_attractors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attractor_tool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attractor_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.BooleanModel.calculate_attractors" title="Link to this definition"></a></dt>
-<dd><p>Calculate attractors based on the chosen attractor_tool and attractor_type.
-:param attractor_tool: Tool for attractor calculation. Possible values: ‘mpbn’, ‘pyboolnet’.
-:param attractor_type: Type of attractor. Possible values: ‘stable_states’, ‘trapspaces’.
-:return: None</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.BooleanModel.calculate_global_output">
 <span class="sig-name descname"><span class="pre">calculate_global_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.BooleanModel.calculate_global_output" title="Link to this definition"></a></dt>
-<dd><p>Calculates the (normalized) global output of the model.
-:param model_outputs: An instance containing node weights defined in the ModelOutputs class.
-:param normalized: Whether to normalize the global output.
-:return: float</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.BooleanModel.clone">
@@ -474,11 +453,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.BooleanModel.from_binary">
 <span class="sig-name descname"><span class="pre">from_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_representation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.BooleanModel.from_binary" title="Link to this definition"></a></dt>
-<dd><p>Updates the Boolean Equations from a binary representation based on the mutation type.
-:param binary_representation: The binary representation of the Boolean Equations as a list.
-:param mutation_type: The type of mutation can be: ‘topology’, ‘balanced’, ‘mixed’.
-:return: Updated Boolean Equations as a list.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.BooleanModel.get_stable_states">
@@ -528,10 +503,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.BooleanModel.to_binary">
 <span class="sig-name descname"><span class="pre">to_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mutation_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.BooleanModel.to_binary" title="Link to this definition"></a></dt>
-<dd><p>Converts the Boolean Equations to a binary representation. The representation is based on the mutation type.
-:param mutation_type: The type of mutation can be: ‘topology’, ‘balanced’, ‘mixed’
-:return: The binary representation of the Boolean Equations as a list.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -539,12 +511,6 @@
 <dt class="sig sig-object py" id="pydruglogics.Evolution">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydruglogics.</span></span><span class="sig-name descname"><span class="pre">Evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boolean_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ga_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ev_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.Evolution" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BooleanModelOptimizer</span></code></p>
-<p>Initializes the Evolution class with a BooleanModel and genetic algorithm parameters.
-:param boolean_model: The boolean model to be evolved.
-:param training_data: Training data for the model.
-:param model_outputs: Model outputs for evaluation.
-:param ga_args: Dictionary containing all necessary arguments for pygad.
-:param ev_args: Dictionary containing all necessary arguments for running the evolution.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pydruglogics.Evolution.best_boolean_models">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">best_boolean_models</span></span><a class="headerlink" href="#pydruglogics.Evolution.best_boolean_models" title="Link to this definition"></a></dt>
@@ -553,23 +519,12 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.Evolution.calculate_fitness">
 <span class="sig-name descname"><span class="pre">calculate_fitness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ga_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.Evolution.calculate_fitness" title="Link to this definition"></a></dt>
-<dd><p>Calculates fitness for a batch of solutions. Each solution is evaluated in a batch,
-and a fitness score is returned for each.
-:param ga_instance: Instance of the GA. It is required by PayGAD.
-:param solutions: A batch of solutions (list of binary vectors). It is required by PayGAD.
-:param solution_idx: The index of the current solution batch. It is required by PayGAD.
-:return: A list of fitness values, one for each solution in the batch.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.Evolution.create_initial_population">
 <span class="sig-name descname"><span class="pre">create_initial_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_mutations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.Evolution.create_initial_population" title="Link to this definition"></a></dt>
-<dd><p>Creates an initial population for the GA.
-:param population_size: The number of individuals in the population.
-:param num_mutations: The number of mutations to perform on each individual.
-:param seed: Seed for reproducibility.
-:return: List of binary vectors representing the initial population.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.Evolution.run">
@@ -587,13 +542,6 @@ and a fitness score is returned for each.
 <dt class="sig sig-object py" id="pydruglogics.InteractionModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydruglogics.</span></span><span class="sig-name descname"><span class="pre">InteractionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interactions_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_self_regulated_interactions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.InteractionModel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Initializes the InteractionModel from .sif file.
-:param interactions_file: File path to the .sif file with network interactions.
-:param model_name: Name for the model. An empty string by default.
-:param remove_self_regulated_interactions: If True, removes self-regulating interactions
-(source equals target).False by default.
-:param remove_inputs: If True, removes nodes without incoming interactions. False by default.
-:param remove_outputs: If True, removes nodes without outgoing interactions. False by default.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pydruglogics.InteractionModel.all_targets">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_targets</span></span><a class="headerlink" href="#pydruglogics.InteractionModel.all_targets" title="Link to this definition"></a></dt>
@@ -697,15 +645,6 @@ and a fitness score is returned for each.
 <dt class="sig sig-object py" id="pydruglogics.ModelPredictions">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydruglogics.</span></span><span class="sig-name descname"><span class="pre">ModelPredictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boolean_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bliss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attractor_tool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attractor_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.ModelPredictions" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Initializes the ModelPredictions class.
-:param boolean_models: List of BooleanModel instances.
-:param perturbations: List of perturbations to apply.
-:param model_outputs: Model outputs for evaluating the predictions.
-:param observed_synergy_scores: List of observed synergy scores.
-:param synergy_method: Method to check for synergy. Possible values: ‘hsa’ or ‘bliss’.
-:param model_directory: Directory from which to load models. (Needed only when there is no Evolution result.)
-:param attractor_tool: Tool to calculate attractors in models. (Needed only when loads models from directory.)
-:param attractor_type: Type to calculate attractors in models. (Needed only when loads models from directory.)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.ModelPredictions.get_prediction_matrix">
 <span class="sig-name descname"><span class="pre">get_prediction_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.ModelPredictions.get_prediction_matrix" title="Link to this definition"></a></dt>
@@ -719,11 +658,7 @@ and a fitness score is returned for each.
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.ModelPredictions.run_simulations">
 <span class="sig-name descname"><span class="pre">run_simulations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.ModelPredictions.run_simulations" title="Link to this definition"></a></dt>
-<dd><p>Runs simulations on the Boolean Models with the perturbations, either in parallel or serially.
-:param parallel: Whether to run the simulations in parallel By default, True.
-:param cores: The number of CPU cores to use for parallel execution By default, 4.
-:return: None</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.ModelPredictions.save_to_file_predictions">
@@ -780,12 +715,7 @@ and a fitness score is returned for each.
 <dl class="py method">
 <dt class="sig sig-object py" id="pydruglogics.PlotUtil.plot_roc_and_pr_curve">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_roc_and_pr_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicted_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.PlotUtil.plot_roc_and_pr_curve" title="Link to this definition"></a></dt>
-<dd><p>Plot the ROC and PR Curves for one or multiple sets of predicted synergy scores.
-:param predicted_synergy_scores: Either a list of predictions for multiple models or a single set of predictions.
-:param observed_synergy_scores: List of observed synergy scores.
-:param synergy_method: Method used for synergy scoring (for plot titles).
-:param labels: Optional list of labels for each set of predictions. If None, default labels will be images.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -833,48 +763,17 @@ and a fitness score is returned for each.
 <dl class="py function">
 <dt class="sig sig-object py" id="pydruglogics.compare_two_simulations">
 <span class="sig-prename descclassname"><span class="pre">pydruglogics.</span></span><span class="sig-name descname"><span class="pre">compare_two_simulations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boolean_models1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boolean_models2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bliss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Models</span> <span class="pre">1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Models</span> <span class="pre">2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.compare_two_simulations" title="Link to this definition"></a></dt>
-<dd><p>Compares ROC and PR curves for two sets of evolution results.
-By default, normalization of the first result is applied.
-:param boolean_models1: List of the best Boolean Models for the first simulation set.
-:param boolean_models2: List of the best Boolean Models for the second simulation set.
-:param observed_synergy_scores: List of observed synergy scores for comparison.
-:param model_outputs: Model outputs for evaluation.
-:param perturbations: List of perturbations to apply to the models.
-:param synergy_method: Method to check for synergy (‘hsa’ or ‘bliss’).
-:param label1: Label for the first simulation result.
-:param label2: Label for the second simulation result.
-:param normalized: Whether to normalize the first result.
-:param plot: Whether to display the ROC and PR curves.
-:param save_result: Whether to save the results.
-:return: None</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pydruglogics.execute">
 <span class="sig-prename descclassname"><span class="pre">pydruglogics.</span></span><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.execute" title="Link to this definition"></a></dt>
-<dd><p>Execute training and/or prediction based on the provided parameters.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pydruglogics.sampling_with_ci">
 <span class="sig-prename descclassname"><span class="pre">pydruglogics.</span></span><span class="sig-name descname"><span class="pre">sampling_with_ci</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boolean_models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_synergy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synergy_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bliss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boot_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_discrete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_seeds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seeds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pydruglogics.sampling_with_ci" title="Link to this definition"></a></dt>
-<dd><p>Performs sampling with confidence interval calculation and plot the PR curve.
-:param boolean_models: List of BooleanModel instances.
-:param observed_synergy_scores: List of observed synergy scores.
-:param model_outputs: Model outputs for evaluation.
-:param perturbations: List of perturbations to apply to the models.
-:param synergy_method: Method to check for synergy (‘hsa’ or ‘bliss’).
-:param repeat_time: Number of times to repeat sampling.
-:param sub_ratio: Proportion of models to sample in each iteration.
-:param boot_n: Number of bootstrap resampling iterations for confidence intervals.
-:param confidence_level: Confidence level for confidence interval calculations.
-:param plot: Whether to display the PR curve.
-:param plot_discrete: Whether to plot discrete points on the PR curve.
-:param save_result: Whether to save the results to a .tab file.
-:param with_seeds: Whether to use a fixed seed for reproducibility.
-:param seeds: Seed value for random number generation to ensure reproducibility.
-:return: None</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pydruglogics.train">
