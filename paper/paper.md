@@ -105,11 +105,55 @@ sources. Using the observed synergies (binary labels: 0 for non-synergistic and 
 binary classification metrics such as the ROC and PR AUC (area under the curve) are generated to evaluate how well 
 the predicted synergy scores distinguish between synergistic and non-synergistic drug combinations.
 
+# Pipeline Evaluation
+
+The performance and reliability of PyDrugLogics and DrugLogics were compared using the CASCADE 1.0 signaling network 
+and the experimentally observed synergy labels from @flobakDiscoveryDrugSynergies2015.
+
+The execution times were measured using Hyperfine [@Peter_hyperfine_2023] across 10 runs. Both pipelines calculated the 
+trap spaces of the CASCADE 1.0 network while applying topology mutations on it in the genetic algorithm, and synergy 
+scores were calculated using the Bliss method [@blissTOXICITYPOISONSAPPLIED1939]. The evolutionary algorithm performed 
+50 simulations of 20 generations each, using 4 CPU cores. 
+
+The runtime comparison, summarized in Table 1, indicates that PyDrugLogics completes the pipeline more efficiently than 
+DrugLogics. The mean execution time over 10 runs for DrugLogics was 89.030 s ± 1.578 s, whereas PyDrugLogics achieved a 
+mean runtime of 33.239 s ± 3.082 s, demonstrating a clear speed advantage.
+
+| Metric              | DrugLogics (Java)         | PyDrugLogics (Python)     |
+|---------------------|--------------------------|--------------------------|
+| Runs                | 10                        | 10                        |
+| Time (mean ± sigma) | 89.030 s ± 1.578 s      | 33.239 s ± 3.082 s  |
+| Range (min … max)   | 86.051 s … 91.164 s      | 30.577 s … 35.901 s           |
+
+Table: Runtime comparison of DrugLogics and PyDrugLogics across 10 runs.
+
+The ROC and PR curves were generated from the calculated synergy scores against the experimental labels, and the 
+corresponding AUC values were used to evaluate the model performance. Figure 1 shows the performance of DrugLogics and 
+Figure 2 presents PyDrugLogics. Overall, the Python implementation shows slightly better consistency with the 
+experimental data.
+
+![ROC and PR AUC curves of calculated synergy scores for DrugLogics (Java)](figures/Figure1_DrugLogics_ROC_PR.png)
+
+
+![ROC and PR AUC curves of calculated synergy scores for PyDrugLogics (Python)](figures/Figure2_PyDrugLogics_ROC_PR.png)
+
+
+To further quantify the Python pipeline’s robustness, PyDrugLogics performs ensemble subsampling of the Boolean models. 
+Starting from the CASCADE 1.0 model, multiple mutated variants are generated through topology mutations, with MPBN 
+stable states defined in the simulation setup. In each iteration, 80% of these mutated models are sampled, and this 
+process is repeated 15 times. The resulting synergy scores are then subjected to bootstrap resampling (1000 iterations
+at 95% confidence level). Figure 3 shows the PR curve with AUC and confidence intervals from the bootstrap-resampled 
+ensembles, illustrating the stability of the calculated synergy scores.
+
+![Bootstrap confidence intervals for calculated synergy scores](figures/Figure3_Sampling.png)
+
 # Acknowledgements
 
-JZ received funding from Astri og Birger Torsteds Legater for cancer research, which contributed to the completion of this work.
+JZ received funding from Astri og Birger Torsteds Legater for cancer research, which contributed to the completion of 
+this work.
 
-The following people have contributed code to this package or provided help with technical and scientific questions (in alphabetical order): 
+The following people have contributed code to this package or provided help with technical and scientific questions 
+(in alphabetical order): 
 
 - Åsmund Flobak
 
