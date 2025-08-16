@@ -33,19 +33,19 @@ For complex diseases such as cancer, combined drug therapies can enhance the eff
 minimize side effects [@jinRationalCombinationsTargeted2023]. Combined drug therapies may have a stronger effect than 
 single drug treatments, a concept referred to as synergy [@berenbaumWhatSynergy1989]. However, finding synergistic drug 
 combinations is a challenging area of modern medicine. The vast number of possible drug combinations, even for small 
-sets of drugs, makes it a complex problem due to the exponential growth in combinations. This fact causes long testing 
+sets of drugs, makes it a complex problem due to the exponential growth in combinations. This fact causes longer testing 
 time in the laboratory experiments and a significant amount of experimental costs. 
 
 Logical modeling is a powerful tool that can be used to reduce the costs of this challenge. By formalizing biological 
 networks into logical models, these constructed models enable us to simulate the behaviour of large-scale signaling 
-networks and predict responses to perturbation (@eduatiPatientspecificLogicModels2020, 
+networks and predict responses to perturbations (@eduatiPatientspecificLogicModels2020, 
 @niederdorferStrategiesEnhanceLogic2020, @bealPersonalizedLogicalModels2021). The implemented method is derived from 
 the pipeline published by @flobakFineTuningLogical2023.
 
 Within this approach, the modeling process constructs a Boolean network to simulate the biological system, such as a 
-cancer cell and identify stable states that reflect the system’s long-term behaviour. During the optimization process, 
+cancer cell, and identify stable states that reflect the system’s long-term behaviour. During the optimization process, 
 the network’s rules and topology are systematically adjusted to match the experimental steady states 
-(i.e. protein activities). Multiple Boolean models are generated from this calibration process. This model ensemble is 
+(i.e., protein activities). Multiple Boolean models are generated from this calibration process. This model ensemble is 
 used to simulate the in-silico effects of drug perturbations and predict synergy scores for each combination. These 
 predicted synergy scores are validated using experimentally measured outcomes, ensuring their predictive accuracy.
 
@@ -71,8 +71,8 @@ the Java-based pipeline, but also significantly boosts it by reducing the code c
 and introducing new features that expand its capabilities. By unifying the functionality of the three Java packages into 
 a single Python package, PyDrugLogics simplifies the installation and software maintenance. Example improvements include 
 the use of a standardized format, BoolNet [@musselBoolNetPackageGeneration2010], for loading the models, as well as 
-visualization options (i.e. precision-recall (PR) and receiver operating characteristic (ROC) curves) and statistical 
-analyses (i.e. repeated subsampling of the ensemble Boolean models) for robust evaluation of prediction performance.
+visualization options (i.e., precision-recall (PR) and receiver operating characteristic (ROC) curves) and statistical 
+analyses (i.e., repeated subsampling of the ensemble Boolean models) for robust evaluation of prediction performance.
 Additional examples and comparisons of the Python and Java pipeline are available on the project wiki [@pydl-wiki].
 PyDrugLogics provides an easy-to-use, flexible, and up-to-date solution for simulating Boolean networks and predicting 
 synergistic drug combinations for the prioritization of follow-up lab experiments.
@@ -90,10 +90,10 @@ PyPi [@pydl-pypi], offering a simple installation process and integration into P
 The PyDrugLogics pipeline involves two main stages: calibration and prediction. 
 
 The calibration (`train`) function is responsible for loading a Boolean model for a particular biological system 
-(i.e. a cancer cell) or the interactions for automatically constructing such a model. The next step is the optimization 
+(i.e., a cancer cell) or the interactions for automatically constructing such a model. The next step is the optimization 
 process that uses the PyGAD Genetic Algorithm [@gadPyGADIntuitiveGenetic2021] for finding the best set of Boolean models 
-that fit the training data (e.g. protein measurements of the cancerous cell). The optimization process changes the 
-models operators and topology to ensure its behaviour fits the training data. 
+that fit the training data (e.g., protein measurements of the cancerous cell). The optimization process changes the 
+model's operators and topology to ensure its behaviour fits the training data. 
 
 In the prediction (`predict`) function, the calibrated models are used to perform in-silico perturbations to simulate 
 the effect of various drug treatments and their combinations. The perturbations represent changes to the system to mimic 
