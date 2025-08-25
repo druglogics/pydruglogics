@@ -26,21 +26,23 @@ bibliography: paper.bib
 
 # Summary
 
-PyDrugLogics is a Python package that generates optimized Boolean models that represent a biological system and performs 
-in-silico perturbations of these models to predict synergistic drug combinations. 
-
 For complex diseases such as cancer, combined drug therapies can enhance the efficacy of the personalized treatment and 
 minimize side effects [@jinRationalCombinationsTargeted2023]. Combined drug therapies may have a stronger effect than 
 single drug treatments, a concept referred to as synergy [@berenbaumWhatSynergy1989]. However, finding synergistic drug 
 combinations is a challenging area of modern medicine. The vast number of possible drug combinations, even for small 
 sets of drugs, makes it a complex problem due to the exponential growth in combinations. This fact causes longer testing 
-time in the laboratory experiments and a significant amount of experimental costs. 
+time in the laboratory experiments and a significant amount of experimental costs.
 
-Logical modeling is a powerful tool that can be used to reduce the costs of this challenge. By formalizing biological 
-networks into logical models, these constructed models enable us to simulate the behaviour of large-scale signaling 
-networks and predict responses to perturbations (@eduatiPatientspecificLogicModels2020, 
-@niederdorferStrategiesEnhanceLogic2020, @bealPersonalizedLogicalModels2021). The implemented method is derived from 
+PyDrugLogics is a Python package that generates optimized Boolean models that represent a biological system and performs 
+in-silico perturbations of these models to predict synergistic drug combinations. The implemented method is derived from 
 the pipeline published by @flobakFineTuningLogical2023.
+
+# Statement of Need
+
+Logical modeling is a powerful tool that can be used to reduce the costs of identifying synergistic drug combinations. 
+By formalizing biological networks into logical models, these constructed models enable us to simulate the behaviour of 
+large-scale signaling networks and predict responses to perturbations (@eduatiPatientspecificLogicModels2020, 
+@niederdorferStrategiesEnhanceLogic2020, @bealPersonalizedLogicalModels2021). 
 
 Within this approach, the modeling process constructs a Boolean network to simulate the biological system, such as a 
 cancer cell, and identify stable states that reflect the system’s long-term behaviour. During the optimization process, 
@@ -48,8 +50,6 @@ the network’s rules and topology are systematically adjusted to match the expe
 (i.e., protein activities). Multiple Boolean models are generated from this calibration process. This model ensemble is 
 used to simulate the in-silico effects of drug perturbations and predict synergy scores for each combination. These 
 predicted synergy scores are validated using experimentally measured outcomes, ensuring their predictive accuracy.
-
-# Statement of Need
 
 Several previous tools have addressed the challenges of modeling biological networks with logical modeling approaches. 
 For instance, CellNOptR [@terfveCellNOptRFlexibleToolkit2012] trains protein signaling networks to experimental data 
