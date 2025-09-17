@@ -26,12 +26,12 @@ bibliography: paper.bib
 
 # Summary
 
-For complex diseases such as cancer, combined drug therapies can enhance the efficacy of the personalized treatment and 
+For complex diseases such as cancer, combined drug therapies can enhance the efficacy of personalized treatment and 
 minimize side effects [@jinRationalCombinationsTargeted2023]. Combined drug therapies may have a stronger effect than 
-single drug treatments, a concept referred to as synergy [@berenbaumWhatSynergy1989]. However, finding synergistic drug 
+single-drug treatments, a concept referred to as synergy [@berenbaumWhatSynergy1989]. However, finding synergistic drug 
 combinations is a challenging area of modern medicine. The vast number of possible drug combinations, even for small 
-sets of drugs, makes it a complex problem due to the exponential growth in combinations. This fact causes longer testing 
-time in the laboratory experiments and a significant amount of experimental costs.
+sets of drugs, makes it a complex problem due to the combinatorial growth in possibilities. This fact necessitates longer 
+testing time in the laboratory experiments and a significant amount of experimental costs.
 
 PyDrugLogics is a Python package that generates optimized Boolean models that represent a biological system and performs 
 in-silico perturbations of these models to predict synergistic drug combinations. The implemented method is derived from 
@@ -40,14 +40,14 @@ the pipeline published by @flobakFineTuningLogical2023.
 # Statement of Need
 
 Logical modeling is a powerful tool that can be used to reduce the costs of identifying synergistic drug combinations. 
-By formalizing biological networks into logical models, these constructed models enable us to simulate the behaviour of 
-large-scale signaling networks and predict responses to perturbations (@eduatiPatientspecificLogicModels2020, 
+By formalizing biological networks into logical models, we are able to simulate the behaviour of large-scale signaling 
+networks and predict responses to perturbations (@eduatiPatientspecificLogicModels2020, 
 @niederdorferStrategiesEnhanceLogic2020, @bealPersonalizedLogicalModels2021). 
 
 Within this approach, the modeling process constructs a Boolean network to simulate the biological system, such as a 
 cancer cell, and identify stable states that reflect the system’s long-term behaviour. During the optimization process, 
 the network’s rules and topology are systematically adjusted to match the experimental steady states 
-(i.e., protein activities). Multiple Boolean models are generated from this calibration process. This model ensemble is 
+(e.g., protein activities). Multiple Boolean models are generated from this calibration process. This model ensemble is 
 used to simulate the in-silico effects of drug perturbations and predict synergy scores for each combination. These 
 predicted synergy scores are validated using experimentally measured outcomes, ensuring their predictive accuracy.
 
@@ -67,12 +67,12 @@ challenges in terms of maintainability, installation, and integrability with oth
 tools [@naldiCoLoMoToInteractiveNotebook2018].
 
 Noticing these limitations, PyDrugLogics provides a practical solution that not only retains the core functionality of 
-the Java-based pipeline, but also significantly boosts it by reducing the code complexity, improving the execution time, 
+the Java-based pipelines, but also significantly boosts it by reducing the code complexity, improving the execution time, 
 and introducing new features that expand its capabilities. By unifying the functionality of the three Java packages into 
 a single Python package, PyDrugLogics simplifies the installation and software maintenance. Example improvements include 
 the use of a standardized format, BoolNet [@musselBoolNetPackageGeneration2010], for loading the models, as well as 
-visualization options (i.e., precision-recall (PR) and receiver operating characteristic (ROC) curves) and statistical 
-analyses (i.e., repeated subsampling of the ensemble Boolean models) for robust evaluation of prediction performance.
+visualization options (e.g., precision-recall (PR) and receiver operating characteristic (ROC) curves) and statistical 
+analyses (e.g., repeated subsampling of the ensemble Boolean models) for robust evaluation of prediction performance.
 Additional examples and comparisons of the Python and Java pipeline are available on the project wiki [@pydl-wiki].
 PyDrugLogics provides an easy-to-use, flexible, and up-to-date solution for simulating Boolean networks and predicting 
 synergistic drug combinations for the prioritization of follow-up lab experiments.
@@ -83,14 +83,14 @@ integration and enables faster collaboration [@naldiCoLoMoToInteractiveNotebook2
 by integrating into the CoLoMoTo Docker, enabling compatibility with other tools so that researchers can combine 
 methodologies and share results more effectively. The comprehensive documentation for PyDrugLogics is provided 
 on the package website [@pydl-doc], along with a detailed tutorial [@pydl-tutorial]. The package is available on 
-PyPi [@pydl-pypi], offering a simple installation process and integration into Python workflows.
+PyPI [@pydl-pypi], offering a simple installation process and integration into Python workflows.
 
 # Brief Overview
 
 The PyDrugLogics pipeline involves two main stages: calibration and prediction. 
 
 The calibration (`train`) function is responsible for loading a Boolean model for a particular biological system 
-(i.e., a cancer cell) or the interactions for automatically constructing such a model. The next step is the optimization 
+(e.g., a cancer cell) or the interactions for automatically constructing such a model. The next step is the optimization 
 process that uses the PyGAD Genetic Algorithm [@gadPyGADIntuitiveGenetic2021] for finding the best set of Boolean models 
 that fit the training data (e.g., protein measurements of the cancerous cell). The optimization process changes the 
 model's operators and topology to ensure its behaviour fits the training data. 

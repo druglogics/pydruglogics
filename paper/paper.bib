@@ -122,17 +122,16 @@
   abstract = {Treatment with combinations of drugs carries great promise for personalized therapy for a variety of diseases. We have previously shown that synergistic combinations of cancer signaling inhibitors can be identified based on a logical framework, by manual model definition. We now demonstrate how automated adjustments of model topology and logic equations both can greatly reduce the workload traditionally associated with logical model optimization. Our methodology allows the exploration of larger model ensembles that all obey a set of observations, while being less restrained for parts of the model where parameterization is not guided by biological data. We benchmark the synergy prediction performance of our logical models in a dataset of 153 targeted drug combinations. We show that well-performing manual models faithfully represent measured biomarker data and that their performance can be outmatched by automated parameterization using a genetic algorithm. Whereas the predictive performance of a curated model is strongly affected by simulated curation errors, data-guided deletion of a small subset of regulatory model edges can significantly improve prediction quality. With correct topology we find evidence of some tolerance to simulated errors in the biomarker calibration data, yet performance decreases with reduced data quality. Moreover, we show that predictive logical models are valuable for proposing mechanisms underpinning observed synergies. With our framework we predict the synergy of joint inhibition of PI3K and TAK1, and further substantiate this prediction with observations in cancer cell cultures and in xenograft experiments.},
 }
 
-@misc{gadPyGADIntuitiveGenetic2021,
-  title = {{{PyGAD}}: {{An Intuitive Genetic Algorithm Python Library}}},
-  shorttitle = {{{PyGAD}}},
+@article{gadPyGADIntuitiveGenetic2021,
   author = {Gad, Ahmed Fawzy},
-  year = {2021},
-  publisher = {arXiv},
-  doi = {10.48550/ARXIV.2106.06158},
-  urldate = {2024-11-27},
-  abstract = {This paper introduces PyGAD, an open-source easy-to-use Python library for building the genetic algorithm. PyGAD supports a wide range of parameters to give the user control over everything in its life cycle. This includes, but is not limited to, population, gene value range, gene data type, parent selection, crossover, and mutation. PyGAD is designed as a general-purpose optimization library that allows the user to customize the fitness function. Its usage consists of 3 main steps: build the fitness function, create an instance of the pygad.GA class, and calling the pygad.GA.run() method. The library supports training deep learning models created either with PyGAD itself or with frameworks like Keras and PyTorch. Given its stable state, PyGAD is also in active development to respond to the user's requested features and enhancement received on GitHub https://github.com/ahmedfgad/GeneticAlgorithmPython. PyGAD comes with documentation https://pygad.readthedocs.io for further details and examples.},
-  copyright = {arXiv.org perpetual, non-exclusive license},
-  keywords = {Computer Vision and Pattern Recognition (cs.CV),FOS: Computer and information sciences,FOS: Mathematics,Machine Learning (cs.LG),Neural and Evolutionary Computing (cs.NE),Optimization and Control (math.OC)}
+  title = {{PyGAD}: An Intuitive Genetic Algorithm Python Library},
+  year = {2023},
+  journal = {Multimedia Tools and Applications},
+  volume = {82},
+  pages = {30895--30917},
+  doi = {10.1007/s11042-023-17167-y},
+  url = {https://link.springer.com/article/10.1007/s11042-023-17167-y},
+  urldate = {2025-09-17}
 }
 
 @article{jinRationalCombinationsTargeted2023,
@@ -152,7 +151,7 @@
 }
 
 @article{klarnerPyBoolNetPythonPackage2017,
-  title = {{{PyBoolNet}}: A Python Package for the Generation, Analysis and Visualization of Boolean Networks},
+  title = {{{PyBoolNet}}: A Python Package for the Generation, Analysis and Visualization of {Boolean} Networks},
   shorttitle = {{{PyBoolNet}}},
   author = {Klarner, Hannes and Streck, Adam and Siebert, Heike},
   editor = {Sahinalp, Cenk},
@@ -258,7 +257,7 @@ year = {2023}
 
 @misc{pydl-tutorial,
   author = {Szekeres, Laura},
-  title = {PyDrugLogics package Jupyter Notebook tutorial},
+  title = {PyDrugLogics package {Jupyter} Notebook tutorial},
   year = {2024},
   publisher = {GitHub},
   url = {https://github.com/druglogics/pydruglogics/blob/main/tutorials/pydruglogics_tutorial.ipynb}
@@ -266,10 +265,10 @@ year = {2023}
 
 @misc{pydl-pypi,
   author = {Szekeres, Laura},
-  title = {PyDrugLogics PyPi package website},
+  title = {PyDrugLogics {PyPI} package website},
   year = {2024},
-  publisher = {PyPi},
-  note = {PyPi package version 0.1.8},
+  publisher = {PyPI},
+  note = {PyPI package version 0.1.8},
   url = {https://pypi.org/project/pydruglogics/}
 }
 

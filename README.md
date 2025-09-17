@@ -166,6 +166,57 @@ execute(train_params=train_params, predict_params=predict_params)
 
 For a more detailed tutorial, please visit the [documentation](https://druglogics.github.io/pydruglogics/) or the [tutorial](https://github.com/druglogics/pydruglogics/blob/2400a153f15a884222f6fdabe705df1a5981ef54/tutorials/pydruglogics_tutorial.ipynb).
 
+## Contributing to PyDrugLogics
+
+We welcome contributions to **PyDrugLogics**!  
+
+### How to Contribute
+
+1. **Fork and clone** the repository:
+   ```bash
+   git clone https://github.com/druglogics/pydruglogics.git
+   cd pydruglogics
+   ```
+2. **Create a feature branch**:
+   ```bash
+   git checkout -b my-feature-branch
+   ```
+3. **Make changes** and **write tests** for new features or bug fixes.
+4. **Run tests** to ensure everything works:
+   ```bash
+   pytest tests
+   ```
+5. **Commit and push** your changes:
+   ```bash
+   git commit -m "Describe your changes"
+   git push origin my-feature-branch
+   ```
+6. **Open a pull request** against the main repository.
+
+### Guidelines
+
+- Follow **PEP8** code style.  
+- Write **clear commit messages**.  
+- Update documentation if adding new functionality.  
+- Ensure all tests pass before submitting a PR.  
+- For new features or significant changes, we recommend opening an issue or discussing with the maintainer 
+[@szlaura](https://github.com/szlaura) first.
+
+### Reporting Issues
+
+If you encounter a bug or wish to request a feature, please report it on our GitHub issue tracker:  
+
+[GitHub Issues Page](https://github.com/druglogics/pydruglogics/issues)
+
+When reporting an issue, include:
+
+- Your operating system and version (e.g., Ubuntu 22.04)  
+- Python version (e.g., Python 3.11.10)  
+- The error message and traceback (if applicable)  
+- Steps to reproduce the issue  
+
+Thank you for your help!
+
 ## Citing PyDrugLogics
 
 If you use PyDrugLogics, please cite the paper:
@@ -182,3 +233,4 @@ If you use PyDrugLogics, please cite the paper:
   doi = {10.3389/fsysb.2023.1252961},
   url = {https://www.frontiersin.org/journals/systems-biology/articles/10.3389/fsysb.2023.1252961/full},
 }
+```
