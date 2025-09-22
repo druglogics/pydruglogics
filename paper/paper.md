@@ -73,7 +73,7 @@ a single Python package, PyDrugLogics simplifies the installation and software m
 the use of a standardized format, BoolNet [@musselBoolNetPackageGeneration2010], for loading the models, as well as 
 visualization options (e.g., precision-recall (PR) and receiver operating characteristic (ROC) curves) and statistical 
 analyses (e.g., repeated subsampling of the ensemble Boolean models) for robust evaluation of prediction performance.
-Additional examples and comparisons of the Python and Java pipeline are available on the project wiki [@pydl-wiki].
+Additional examples and comparisons of the Python and Java pipelines are available on the project wiki [@pydl-wiki].
 PyDrugLogics provides an easy-to-use, flexible, and up-to-date solution for simulating Boolean networks and predicting 
 synergistic drug combinations for the prioritization of follow-up lab experiments.
 
