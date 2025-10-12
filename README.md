@@ -2,6 +2,7 @@
 
 ![PyDrugLogics Logo](https://raw.githubusercontent.com/druglogics/pydruglogics/main/logo.png)
 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.08038/status.svg)](https://doi.org/10.21105/joss.08038)
 [![PyPI version](https://img.shields.io/pypi/v/pydruglogics)](https://badge.fury.io/py/pydruglogics)
 [![Test Status](https://github.com/druglogics/pydruglogics/actions/workflows/run-tests.yml/badge.svg)](https://github.com/druglogics/pydruglogics/actions/workflows/run-tests.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/druglogics/pydruglogics/blob/main/LICENSE)
@@ -221,16 +222,19 @@ Thank you for your help!
 
 If you use PyDrugLogics, please cite the paper:
 
-*Flobak, Å., Zobolas, J. et al. (2023): Fine tuning a logical model of cancer cells to predict drug synergies: combining manual curation and automated parameterization. [DOI: 10.3389/fsysb.2023.1252961](https://www.frontiersin.org/journals/systems-biology/articles/10.3389/fsysb.2023.1252961/full)*
+*Szekeres, L., Zobolas, J. (2025): PyDrugLogics: A Python Package for Predicting Drug Synergies Using Boolean Models. [DOI: 10.21105/joss.08038](https://doi.org/10.21105/joss.08038)*
 
 ```bibtex
-@Article{druglogics2023,
-  title = {Fine tuning a logical model of cancer cells to predict drug synergies: combining manual curation and automated parameterization},
-  author = {Flobak, Å., Zobolas, J. and Other Authors},
-  journal = {Frontiers},
-  year = {2023},
-  month = {nov},
-  doi = {10.3389/fsysb.2023.1252961},
-  url = {https://www.frontiersin.org/journals/systems-biology/articles/10.3389/fsysb.2023.1252961/full},
+@article{Szekeres2025,
+  doi = {10.21105/joss.08038},
+  url = {https://doi.org/10.21105/joss.08038},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {114},
+  pages = {8038},
+  author = {Szekeres, Laura and Zobolas, John},
+  title = {PyDrugLogics: A Python Package for Predicting Drug Synergies Using Boolean Models},
+  journal = {Journal of Open Source Software}
 }
 ```
