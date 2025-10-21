@@ -16,10 +16,16 @@ authors:
   - name: John Zobolas
     orcid: 0000-0002-3609-8674
     affiliation: 1
+  - name: Åsmund Flobak
+    orcid: 0000-0002-3357-425X
+    affiliation: 2
 affiliations:
   - name: Department of Cancer Genetics, Institute for Cancer Research, Oslo University Hospital, Oslo, Norway
     index: 1
     ror: 00j9c2840
+  - name: Department of Clinical and Molecular Medicine, Norwegian University of Science and Technology, Trondheim, Norway
+    index: 2
+    ror: 05xg72x27 
 date: 19 December 2024
 bibliography: paper.bib
 ---
@@ -113,8 +119,6 @@ this work.
 
 The following people have contributed code to this package or provided help with technical and scientific questions 
 (in alphabetical order): 
-
-- Åsmund Flobak
 
 - Daniel Nebdal
 
