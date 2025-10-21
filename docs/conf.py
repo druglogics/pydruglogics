@@ -11,7 +11,7 @@ import sys
 project = 'PyDrugLogics'
 copyright = '2024, Laura Szekeres'
 author = 'Laura Szekeres'
-version = '0.1.9'
+version = '0.1.10'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
