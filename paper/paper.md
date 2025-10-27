@@ -13,12 +13,12 @@ authors:
   - name: Laura Szekeres
     orcid: 0009-0002-4141-0500
     affiliation: 1
-  - name: John Zobolas
-    orcid: 0000-0002-3609-8674
-    affiliation: 1
   - name: Åsmund Flobak
     orcid: 0000-0002-3357-425X
     affiliation: 2
+  - name: John Zobolas
+    orcid: 0000-0002-3609-8674
+    affiliation: 1
 affiliations:
   - name: Department of Cancer Genetics, Institute for Cancer Research, Oslo University Hospital, Oslo, Norway
     index: 1
