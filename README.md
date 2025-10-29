@@ -222,19 +222,19 @@ Thank you for your help!
 
 If you use PyDrugLogics, please cite the paper:
 
-*Szekeres, L., Zobolas, J. (2025): PyDrugLogics: A Python Package for Predicting Drug Synergies Using Boolean Models. [DOI: 10.21105/joss.08038](https://doi.org/10.21105/joss.08038)*
+*Szekeres, L., Flobak, Å., Zobolas, J. (2025): PyDrugLogics: A Python Package for Predicting Drug Synergies Using Boolean Models. [DOI: 10.21105/joss.08038](https://doi.org/10.21105/joss.08038)*
 
 ```bibtex
 @article{Szekeres2025,
-  doi = {10.21105/joss.08038},
-  url = {https://doi.org/10.21105/joss.08038},
-  year = {2025},
-  publisher = {The Open Journal},
-  volume = {10},
-  number = {114},
-  pages = {8038},
-  author = {Szekeres, Laura and Zobolas, John},
-  title = {PyDrugLogics: A Python Package for Predicting Drug Synergies Using Boolean Models},
-  journal = {Journal of Open Source Software}
+    doi = {10.21105/joss.08038}, 
+    url = {https://doi.org/10.21105/joss.08038}, 
+    year = {2025}, 
+    publisher = {The Open Journal}, 
+    volume = {10}, 
+    number = {114}, 
+    pages = {8038}, 
+    author = {Szekeres, Laura and Flobak, Åsmund and Zobolas, John}, 
+    title = {PyDrugLogics: A Python Package for Predicting Drug Synergies Using Boolean Models}, 
+    journal = {Journal of Open Source Software} 
 }
 ```
